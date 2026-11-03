@@ -13,21 +13,12 @@ import java.util.function.Function;
 import io.github.sfesantos.holidays.easter.EasterAlgorithm;
 
 /**
- * How a holiday's date is derived for a given year.
- *
- * <p>A rule is pure data; {@link #dateIn(Year, EasterAlgorithm)} resolves it.
- * A rule yields at most one date per year and may yield none (for example a
- * 29th of February in a non-leap year).
+ * How a holiday's date is derived for a given year. A rule is pure data and
+ * yields at most one date per year; it may yield none (a 29 February in a
+ * non-leap year, a fifth Monday in a month that has four).
  */
 public sealed interface HolidayRule {
 
-    /**
-     * Resolves this rule for the given year.
-     *
-     * @param year   the year to resolve
-     * @param easter the Easter algorithm used by Easter-relative rules
-     * @return the date in that year, or empty when the rule does not occur
-     */
     default Optional<LocalDate> dateIn(Year year, EasterAlgorithm easter) {
         Objects.requireNonNull(year, "year must not be null");
         Objects.requireNonNull(easter, "easter must not be null");
@@ -42,40 +33,30 @@ public sealed interface HolidayRule {
         };
     }
 
-    /** Same day and month every year, for example 25 December. */
     static FixedDate fixed(MonthDay monthDay) {
         return new FixedDate(monthDay);
     }
 
-    /** Same day and month every year, for example 25 December. */
     static FixedDate fixed(Month month, int dayOfMonth) {
         return new FixedDate(MonthDay.of(month, dayOfMonth));
     }
 
-    /** A fixed number of days from Easter Sunday; negative offsets fall before it. */
     static EasterRelative easterRelative(int offsetDays) {
         return new EasterRelative(offsetDays);
     }
 
-    /**
-     * The n-th given weekday of a month. {@code n} counts from the start of the
-     * month when positive and from the end when negative, so {@code -1} is "last".
-     */
     static NthWeekdayOfMonth nthWeekdayOfMonth(int n, DayOfWeek dayOfWeek, Month month) {
         return new NthWeekdayOfMonth(n, dayOfWeek, month);
     }
 
-    /** The first given weekday strictly after the base day. */
     static WeekdayAfter weekdayAfter(DayOfWeek dayOfWeek, MonthDay base) {
         return new WeekdayAfter(dayOfWeek, base);
     }
 
-    /** The first given weekday strictly before the base day. */
     static WeekdayBefore weekdayBefore(DayOfWeek dayOfWeek, MonthDay base) {
         return new WeekdayBefore(dayOfWeek, base);
     }
 
-    /** Any computation that the other rules cannot express. */
     static Custom custom(Function<Year, Optional<LocalDate>> function) {
         return new Custom(function);
     }
@@ -105,11 +86,6 @@ public sealed interface HolidayRule {
         return Objects.requireNonNull(rule.function().apply(year), "custom rule returned null");
     }
 
-    /**
-     * Same day and month every year.
-     *
-     * @param monthDay the day of the year
-     */
     record FixedDate(MonthDay monthDay) implements HolidayRule {
 
         public FixedDate {
@@ -117,11 +93,7 @@ public sealed interface HolidayRule {
         }
     }
 
-    /**
-     * A fixed number of days from Easter Sunday.
-     *
-     * @param offsetDays days after Easter Sunday; negative values fall before it
-     */
+    /** Negative offsets fall before Easter Sunday. */
     record EasterRelative(int offsetDays) implements HolidayRule {
 
         private static final int MAX_OFFSET = 366;
@@ -133,13 +105,7 @@ public sealed interface HolidayRule {
         }
     }
 
-    /**
-     * The n-th given weekday of a month.
-     *
-     * @param n         1 to 5 from the start of the month, -1 to -5 from the end
-     * @param dayOfWeek the weekday
-     * @param month     the month
-     */
+    /** {@code n} is 1 to 5 from the start of the month, or -1 to -5 from the end ({@code -1} is "last"). */
     record NthWeekdayOfMonth(int n, DayOfWeek dayOfWeek, Month month) implements HolidayRule {
 
         public NthWeekdayOfMonth {
@@ -152,13 +118,7 @@ public sealed interface HolidayRule {
         }
     }
 
-    /**
-     * The first given weekday strictly after a base day. A 29 February base
-     * resolves as 28 February in non-leap years.
-     *
-     * @param dayOfWeek the weekday to find
-     * @param base      the day to start from, exclusive
-     */
+    /** Strictly after the base day. A 29 February base resolves as 28 February in non-leap years. */
     record WeekdayAfter(DayOfWeek dayOfWeek, MonthDay base) implements HolidayRule {
 
         public WeekdayAfter {
@@ -167,13 +127,7 @@ public sealed interface HolidayRule {
         }
     }
 
-    /**
-     * The first given weekday strictly before a base day. A 29 February base
-     * resolves as 28 February in non-leap years.
-     *
-     * @param dayOfWeek the weekday to find
-     * @param base      the day to start from, exclusive
-     */
+    /** Strictly before the base day. A 29 February base resolves as 28 February in non-leap years. */
     record WeekdayBefore(DayOfWeek dayOfWeek, MonthDay base) implements HolidayRule {
 
         public WeekdayBefore {
@@ -182,11 +136,6 @@ public sealed interface HolidayRule {
         }
     }
 
-    /**
-     * Any computation that the other rules cannot express.
-     *
-     * @param function returns the date for a year, or empty when the holiday does not occur
-     */
     record Custom(Function<Year, Optional<LocalDate>> function) implements HolidayRule {
 
         public Custom {

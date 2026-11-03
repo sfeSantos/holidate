@@ -13,12 +13,6 @@ public final class GregorianEaster implements EasterAlgorithm {
 
     private GregorianEaster() {}
 
-    /**
-     * Returns Easter Sunday of the given year.
-     *
-     * @param year the proleptic ISO year
-     * @return the date of Easter Sunday in that year
-     */
     public static LocalDate of(int year) {
         int a = year % 19;
         int b = year / 100;
