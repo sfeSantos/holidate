@@ -34,15 +34,15 @@ Biblioteca Java pura (zero dependências externas, só `java.base`) para definir
 
 Regra aplicada **depois** de calcular a data original. Não pertence ao feriado; pertence ao calendário (ou camada).
 
-- [ ] `none()` — sem deslocamento.
-- [ ] `sundayToMonday()` — regra típica de Espanha (comunidades autónomas decidem; Andalucía costuma aplicar).
-- [ ] `weekendToMonday()` — sábado ou domingo → segunda seguinte (Reino Unido, Austrália).
-- [ ] `saturdayToFridaySundayToMonday()` — modelo EUA federal.
-- [ ] `nearestWeekday()` — dia útil mais próximo.
-- [ ] `custom(UnaryOperator<LocalDate>)`.
-- [ ] Observância deve ser **composável** e **encadeável**: se o dia de destino também for feriado, avançar de novo (ex.: 25/12 e 26/12 ambos no fim de semana).
-- [ ] Permitir **override por feriado**: um feriado específico pode declarar `observance(ObservanceRule.none())` para ignorar a regra do calendário.
-- [ ] `HolidayOccurrence` guarda **data original** e **data observada** separadamente.
+- [x] `none()` — sem deslocamento.
+- [x] `sundayToMonday()` — regra típica de Espanha (comunidades autónomas decidem; Andalucía costuma aplicar).
+- [x] `weekendToMonday()` — sábado ou domingo → segunda seguinte (Reino Unido, Austrália).
+- [x] `saturdayToFridaySundayToMonday()` — modelo EUA federal.
+- [x] `nearestWeekday()` — dia útil mais próximo.
+- [x] `custom(UnaryOperator<LocalDate>)`.
+- [x] Observância deve ser **composável** e **encadeável**: se o dia de destino também for feriado, avançar de novo (ex.: 25/12 e 26/12 ambos no fim de semana).
+- [x] Permitir **override por feriado**: um feriado específico pode declarar `observance(ObservanceRule.none())` para ignorar a regra do calendário.
+- [x] `HolidayOccurrence` guarda **data original** e **data observada** separadamente.
 ### 2.4 Camadas (`Layer`) e composição
 
 - [ ] Um `HolidayCalendar` é a composição ordenada de camadas: `Spain → Andalucía → Málaga (província) → Málaga (cidade)`.
@@ -203,7 +203,7 @@ YearIndex (imutável, por ano):
 - [x] `sealed interface HolidayRule permits FixedDate, EasterRelative, NthWeekdayOfMonth, WeekdayAfter, Custom` + `switch` com pattern matching exaustivo em vez de `instanceof` em cascata.
 - [ ] `record` para tudo o que é valor: `HolidayOccurrence(String name, LocalDate original, LocalDate observed, HolidayType type, String layer)`.
 - [ ] Compact constructors nos records para validação (`Objects.requireNonNull`, ranges).
-- [ ] `ObservanceRule` como `@FunctionalInterface` para permitir lambdas.
+- [x] `ObservanceRule` como `@FunctionalInterface` para permitir lambdas.
 - [ ] `Optional` só como tipo de retorno; nunca como campo ou parâmetro.
 ---
 
@@ -316,7 +316,7 @@ class SettlementService {
 - [ ] **Sem boxing**: `int year` como chave do cache (`ConcurrentHashMap<Integer, ...>` boxa; avaliar array esparso ou `Int2ObjectMap` caseiro com open addressing se o benchmark justificar).
 - [ ] **Evitar `LocalDate` intermédios** nas consultas quando `dayOfYear`/`year` chegam.
 - [ ] **Resolução de camadas no `build()`**, nunca na consulta (ver 3.2).
-- [ ] **Observância encadeada** limitada a 7 iterações (uma semana) para garantir terminação.
+- [x] **Observância encadeada** limitada a 7 iterações (uma semana) para garantir terminação.
 - [ ] **Sem reflexão, sem proxies, sem `String.format` em caminhos quentes.**
 - [ ] Medir tudo com **JMH** (dependência só de teste/benchmark, fora do artefacto publicado) antes e depois de cada otimização. Não otimizar sem número.
 - [ ] Testar com `-XX:+UseSerialGC` e heap pequeno para confirmar que o uso de memória é previsível.
@@ -327,7 +327,7 @@ class SettlementService {
 - [ ] JUnit 5 (dependência só de teste). Sem Mockito — tudo é valor imutável, não precisa de mocks.
 - [x] Páscoa: tabela 2000–2100 contra fonte oficial.
 - [x] Cada tipo de regra: casos de ano bissexto, 29/02, limites de `validFrom/validUntil`.
-- [ ] Observância: colisões (25/12 + 26/12 no fim de semana), encadeamento, override por feriado, terminação em 7 passos.
+- [x] Observância: colisões (25/12 + 26/12 no fim de semana), encadeamento, override por feriado, terminação em 7 passos.
 - [ ] Camadas: `add/override/remove`, ordem de precedência, remoção de nome inexistente falha no build.
 - [ ] Consultas: fronteira de ano (`nextHoliday` em 30/12), calendário vazio devolve `Optional.empty()`, `addBusinessDays` negativo, `businessDaysBetween` com `a > b`.
 - [ ] Fim de semana sexta-sábado.
@@ -343,7 +343,7 @@ class SettlementService {
 - [x] `module-info`, estrutura multi-módulo, CI (build + testes).
 - [x] `GregorianEaster`.
 - [x] `HolidayRule` sealed + 5 implementações + `validFrom/validUntil`.
-- [ ] `ObservanceRule` + fábricas + encadeamento.
+- [x] `ObservanceRule` + fábricas + encadeamento.
 - [ ] `Layer` + `add/override/remove`.
 - [ ] `HolidayCalendarBuilder` com validação fail-fast.
 - [ ] `YearIndex` + `CalendarCache`.

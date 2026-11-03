@@ -1,6 +1,7 @@
 package io.github.sfesantos.holidays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -76,6 +77,16 @@ class HolidayTest {
 
         assertTrue(electionDay.dateIn(Year.of(1844), EASTER).isEmpty());
         assertEquals(Optional.of(LocalDate.of(1845, 11, 1)), electionDay.dateIn(Year.of(1845), EASTER));
+    }
+
+    @Test
+    void observanceIsInheritedUnlessOverridden() {
+        var christmas = Holiday.fixed("Christmas", Month.DECEMBER, 25);
+        var pinned = christmas.withObservance(ObservanceRule.none());
+
+        assertTrue(christmas.inheritsObservance());
+        assertFalse(pinned.inheritsObservance());
+        assertEquals(ObservanceRule.none(), pinned.observance());
     }
 
     @Test

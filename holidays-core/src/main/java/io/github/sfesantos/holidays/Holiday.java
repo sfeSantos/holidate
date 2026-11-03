@@ -13,15 +13,17 @@ import io.github.sfesantos.holidays.easter.EasterAlgorithm;
 /**
  * A named holiday: a {@link HolidayRule} plus the metadata a calendar needs.
  * The name is the holiday's identity across layers; a layer overrides or
- * removes a holiday by name.
+ * removes a holiday by name. {@code observance} defaults to
+ * {@link ObservanceRule#inherit()}, meaning the layer or calendar rule applies.
  */
-public record Holiday(String name, HolidayType type, HolidayRule rule, YearRange validity) {
+public record Holiday(String name, HolidayType type, HolidayRule rule, YearRange validity, ObservanceRule observance) {
 
     public Holiday {
         Objects.requireNonNull(name, "name must not be null");
         Objects.requireNonNull(type, "type must not be null");
         Objects.requireNonNull(rule, "rule must not be null");
         Objects.requireNonNull(validity, "validity must not be null");
+        Objects.requireNonNull(observance, "observance must not be null");
 
         if (name.isBlank()) {
             throw new IllegalArgumentException("name must not be blank");
@@ -29,7 +31,7 @@ public record Holiday(String name, HolidayType type, HolidayRule rule, YearRange
     }
 
     public static Holiday of(String name, HolidayRule rule) {
-        return new Holiday(name, HolidayType.PUBLIC, rule, YearRange.always());
+        return new Holiday(name, HolidayType.PUBLIC, rule, YearRange.always(), ObservanceRule.inherit());
     }
 
     public static Holiday fixed(String name, Month month, int dayOfMonth) {
@@ -49,19 +51,27 @@ public record Holiday(String name, HolidayType type, HolidayRule rule, YearRange
     }
 
     public Holiday ofType(HolidayType type) {
-        return new Holiday(name, type, rule, validity);
+        return new Holiday(name, type, rule, validity, observance);
     }
 
     public Holiday validFrom(Year from) {
-        return new Holiday(name, type, rule, YearRange.between(from, validity.until()));
+        return withValidity(YearRange.between(from, validity.until()));
     }
 
     public Holiday validUntil(Year until) {
-        return new Holiday(name, type, rule, YearRange.between(validity.from(), until));
+        return withValidity(YearRange.between(validity.from(), until));
     }
 
     public Holiday validBetween(Year from, Year until) {
-        return new Holiday(name, type, rule, YearRange.between(from, until));
+        return withValidity(YearRange.between(from, until));
+    }
+
+    public Holiday withObservance(ObservanceRule observance) {
+        return new Holiday(name, type, rule, validity, observance);
+    }
+
+    public boolean inheritsObservance() {
+        return observance == ObservanceRule.inherit();
     }
 
     /** The date before any observance rule; empty outside the validity range or when the rule does not occur. */
@@ -73,5 +83,9 @@ public record Holiday(String name, HolidayType type, HolidayRule rule, YearRange
         }
 
         return rule.dateIn(year, easter);
+    }
+
+    private Holiday withValidity(YearRange validity) {
+        return new Holiday(name, type, rule, validity, observance);
     }
 }
