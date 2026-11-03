@@ -194,7 +194,7 @@ YearIndex (imutável, por ano):
   - Map<LocalDate, HolidayOccurrence> (ou array indexado por dayOfYear) para holidayOn em O(1)
 ```
 
-- [ ] `buildIndex(year)`: para cada regra efetiva (após resolver camadas) → calcula data original → aplica observância → resolve colisões → ordena → congela.
+- [x] `buildIndex(year)`: para cada regra efetiva (após resolver camadas) → calcula data original → aplica observância → resolve colisões → ordena → congela.
 - [x] Resolução de camadas (`add/override/remove`) acontece **uma vez** no `build()`, não por ano. Resultado: lista plana de regras efetivas + observância efetiva.
 - [ ] `nextHoliday` que cruza a fronteira do ano consulta o índice do ano seguinte (lazy). Limitar busca a N anos (ex.: 10) para evitar loop infinito em calendário vazio; devolver `Optional.empty()`.
 - [ ] `businessDaysBetween` sobre intervalos grandes: contar por ano inteiro usando contagem pré-computada no `YearIndex` (`businessDaysInYear`) e só iterar nas pontas.
@@ -282,7 +282,7 @@ class SettlementService {
 ### 4.4 Imutabilidade e concorrência
 
 - [ ] Todos os campos `final`. Coleções expostas via `List.copyOf` / `Collections.unmodifiableList`; nunca devolver o array interno.
-- [ ] `ConcurrentHashMap.computeIfAbsent` no cache de anos; `YearIndex` imutável após construção → publicação segura garantida.
+- [x] `ConcurrentHashMap.computeIfAbsent` no cache de anos; `YearIndex` imutável após construção → publicação segura garantida.
 - [ ] Sem `synchronized`, sem locks explícitos.
 - [ ] Builders **não** são thread-safe (documentar). Calendários construídos **são**.
 ### 4.5 API pública
@@ -306,12 +306,12 @@ class SettlementService {
 - [ ] Cache de 100 anos de um calendário com 20 feriados: < 500 KB de heap.
 ### 5.2 Técnicas
 
-- [ ] **Índice por `dayOfYear`**: arrays de tamanho 367 (índice 1..366) em vez de `Map<LocalDate, ...>` no hot path. `BitSet` ou `long[6]` para `isHoliday`; `HolidayOccurrence[367]` para `holidayOn`.
+- [x] **Índice por `dayOfYear`**: arrays de tamanho 367 (índice 1..366) em vez de `Map<LocalDate, ...>` no hot path. `BitSet` ou `long[6]` para `isHoliday`; `HolidayOccurrence[367]` para `holidayOn`.
 - [x] **Bitmask para fim de semana**: `int weekendMask` com 7 bits; `isWeekend = (mask & (1 << dow.ordinal())) != 0`.
 - [ ] **Binary search** sobre `int[] observedDayOfYear` ordenado para `nextHoliday`/`previousHoliday`.
-- [ ] **Contagens anuais pré-computadas** no `YearIndex`: `businessDaysInYear`, `holidaysInYear`, e array de prefix sums `businessDaysUntil[dayOfYear]` para `businessDaysBetween` em O(1) dentro do mesmo ano.
+- [x] **Contagens anuais pré-computadas** no `YearIndex`: `businessDaysInYear`, `holidaysInYear`, e array de prefix sums `businessDaysUntil[dayOfYear]` para `businessDaysBetween` em O(1) dentro do mesmo ano.
 - [ ] **`addBusinessDays(date, n)`** com `n` grande: saltar anos inteiros via `businessDaysInYear` e só iterar na ponta.
-- [ ] **Lazy por ano** — nunca pré-computar intervalos que o usuário não pediu. Oferecer `warmUp(Year from, Year to)` opcional.
+- [x] **Lazy por ano** — nunca pré-computar intervalos que o usuário não pediu. Oferecer `warmUp(Year from, Year to)` opcional.
 - [ ] **Sem Streams no hot path.** Streams só no `build()` e em métodos que já devolvem listas. Loops `for` indexados nas consultas.
 - [ ] **Sem boxing**: `int year` como chave do cache (`ConcurrentHashMap<Integer, ...>` boxa; avaliar array esparso ou `Int2ObjectMap` caseiro com open addressing se o benchmark justificar).
 - [ ] **Evitar `LocalDate` intermédios** nas consultas quando `dayOfYear`/`year` chegam.
@@ -331,7 +331,7 @@ class SettlementService {
 - [x] Camadas: `add/override/remove`, ordem de precedência, remoção de nome inexistente falha no build.
 - [ ] Consultas: fronteira de ano (`nextHoliday` em 30/12), calendário vazio devolve `Optional.empty()`, `addBusinessDays` negativo, `businessDaysBetween` com `a > b`.
 - [ ] Fim de semana sexta-sábado.
-- [ ] Concorrência: 100 threads a consultar o mesmo calendário em anos diferentes sem erro e com um único `buildIndex` por ano (contador atómico no teste).
+- [x] Concorrência: 100 threads a consultar o mesmo calendário em anos diferentes sem erro e com um único `buildIndex` por ano (contador atómico no teste).
 - [ ] Dados de Espanha/Andalucía/Málaga validados contra o calendário laboral do BOE e BOJA de pelo menos 3 anos (2025, 2026, 2027). Testes nomeados pela fonte.
 - [ ] Cobertura mínima 90% no core (JaCoCo, só em CI).
 - [ ] Benchmarks JMH num módulo `holidays-benchmarks` fora da publicação.
@@ -346,7 +346,7 @@ class SettlementService {
 - [x] `ObservanceRule` + fábricas + encadeamento.
 - [x] `Layer` + `add/override/remove`.
 - [x] `HolidayCalendarBuilder` com validação fail-fast.
-- [ ] `YearIndex` + `CalendarCache`.
+- [x] `YearIndex` + `CalendarCache`.
 - [ ] Consultas básicas: `isHoliday`, `isWeekend`, `isBusinessDay`, `holidayOn`, `holidaysIn`.
 ### v0.2 — navegação
 - [ ] `nextHoliday`, `previousHoliday`, `daysUntilNextHoliday`.

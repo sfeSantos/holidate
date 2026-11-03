@@ -21,6 +21,7 @@ public final class CompiledCalendar implements HolidayCalendar {
     private final ObservanceRule observance;
     private final EasterAlgorithm easter;
     private final Set<HolidayType> nonWorkingTypes;
+    private final CalendarCache cache;
 
     public CompiledCalendar(Weekend weekend, List<ResolvedHoliday> holidays, ObservanceRule observance,
             EasterAlgorithm easter, Set<HolidayType> nonWorkingTypes) {
@@ -29,6 +30,7 @@ public final class CompiledCalendar implements HolidayCalendar {
         this.observance = observance;
         this.easter = easter;
         this.nonWorkingTypes = Set.copyOf(nonWorkingTypes);
+        this.cache = new CalendarCache(new YearIndexBuilder(this)::build);
     }
 
     @Override
@@ -50,5 +52,17 @@ public final class CompiledCalendar implements HolidayCalendar {
 
     public Set<HolidayType> nonWorkingTypes() {
         return nonWorkingTypes;
+    }
+
+    public boolean isNonWorking(HolidayType type) {
+        return nonWorkingTypes.contains(type);
+    }
+
+    public YearIndex index(int year) {
+        return cache.get(year);
+    }
+
+    public int cachedYears() {
+        return cache.size();
     }
 }
