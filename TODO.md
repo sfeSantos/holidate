@@ -1,8 +1,6 @@
 # Holidays — biblioteca Java de feriados, dias úteis e fins de semana
 
 Biblioteca Java pura (zero dependências externas, só `java.base`) para definir calendários de feriados por camadas (nacional → regional → provincial → local), com regras de observância configuráveis e consultas rápidas sobre feriados e dias úteis.
- 
----
 
 ## 1. Princípios não negociáveis
 
