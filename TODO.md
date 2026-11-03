@@ -45,14 +45,14 @@ Regra aplicada **depois** de calcular a data original. Não pertence ao feriado;
 - [x] `HolidayOccurrence` guarda **data original** e **data observada** separadamente.
 ### 2.4 Camadas (`Layer`) e composição
 
-- [ ] Um `HolidayCalendar` é a composição ordenada de camadas: `Spain → Andalucía → Málaga (província) → Málaga (cidade)`.
-- [ ] Cada camada pode:
+- [x] Um `HolidayCalendar` é a composição ordenada de camadas: `Spain → Andalucía → Málaga (província) → Málaga (cidade)`.
+- [x] Cada camada pode:
   - `add(rule)` — adicionar feriado.
   - `override(name, rule)` — substituir feriado da camada inferior pelo nome.
   - `remove(name)` — remover feriado herdado (ex.: Catalunha troca nacionais por regionais).
   - definir a sua própria `ObservanceRule` (sobrepõe a da camada abaixo).
-- [ ] Nomes de feriado são a chave de identidade entre camadas. Documentar isso.
-- [ ] Camadas são reutilizáveis: `Layer SPAIN` pode ser partilhada por 17 calendários regionais.
+- [x] Nomes de feriado são a chave de identidade entre camadas. Documentar isso.
+- [x] Camadas são reutilizáveis: `Layer SPAIN` pode ser partilhada por 17 calendários regionais.
 ### 2.5 Fim de semana
 
 - [ ] `Set<DayOfWeek>` configurável. Default `SATURDAY, SUNDAY`.
@@ -195,7 +195,7 @@ YearIndex (imutável, por ano):
 ```
 
 - [ ] `buildIndex(year)`: para cada regra efetiva (após resolver camadas) → calcula data original → aplica observância → resolve colisões → ordena → congela.
-- [ ] Resolução de camadas (`add/override/remove`) acontece **uma vez** no `build()`, não por ano. Resultado: lista plana de regras efetivas + observância efetiva.
+- [x] Resolução de camadas (`add/override/remove`) acontece **uma vez** no `build()`, não por ano. Resultado: lista plana de regras efetivas + observância efetiva.
 - [ ] `nextHoliday` que cruza a fronteira do ano consulta o índice do ano seguinte (lazy). Limitar busca a N anos (ex.: 10) para evitar loop infinito em calendário vazio; devolver `Optional.empty()`.
 - [ ] `businessDaysBetween` sobre intervalos grandes: contar por ano inteiro usando contagem pré-computada no `YearIndex` (`businessDaysInYear`) e só iterar nas pontas.
 ### 3.3 Modelo de tipos (Java 25)
@@ -328,7 +328,7 @@ class SettlementService {
 - [x] Páscoa: tabela 2000–2100 contra fonte oficial.
 - [x] Cada tipo de regra: casos de ano bissexto, 29/02, limites de `validFrom/validUntil`.
 - [x] Observância: colisões (25/12 + 26/12 no fim de semana), encadeamento, override por feriado, terminação em 7 passos.
-- [ ] Camadas: `add/override/remove`, ordem de precedência, remoção de nome inexistente falha no build.
+- [x] Camadas: `add/override/remove`, ordem de precedência, remoção de nome inexistente falha no build.
 - [ ] Consultas: fronteira de ano (`nextHoliday` em 30/12), calendário vazio devolve `Optional.empty()`, `addBusinessDays` negativo, `businessDaysBetween` com `a > b`.
 - [ ] Fim de semana sexta-sábado.
 - [ ] Concorrência: 100 threads a consultar o mesmo calendário em anos diferentes sem erro e com um único `buildIndex` por ano (contador atómico no teste).
@@ -344,7 +344,7 @@ class SettlementService {
 - [x] `GregorianEaster`.
 - [x] `HolidayRule` sealed + 5 implementações + `validFrom/validUntil`.
 - [x] `ObservanceRule` + fábricas + encadeamento.
-- [ ] `Layer` + `add/override/remove`.
+- [x] `Layer` + `add/override/remove`.
 - [ ] `HolidayCalendarBuilder` com validação fail-fast.
 - [ ] `YearIndex` + `CalendarCache`.
 - [ ] Consultas básicas: `isHoliday`, `isWeekend`, `isBusinessDay`, `holidayOn`, `holidaysIn`.
