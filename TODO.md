@@ -27,9 +27,9 @@ Biblioteca Java pura (zero dependências externas, só `java.base`) para definir
 - [ ] Toda regra tem **nome** e **tipo** (`PUBLIC`, `BANK`, `OBSERVANCE`, `HALF_DAY`) para o usuário filtrar o que conta como "dia não útil".
 ### 2.2 Cálculo da Páscoa
 
-- [ ] Algoritmo anónimo gregoriano (Meeus/Jones/Butcher). Implementar como função pura `static LocalDate gregorianEaster(int year)`.
-- [ ] Preparar ponto de extensão para Páscoa juliana/ortodoxa (`EasterAlgorithm` como interface com duas implementações). Não é prioridade, mas o design não deve impedir.
-- [ ] Testar contra tabela conhecida (2000–2100).
+- [x] Algoritmo anónimo gregoriano (Meeus/Jones/Butcher). Implementado como função pura `GregorianEaster.of(int year)`.
+- [x] Preparar ponto de extensão para Páscoa juliana/ortodoxa (`EasterAlgorithm` como interface com duas implementações). Não é prioridade, mas o design não deve impedir.
+- [x] Testar contra tabela conhecida (2000–2100).
 ### 2.3 Observância (`ObservanceRule`)
 
 Regra aplicada **depois** de calcular a data original. Não pertence ao feriado; pertence ao calendário (ou camada).
@@ -325,7 +325,7 @@ class SettlementService {
 ## 6. Testes
 
 - [ ] JUnit 5 (dependência só de teste). Sem Mockito — tudo é valor imutável, não precisa de mocks.
-- [ ] Páscoa: tabela 2000–2100 contra fonte oficial.
+- [x] Páscoa: tabela 2000–2100 contra fonte oficial.
 - [ ] Cada tipo de regra: casos de ano bissexto, 29/02, limites de `validFrom/validUntil`.
 - [ ] Observância: colisões (25/12 + 26/12 no fim de semana), encadeamento, override por feriado, terminação em 7 passos.
 - [ ] Camadas: `add/override/remove`, ordem de precedência, remoção de nome inexistente falha no build.
@@ -341,7 +341,7 @@ class SettlementService {
 
 ### v0.1 — core
 - [x] `module-info`, estrutura multi-módulo, CI (build + testes).
-- [ ] `GregorianEaster`.
+- [x] `GregorianEaster`.
 - [ ] `HolidayRule` sealed + 5 implementações + `validFrom/validUntil`.
 - [ ] `ObservanceRule` + fábricas + encadeamento.
 - [ ] `Layer` + `add/override/remove`.
