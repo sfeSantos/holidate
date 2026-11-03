@@ -18,13 +18,13 @@ Biblioteca Java pura (zero dependências externas, só `java.base`) para definir
 
 ### 2.1 Tipos de regra de feriado (`sealed interface HolidayRule`)
 
-- [ ] `FixedDate` — dia e mês fixos (25/12, 1/1, 1/11).
-- [ ] `EasterRelative` — deslocamento em dias relativo ao Domingo de Páscoa (Sexta-feira Santa = −2, Quinta Santa = −3, Segunda de Páscoa = +1, Corpus Christi = +60).
-- [ ] `NthWeekdayOfMonth` — enésimo dia da semana do mês (4ª quinta de novembro, 1ª segunda de maio). Suportar `n` negativo para "último".
-- [ ] `WeekdayAfter` / `WeekdayBefore` — primeiro dia da semana X depois/antes de uma data base.
-- [ ] `Custom` — `Function<Year, Optional<LocalDate>>` para casos que não encaixam.
-- [ ] Toda regra aceita **intervalo de validade** (`validFrom`, `validUntil`, ambos opcionais, em `Year`). Fora do intervalo, a regra devolve `Optional.empty()`.
-- [ ] Toda regra tem **nome** e **tipo** (`PUBLIC`, `BANK`, `OBSERVANCE`, `HALF_DAY`) para o usuário filtrar o que conta como "dia não útil".
+- [x] `FixedDate` — dia e mês fixos (25/12, 1/1, 1/11).
+- [x] `EasterRelative` — deslocamento em dias relativo ao Domingo de Páscoa (Sexta-feira Santa = −2, Quinta Santa = −3, Segunda de Páscoa = +1, Corpus Christi = +60).
+- [x] `NthWeekdayOfMonth` — enésimo dia da semana do mês (4ª quinta de novembro, 1ª segunda de maio). Suportar `n` negativo para "último".
+- [x] `WeekdayAfter` / `WeekdayBefore` — primeiro dia da semana X depois/antes de uma data base.
+- [x] `Custom` — `Function<Year, Optional<LocalDate>>` para casos que não encaixam.
+- [x] Toda regra aceita **intervalo de validade** (`validFrom`, `validUntil`, ambos opcionais, em `Year`). Fora do intervalo, a regra devolve `Optional.empty()`.
+- [x] Toda regra tem **nome** e **tipo** (`PUBLIC`, `BANK`, `OBSERVANCE`, `HALF_DAY`) para o usuário filtrar o que conta como "dia não útil".
 ### 2.2 Cálculo da Páscoa
 
 - [x] Algoritmo anónimo gregoriano (Meeus/Jones/Butcher). Implementado como função pura `GregorianEaster.of(int year)`.
@@ -200,7 +200,7 @@ YearIndex (imutável, por ano):
 - [ ] `businessDaysBetween` sobre intervalos grandes: contar por ano inteiro usando contagem pré-computada no `YearIndex` (`businessDaysInYear`) e só iterar nas pontas.
 ### 3.3 Modelo de tipos (Java 25)
 
-- [ ] `sealed interface HolidayRule permits FixedDate, EasterRelative, NthWeekdayOfMonth, WeekdayAfter, Custom` + `switch` com pattern matching exaustivo em vez de `instanceof` em cascata.
+- [x] `sealed interface HolidayRule permits FixedDate, EasterRelative, NthWeekdayOfMonth, WeekdayAfter, Custom` + `switch` com pattern matching exaustivo em vez de `instanceof` em cascata.
 - [ ] `record` para tudo o que é valor: `HolidayOccurrence(String name, LocalDate original, LocalDate observed, HolidayType type, String layer)`.
 - [ ] Compact constructors nos records para validação (`Objects.requireNonNull`, ranges).
 - [ ] `ObservanceRule` como `@FunctionalInterface` para permitir lambdas.
@@ -326,7 +326,7 @@ class SettlementService {
 
 - [ ] JUnit 5 (dependência só de teste). Sem Mockito — tudo é valor imutável, não precisa de mocks.
 - [x] Páscoa: tabela 2000–2100 contra fonte oficial.
-- [ ] Cada tipo de regra: casos de ano bissexto, 29/02, limites de `validFrom/validUntil`.
+- [x] Cada tipo de regra: casos de ano bissexto, 29/02, limites de `validFrom/validUntil`.
 - [ ] Observância: colisões (25/12 + 26/12 no fim de semana), encadeamento, override por feriado, terminação em 7 passos.
 - [ ] Camadas: `add/override/remove`, ordem de precedência, remoção de nome inexistente falha no build.
 - [ ] Consultas: fronteira de ano (`nextHoliday` em 30/12), calendário vazio devolve `Optional.empty()`, `addBusinessDays` negativo, `businessDaysBetween` com `a > b`.
@@ -342,7 +342,7 @@ class SettlementService {
 ### v0.1 — core
 - [x] `module-info`, estrutura multi-módulo, CI (build + testes).
 - [x] `GregorianEaster`.
-- [ ] `HolidayRule` sealed + 5 implementações + `validFrom/validUntil`.
+- [x] `HolidayRule` sealed + 5 implementações + `validFrom/validUntil`.
 - [ ] `ObservanceRule` + fábricas + encadeamento.
 - [ ] `Layer` + `add/override/remove`.
 - [ ] `HolidayCalendarBuilder` com validação fail-fast.
@@ -377,6 +377,6 @@ class SettlementService {
 
 - [ ] `nextHoliday(date)` é inclusivo ou exclusivo? (sugestão: exclusivo + variante inclusiva)
 - [ ] Feriados de tipo `OBSERVANCE` (não folga) contam ou não em `isBusinessDay`? (sugestão: não; só `PUBLIC` e `BANK`, configurável no builder)
-- [ ] Chave de identidade entre camadas: `String name` ou um `HolidayId` tipado? (sugestão: começar com `String`, trocar se doer)
+- [x] Chave de identidade entre camadas: `String name` ou um `HolidayId` tipado? (sugestão: começar com `String`, trocar se doer)
 - [x] Nome do groupId / namespace do projeto: `io.github.sfesantos`, pacote `io.github.sfesantos.holidays`.
 - [x] Maven vs Gradle: Maven.
