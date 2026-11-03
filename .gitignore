@@ -1,0 +1,20 @@
+# Maven
+target/
+pom.xml.releaseBackup
+release.properties
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# OS
+.DS_Store
+Thumbs.db
+
+# JMH / misc
+*.log
+*.hprof
