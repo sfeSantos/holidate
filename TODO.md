@@ -178,9 +178,9 @@ holidays-spring-boot-starter/   (opcional, módulo separado — ÚNICO com depen
   (ver secção 3.4)
 ```
 
-- [ ] `module-info.java` em cada módulo; exportar só a API pública; `internal` nunca exportado.
+- [x] `module-info.java` em cada módulo; exportar só a API pública; `internal` nunca exportado.
 - [ ] `ServiceLoader<HolidayDataProvider>` para descoberta opcional de packs de dados sem acoplar o core.
-- [ ] Build: Maven ou Gradle multi-módulo, Java 25, `--release 25`. Sem plugins além dos essenciais (compiler, surefire, jar, javadoc).
+- [x] Build: Maven multi-módulo, Java 25, `--release 25`. Sem plugins além dos essenciais (compiler, surefire, jar, javadoc).
 ### 3.2 Fluxo interno
 
 ```
@@ -340,7 +340,7 @@ class SettlementService {
 ## 7. Roadmap
 
 ### v0.1 — core
-- [ ] `module-info`, estrutura multi-módulo, CI (build + testes).
+- [x] `module-info`, estrutura multi-módulo, CI (build + testes).
 - [ ] `GregorianEaster`.
 - [ ] `HolidayRule` sealed + 5 implementações + `validFrom/validUntil`.
 - [ ] `ObservanceRule` + fábricas + encadeamento.
@@ -378,5 +378,5 @@ class SettlementService {
 - [ ] `nextHoliday(date)` é inclusivo ou exclusivo? (sugestão: exclusivo + variante inclusiva)
 - [ ] Feriados de tipo `OBSERVANCE` (não folga) contam ou não em `isBusinessDay`? (sugestão: não; só `PUBLIC` e `BANK`, configurável no builder)
 - [ ] Chave de identidade entre camadas: `String name` ou um `HolidayId` tipado? (sugestão: começar com `String`, trocar se doer)
-- [ ] Nome do groupId / namespace do projeto.
-- [ ] Maven vs Gradle (sugestão: Maven, menos mágica, mais fácil de manter sem dependências).
+- [x] Nome do groupId / namespace do projeto: `io.github.sfesantos`, pacote `io.github.sfesantos.holidays`.
+- [x] Maven vs Gradle: Maven.
