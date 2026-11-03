@@ -8,9 +8,9 @@ Biblioteca Java pura (zero dependências externas, só `java.base`) para definir
 
 - [ ] **Zero dependências.** Apenas `java.base` (`java.time`, `java.util`, `java.util.function`, `java.util.concurrent`). Nem Jackson, nem Guava, nem Lombok, nem SLF4J.
 - [ ] **Performance é prioridade total.** Toda consulta (`isHoliday`, `nextHoliday`, `isBusinessDay`) deve ser O(1) ou O(log n) sobre dados pré-computados por ano. Nunca recalcular regras numa consulta.
-- [ ] **Imutabilidade.** Calendários, regras e ocorrências são imutáveis e thread-safe. Construção via builder; depois disso, só leitura.
-- [ ] **Regras, não datas.** Um feriado é `Year -> Optional<LocalDate>`. As datas concretas são derivadas e cacheadas.
-- [ ] **Core genérico, dados opcionais.** O motor não conhece Espanha nem Málaga. Catálogos de países são módulos separados ou classes utilitárias opcionais.
+- [x] **Imutabilidade.** Calendários, regras e ocorrências são imutáveis e thread-safe. Construção via builder; depois disso, só leitura.
+- [x] **Regras, não datas.** Um feriado é `Year -> Optional<LocalDate>`. As datas concretas são derivadas e cacheadas.
+- [x] **Core genérico, dados opcionais.** O motor não conhece Espanha nem Málaga. Catálogos de países são módulos separados ou classes utilitárias opcionais.
 - [ ] **Integração nativa com `java.time`.** Expor `TemporalAdjuster` e `TemporalQuery` para que `date.with(calendar.nextBusinessDay())` funcione.
 ---
 
@@ -60,10 +60,10 @@ Regra aplicada **depois** de calcular a data original. Não pertence ao feriado;
 - [x] Armazenar internamente como `EnumSet` / bitmask de 7 bits.
 ### 2.6 Consultas públicas (`HolidayCalendar`)
 
-- [ ] `boolean isHoliday(LocalDate)`
-- [ ] `boolean isWeekend(LocalDate)`
-- [ ] `boolean isBusinessDay(LocalDate)` — não é feriado nem fim de semana.
-- [ ] `Optional<HolidayOccurrence> holidayOn(LocalDate)`
+- [x] `boolean isHoliday(LocalDate)`
+- [x] `boolean isWeekend(LocalDate)`
+- [x] `boolean isBusinessDay(LocalDate)` — não é feriado nem fim de semana.
+- [x] `Optional<HolidayOccurrence> holidayOn(LocalDate)`
 - [ ] `Optional<HolidayOccurrence> nextHoliday(LocalDate)` / `previousHoliday(LocalDate)` — inclusivo ou exclusivo? Decidir e documentar (sugestão: exclusivo, com variante `nextHolidayInclusive`).
 - [ ] `long daysUntilNextHoliday(LocalDate)`
 - [ ] `List<HolidayOccurrence> holidaysIn(Year)` / `holidaysBetween(LocalDate, LocalDate)`
@@ -277,7 +277,7 @@ class SettlementService {
 - [ ] **S** — ver 4.1.
 - [ ] **O** — novas regras de feriado entram como novo `permits` do sealed interface + um case no switch; novas observâncias entram como lambda sem tocar no core.
 - [ ] **L** — `HolidayCalendar` é interface; qualquer implementação (a compilada, uma composta, uma decorada com logging) deve respeitar o contrato documentado no Javadoc.
-- [ ] **I** — separar interfaces de leitura: `HolidayQueries`, `BusinessDayQueries`, e `HolidayCalendar extends` ambas. Quem só precisa de dias úteis não vê o resto.
+- [x] **I** — separar interfaces de leitura: `HolidayQueries`, `BusinessDayQueries`, e `HolidayCalendar extends` ambas. Quem só precisa de dias úteis não vê o resto.
 - [ ] **D** — `Clock` injetável; `EasterAlgorithm` injetável no builder; nada instancia dependências concretas dentro de métodos.
 ### 4.4 Imutabilidade e concorrência
 
@@ -315,7 +315,7 @@ class SettlementService {
 - [ ] **Sem Streams no hot path.** Streams só no `build()` e em métodos que já devolvem listas. Loops `for` indexados nas consultas.
 - [ ] **Sem boxing**: `int year` como chave do cache (`ConcurrentHashMap<Integer, ...>` boxa; avaliar array esparso ou `Int2ObjectMap` caseiro com open addressing se o benchmark justificar).
 - [ ] **Evitar `LocalDate` intermédios** nas consultas quando `dayOfYear`/`year` chegam.
-- [ ] **Resolução de camadas no `build()`**, nunca na consulta (ver 3.2).
+- [x] **Resolução de camadas no `build()`**, nunca na consulta (ver 3.2).
 - [x] **Observância encadeada** limitada a 7 iterações (uma semana) para garantir terminação.
 - [ ] **Sem reflexão, sem proxies, sem `String.format` em caminhos quentes.**
 - [ ] Medir tudo com **JMH** (dependência só de teste/benchmark, fora do artefacto publicado) antes e depois de cada otimização. Não otimizar sem número.
@@ -347,7 +347,7 @@ class SettlementService {
 - [x] `Layer` + `add/override/remove`.
 - [x] `HolidayCalendarBuilder` com validação fail-fast.
 - [x] `YearIndex` + `CalendarCache`.
-- [ ] Consultas básicas: `isHoliday`, `isWeekend`, `isBusinessDay`, `holidayOn`, `holidaysIn`.
+- [x] Consultas básicas: `isHoliday`, `isWeekend`, `isBusinessDay`, `holidayOn`, `holidaysIn`.
 ### v0.2 — navegação
 - [ ] `nextHoliday`, `previousHoliday`, `daysUntilNextHoliday`.
 - [ ] `nextBusinessDay`, `previousBusinessDay`, `addBusinessDays`, `businessDaysBetween` com prefix sums.
