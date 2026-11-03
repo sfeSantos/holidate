@@ -55,9 +55,9 @@ Regra aplicada **depois** de calcular a data original. Não pertence ao feriado;
 - [x] Camadas são reutilizáveis: `Layer SPAIN` pode ser partilhada por 17 calendários regionais.
 ### 2.5 Fim de semana
 
-- [ ] `Set<DayOfWeek>` configurável. Default `SATURDAY, SUNDAY`.
-- [ ] Suportar `FRIDAY, SATURDAY` (Golfo) e `FRIDAY` só, ou `SUNDAY` só, ou vazio.
-- [ ] Armazenar internamente como `EnumSet` / bitmask de 7 bits.
+- [x] `Set<DayOfWeek>` configurável. Default `SATURDAY, SUNDAY`.
+- [x] Suportar `FRIDAY, SATURDAY` (Golfo) e `FRIDAY` só, ou `SUNDAY` só, ou vazio.
+- [x] Armazenar internamente como `EnumSet` / bitmask de 7 bits.
 ### 2.6 Consultas públicas (`HolidayCalendar`)
 
 - [ ] `boolean isHoliday(LocalDate)`
@@ -264,7 +264,7 @@ class SettlementService {
 - [ ] Máximo 3 parâmetros por método; acima disso, record de parâmetros.
 - [ ] Sem comentários que explicam o código; comentários só para o *porquê* (ex.: referência ao BOE, ao algoritmo da Páscoa).
 - [ ] Sem `null` na API pública. Entrada: `Objects.requireNonNull` com mensagem. Saída: `Optional` ou coleção vazia.
-- [ ] Fail-fast no `build()`: nomes duplicados na mesma camada, `remove` de nome inexistente, `validFrom > validUntil` → `IllegalArgumentException` / `IllegalStateException` com mensagem clara.
+- [x] Fail-fast no `build()`: nomes duplicados na mesma camada, `remove` de nome inexistente, `validFrom > validUntil` → `IllegalArgumentException` / `IllegalStateException` com mensagem clara.
 - [ ] Exceções próprias só se agregarem valor (`HolidayCalendarException` opcional); nunca checked.
 ### 4.2 Uso de `var`
 
@@ -307,7 +307,7 @@ class SettlementService {
 ### 5.2 Técnicas
 
 - [ ] **Índice por `dayOfYear`**: arrays de tamanho 367 (índice 1..366) em vez de `Map<LocalDate, ...>` no hot path. `BitSet` ou `long[6]` para `isHoliday`; `HolidayOccurrence[367]` para `holidayOn`.
-- [ ] **Bitmask para fim de semana**: `int weekendMask` com 7 bits; `isWeekend = (mask & (1 << dow.ordinal())) != 0`.
+- [x] **Bitmask para fim de semana**: `int weekendMask` com 7 bits; `isWeekend = (mask & (1 << dow.ordinal())) != 0`.
 - [ ] **Binary search** sobre `int[] observedDayOfYear` ordenado para `nextHoliday`/`previousHoliday`.
 - [ ] **Contagens anuais pré-computadas** no `YearIndex`: `businessDaysInYear`, `holidaysInYear`, e array de prefix sums `businessDaysUntil[dayOfYear]` para `businessDaysBetween` em O(1) dentro do mesmo ano.
 - [ ] **`addBusinessDays(date, n)`** com `n` grande: saltar anos inteiros via `businessDaysInYear` e só iterar na ponta.
@@ -345,7 +345,7 @@ class SettlementService {
 - [x] `HolidayRule` sealed + 5 implementações + `validFrom/validUntil`.
 - [x] `ObservanceRule` + fábricas + encadeamento.
 - [x] `Layer` + `add/override/remove`.
-- [ ] `HolidayCalendarBuilder` com validação fail-fast.
+- [x] `HolidayCalendarBuilder` com validação fail-fast.
 - [ ] `YearIndex` + `CalendarCache`.
 - [ ] Consultas básicas: `isHoliday`, `isWeekend`, `isBusinessDay`, `holidayOn`, `holidaysIn`.
 ### v0.2 — navegação
@@ -376,7 +376,7 @@ class SettlementService {
 ## 8. Decisões em aberto
 
 - [ ] `nextHoliday(date)` é inclusivo ou exclusivo? (sugestão: exclusivo + variante inclusiva)
-- [ ] Feriados de tipo `OBSERVANCE` (não folga) contam ou não em `isBusinessDay`? (sugestão: não; só `PUBLIC` e `BANK`, configurável no builder)
+- [x] Feriados de tipo `OBSERVANCE` (não folga) contam ou não em `isBusinessDay`? (sugestão: não; só `PUBLIC` e `BANK`, configurável no builder)
 - [x] Chave de identidade entre camadas: `String name` ou um `HolidayId` tipado? (sugestão: começar com `String`, trocar se doer)
 - [x] Nome do groupId / namespace do projeto: `io.github.sfesantos`, pacote `io.github.sfesantos.holidays`.
 - [x] Maven vs Gradle: Maven.
