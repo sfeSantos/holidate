@@ -141,7 +141,80 @@ var rule = Holiday.custom("Election Day",
 - Horário comercial / meio-dia.
 - Calendários não gregorianos (lunar, hebraico, islâmico).
 - Download de dados de fontes externas.
-- Persistência / serialização (pode entrar na v2 como formato próprio sem dependências).
+- Download de dados de fontes externas em runtime (o usuário carrega os ficheiros; a lib não faz HTTP).
+- Horário de corte (cut-off) e fusos horários.
+### 2.9 Country data: text format, registry and composition
+
+Why: a bank present in ten countries deals with hundreds of calendars (branches,
+clearing houses, exchanges) that change every year and come from its own
+operations teams or vendors, not from a community catalog. One Java class per
+country does not scale and turns every yearly update into a release. Holiday
+data is data, not code: the core parses a plain text format with zero
+dependencies, ships country packs as resource files in that same format, and
+lets the user load their own files, directories or database rows through the
+same door.
+
+- [ ] **JSON format** (`ES.json`, one file per country, regions inside). Same model as the Java API; a JSON Schema is published so users validate files with any tool before loading. Target shape:
+```json
+{
+  "layers": [
+    {
+      "id": "ES",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Año Nuevo",     "rule": { "fixed": "01-01" } },
+        { "name": "Viernes Santo", "rule": { "easter": -2 } },
+        { "name": "Constitución",  "rule": { "fixed": "12-06" }, "from": 1978 },
+        { "name": "Thanksgiving",  "rule": { "nth": 4, "weekday": "THURSDAY", "month": "NOVEMBER" } },
+        { "name": "Election Day",  "rule": { "weekdayAfter": "MONDAY", "base": "11-01" }, "type": "OBSERVANCE", "until": 2030 }
+      ]
+    },
+    {
+      "id": "ES-AN",
+      "extends": "ES",
+      "observance": "SUNDAY_TO_MONDAY",
+      "holidays": [
+        { "name": "Día de Andalucía", "rule": { "fixed": "02-28" } },
+        { "name": "Jueves Santo",     "rule": { "easter": -3 } }
+      ]
+    },
+    {
+      "id": "ES-CT",
+      "extends": "ES",
+      "remove": ["Constitución"],
+      "override": [ { "name": "Sant Joan", "rule": { "fixed": "06-24" } } ]
+    }
+  ]
+}
+```
+- [ ] JSON needs a parser and the core has no dependencies, so `internal.json` gets a hand-written one: objects, arrays, strings with escapes, numbers, booleans, null. About 200 lines, strict (RFC 8259), fails with line and column. No reflection, no generic binding: the reader walks the tree and calls the `Layer`/`Holiday` builders directly.
+- [ ] **Plain text alternative** (`.holidays`, `#` comments), kept as an open option because it is far easier to read and edit by hand:
+```
+layer ES
+  weekend          = SATURDAY SUNDAY
+  Año Nuevo        = fixed 01-01
+  Viernes Santo    = easter -2
+  Constitución     = fixed 12-06 from 1978
+  Thanksgiving     = nth 4 THURSDAY NOVEMBER        # example of the other rule kinds
+  Election Day     = weekday-after MONDAY 11-01 type OBSERVANCE until 2030
+
+layer ES-AN extends ES
+  observance       = sunday-to-monday
+  Día de Andalucía = fixed 02-28
+  Jueves Santo     = easter -3
+
+layer ES-CT extends ES
+  remove Constitución
+  override Sant Joan = fixed 06-24
+```
+- [ ] Grammar: `layer <id> [extends <id>]`, then one entry per line: `<name> = <rule> [type <T>] [from <year>] [until <year>] [observance <rule>]`, plus `remove <name>`, `override <name> = <rule> ...`, `weekend = ...`, `observance = ...`. Names may contain spaces; `=` splits name from rule. Rule kinds: `fixed MM-DD`, `easter <offset>`, `nth <n> <DOW> <MONTH>`, `weekday-after <DOW> MM-DD`, `weekday-before <DOW> MM-DD`. `custom` stays Java-only.
+- [ ] `HolidayFormat.json()` (and `HolidayFormat.text()` if the plain text option goes ahead): `parse(Reader)` / `parse(Path)` / `parse(String)` → `List<Layer>`; `write(List<Layer>)` round-trips so a calendar built in Java can be exported. Both readers hand-written, zero deps, fail fast with line numbers. `custom` rules cannot be serialised and are rejected by `write`.
+- [ ] **Registry**: `CalendarRegistry` resolves an id to a `HolidayCalendar` by composing the `extends` chain (`ES-AN-MA` → `ES`, `ES-AN`, `ES-AN-MA`). Ids follow ISO 3166-1/3166-2 where one exists (`ES`, `ES-AN`, `BR`, `BR-RJ`); below that, free text (`ES-AN-MA`, `BR-RJ-RIO`). Calendars are cached by id.
+- [ ] `HolidayDataProvider` (`ServiceLoader`): `Set<String> layerIds()` + `Optional<Layer> layer(String id)`. Built-in providers: classpath resources (`META-INF/holidays/*.holidays`), a directory on disk. Users write their own (database, vendor feed). Registry asks providers in order; the first that answers wins, so a user's provider overrides the shipped pack.
+- [ ] **Exception layers**: a user stacks `SANTANDER-ES` (one-off closures, `validBetween(2027, 2027)`) on top of `ES-AN-MA` without touching the base data. Already supported by layers; document the pattern.
+- [ ] **Composition**: `HolidayCalendar.union(a, b, ...)`: holiday if a holiday in any; business day only if a business day in all. Needed for cross-market settlement (EUR/BRL is a business day in `ES` and `BR`). Implemented as a composed calendar with its own `YearIndex` built by OR-ing the members, so queries stay O(1).
+- [ ] **Yearly validation**: one test per year and per official source (BOE 2027, BOJA 2027, B3 2027), as `MalagaExampleTest` does. Updating a pack is "edit the file, run the test".
+- [ ] Java constants (`Holidays.CHRISTMAS`, `Holidays.GOOD_FRIDAY`) stay for the handful of definitions every country shares, and `Layer`/`Holiday` builders stay for users who prefer code. Both options remain first-class; the text format is the recommended one for bulk data.
 ---
 
 ## 3. Arquitetura
@@ -166,10 +239,22 @@ holidays-core/                      # motor de regras, sem dados de país
     CalendarCache
     CompiledLayer
  
-holidays-data-es/   (opcional, módulo separado)
-  Spain, Andalucia, Malaga, Catalunya...  # constantes de Layer
-holidays-data-common/ (opcional)
-  Holidays.CHRISTMAS, NEW_YEAR, GOOD_FRIDAY, ALL_SAINTS, EASTER_MONDAY...  # definições reutilizáveis, NÃO aplicadas por defeito
+  io.github.<user>.holidays.format    # data formats (section 2.9)
+    HolidayFormat                   # json() / text(): parse and write
+    HolidayFormatException          # line and column in the message
+  io.github.<user>.holidays.internal.json
+    JsonReader, JsonWriter          # hand-written, strict, no reflection
+  io.github.<user>.holidays.registry
+    CalendarRegistry                # id -> HolidayCalendar, composes the extends chain, caches
+    HolidayDataProvider             # ServiceLoader SPI
+    ClasspathDataProvider, DirectoryDataProvider
+
+holidays-data/        (opcional, módulo separado, sem código Java além do provider)
+  META-INF/holidays/ES.json         # one resource file per country, regions inside
+  META-INF/holidays/BR.json
+  holidays.schema.json              # JSON Schema for user files
+  Holidays.CHRISTMAS, NEW_YEAR, GOOD_FRIDAY, ALL_SAINTS, EASTER_MONDAY...  # Java constants for shared definitions
+holidays-data-es/ (alternativa mantida: constantes Java `Spain`, `Andalucia`, `Malaga` para quem prefere código)
  
 holidays-spring-boot-starter/   (opcional, módulo separado — ÚNICO com dependências externas)
   HolidayCalendarAutoConfiguration
@@ -353,11 +438,13 @@ class SettlementService {
 - [ ] `nextBusinessDay`, `previousBusinessDay`, `addBusinessDays`, `businessDaysBetween` com prefix sums.
 - [ ] `TemporalAdjuster` / `TemporalQuery`.
 - [ ] `Clock` injetável.
-### v0.3 — dados e extensão
-- [ ] `holidays-data-common` (definições reutilizáveis, sem aplicação automática).
-- [ ] `holidays-data-es`: Espanha + Andalucía + Málaga validados contra BOE/BOJA.
-- [ ] `ServiceLoader<HolidayDataProvider>`.
-- [ ] Javadoc completo + README com exemplo de Málaga.
+- [ ] `HolidayCalendar.union(...)` for cross-market calendars (section 2.9).
+### v0.3 — data format and registry (section 2.9)
+- [ ] `HolidayFormat.json()` parser and writer over a hand-written `JsonReader`/`JsonWriter`, round-trip tests, JSON Schema published, error messages with line and column.
+- [ ] `HolidayDataProvider` SPI + `CalendarRegistry` resolving the `extends` chain, classpath and directory providers.
+- [ ] `holidays-data`: `ES.json` (Spain, Andalucía, Málaga, Catalunya) and `BR.json` (Brazil, RJ, Rio) validated against BOE/BOJA and the Brazilian federal/state laws for 2025, 2026 and 2027.
+- [ ] Java constants for shared definitions (`Holidays.CHRISTMAS`...). Optional `holidays-data-es` with Java `Layer` constants kept as the code-first alternative.
+- [ ] Document the exception-layer pattern and the registry in the README.
 ### v0.4 — Spring
 - [ ] `holidays-spring-boot-starter` com auto-config, properties, customizer e múltiplos calendários.
 - [ ] Testes com `ApplicationContextRunner`.
@@ -368,14 +455,17 @@ class SettlementService {
 - [ ] Publicação em Maven Central.
 ### Depois
 - [ ] Páscoa juliana/ortodoxa.
-- [ ] Serialização própria (texto simples, sem dependências) para carregar calendários de ficheiro.
 - [ ] Meio-dia / `HALF_DAY` com semântica real.
-- [ ] Mais packs de países.
+- [ ] Mais packs de países (JSON files; community contributions are data edits plus a yearly test).
+- [ ] Plain text `.holidays` format as a second reader, if users ask for something easier to edit by hand.
+- [ ] Loading packs from a database or vendor feed as reference `HolidayDataProvider` implementations.
 ---
 
 ## 8. Decisões em aberto
 
 - [ ] `nextHoliday(date)` é inclusivo ou exclusivo? (sugestão: exclusivo + variante inclusiva)
+- [ ] Data format: JSON (interoperable, schema, tooling, bank systems already speak it; costs a hand-written parser and is verbose to edit by hand) vs own plain text syntax (easy to read and edit, no tooling, no schema) vs both. Suggestion: JSON first, text later only on demand; the model is the same and a second reader is cheap once the first exists.
+- [ ] Registry ids: should the shipped pack ship city ids (`ES-AN-MA`) or stop at ISO 3166-2 and leave cities to users? Suggestion: ship the capitals as examples, document how to add the rest.
 - [x] Feriados de tipo `OBSERVANCE` (não folga) contam ou não em `isBusinessDay`? (sugestão: não; só `PUBLIC` e `BANK`, configurável no builder)
 - [x] Chave de identidade entre camadas: `String name` ou um `HolidayId` tipado? (sugestão: começar com `String`, trocar se doer)
 - [x] Nome do groupId / namespace do projeto: `io.github.sfesantos`, pacote `io.github.sfesantos.holidays`.
