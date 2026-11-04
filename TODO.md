@@ -69,7 +69,7 @@ Regra aplicada **depois** de calcular a data original. Não pertence ao feriado;
 - [x] `LocalDate addBusinessDays(LocalDate, int)` — suportar negativos.
 - [x] `long businessDaysBetween(LocalDate, LocalDate)` — `from` inclusivo, `to` exclusivo, negativo quando `from > to` (convenção de `ChronoUnit.DAYS.between`).
 - [x] `TemporalAdjuster nextBusinessDayAdjuster()` etc., e `TemporalQuery` para `isHoliday`, `isBusinessDay` e `holidayOn`.
-- [ ] Versões com `Clock` injetável para "hoje" (`isHolidayToday(Clock)`), nunca `LocalDate.now()` hardcoded dentro da lib.
+- [x] Versões com `Clock` injetável para "hoje" (`isHolidayToday(Clock)`, `holidayToday`, `nextHoliday(Clock)`, `daysUntilNextHoliday(Clock)`, `isBusinessDayToday`, `nextBusinessDay(Clock)`, `addBusinessDays(Clock, int)`), nunca `LocalDate.now()` hardcoded dentro da lib. Sem sobrecarga sem argumento: o chamador escolhe o relógio.
 ### 2.7 Exemplo de uso da API (referência de design)
 
 Este é o alvo. Qualquer decisão de implementação que torne este código mais verboso deve ser justificada.
@@ -361,7 +361,7 @@ class SettlementService {
 - [ ] **O** — novas regras de feriado entram como novo `permits` do sealed interface + um case no switch; novas observâncias entram como lambda sem tocar no core.
 - [ ] **L** — `HolidayCalendar` é interface; qualquer implementação (a compilada, uma composta, uma decorada com logging) deve respeitar o contrato documentado no Javadoc.
 - [x] **I** — separar interfaces de leitura: `HolidayQueries`, `BusinessDayQueries`, e `HolidayCalendar extends` ambas. Quem só precisa de dias úteis não vê o resto.
-- [ ] **D** — `Clock` injetável; `EasterAlgorithm` injetável no builder; nada instancia dependências concretas dentro de métodos.
+- [x] **D** — `Clock` injetável; `EasterAlgorithm` injetável no builder; nada instancia dependências concretas dentro de métodos.
 ### 4.4 Imutabilidade e concorrência
 
 - [ ] Todos os campos `final`. Coleções expostas via `List.copyOf` / `Collections.unmodifiableList`; nunca devolver o array interno.
@@ -435,7 +435,7 @@ class SettlementService {
 - [x] `nextHoliday`, `previousHoliday`, `daysUntilNextHoliday`.
 - [x] `nextBusinessDay`, `previousBusinessDay`, `addBusinessDays`, `businessDaysBetween` com prefix sums.
 - [x] `TemporalAdjuster` / `TemporalQuery`.
-- [ ] `Clock` injetável.
+- [x] `Clock` injetável.
 - [ ] `HolidayCalendar.union(...)` for cross-market calendars (section 2.9).
 ### v0.3 — data format and registry (section 2.9)
 - [ ] `HolidayFormat.json()` parser and writer over a hand-written `JsonReader`/`JsonWriter`, round-trip tests, JSON Schema published, error messages with line and column.

@@ -105,6 +105,11 @@ calendar.businessDaysBetween(LocalDate.of(2026, 12, 21), LocalDate.of(2027, 1, 1
 // java.time integration: adjusters keep the time of day, queries work on any temporal
 LocalDateTime.of(2026, 12, 24, 18, 0).with(calendar.nextBusinessDayAdjuster()); // 2026-12-28T18:00
 LocalDate.of(2026, 12, 25).query(calendar.isHolidayQuery());                   // true
+
+// "Today" always takes a Clock; the library never calls LocalDate.now() itself
+var clock = Clock.fixed(Instant.parse("2026-12-25T10:00:00Z"), ZoneId.of("Europe/Madrid"));
+calendar.isHolidayToday(clock);                      // true
+calendar.nextBusinessDay(clock);                     // 2026-12-28
 ```
 
 The 2026 output matches the calendars published in the BOE and the BOJA.

@@ -1,5 +1,6 @@
 package io.github.sfesantos.holidays;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalQuery;
@@ -37,6 +38,18 @@ public interface BusinessDayQueries {
      * {@code from} is after {@code to}.
      */
     long businessDaysBetween(LocalDate from, LocalDate to);
+    default boolean isBusinessDayToday(Clock clock) {
+        return isBusinessDay(LocalDate.now(clock));
+    }
+
+    default LocalDate nextBusinessDay(Clock clock) {
+        return nextBusinessDay(LocalDate.now(clock));
+    }
+
+    default LocalDate addBusinessDays(Clock clock, int days) {
+        return addBusinessDays(LocalDate.now(clock), days);
+    }
+
     TemporalAdjuster nextBusinessDayAdjuster();
     TemporalAdjuster nextOrSameBusinessDayAdjuster();
     TemporalAdjuster previousBusinessDayAdjuster();

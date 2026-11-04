@@ -152,11 +152,11 @@ class HolidayNavigationTest {
 
     @Test
     void rejectsNullDates() {
-        assertThrows(NullPointerException.class, () -> MALAGA.nextHoliday(null));
+        assertThrows(NullPointerException.class, () -> MALAGA.nextHoliday((LocalDate) null));
         assertThrows(NullPointerException.class, () -> MALAGA.nextHolidayInclusive(null));
         assertThrows(NullPointerException.class, () -> MALAGA.previousHoliday(null));
         assertThrows(NullPointerException.class, () -> MALAGA.previousHolidayInclusive(null));
-        assertThrows(NullPointerException.class, () -> MALAGA.daysUntilNextHoliday(null));
+        assertThrows(NullPointerException.class, () -> MALAGA.daysUntilNextHoliday((LocalDate) null));
         assertThrows(NullPointerException.class, () -> MALAGA.holidaysBetween(null, LocalDate.EPOCH));
         assertThrows(NullPointerException.class, () -> MALAGA.holidaysBetween(LocalDate.EPOCH, null));
     }

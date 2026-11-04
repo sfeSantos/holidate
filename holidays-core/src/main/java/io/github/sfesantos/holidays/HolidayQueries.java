@@ -1,5 +1,6 @@
 package io.github.sfesantos.holidays;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.temporal.TemporalQuery;
@@ -16,6 +17,9 @@ import java.util.OptionalLong;
  * their variants) look at most one hundred years away from the given date
  * and return empty beyond that, so a calendar whose rules fire nothing in
  * that window never triggers an unbounded search.
+ *
+ * <p>The {@link Clock} overloads answer for "today" as that clock sees it,
+ * zone included. The library never calls {@code LocalDate.now()} on its own.
  */
 public interface HolidayQueries {
 
@@ -35,6 +39,22 @@ public interface HolidayQueries {
     Optional<HolidayOccurrence> previousHolidayInclusive(LocalDate date);
     /** Days from the date to the next holiday observed strictly after it; empty when there is none. */
     OptionalLong daysUntilNextHoliday(LocalDate date);
+    default boolean isHolidayToday(Clock clock) {
+        return isHoliday(LocalDate.now(clock));
+    }
+
+    default Optional<HolidayOccurrence> holidayToday(Clock clock) {
+        return holidayOn(LocalDate.now(clock));
+    }
+
+    default Optional<HolidayOccurrence> nextHoliday(Clock clock) {
+        return nextHoliday(LocalDate.now(clock));
+    }
+
+    default OptionalLong daysUntilNextHoliday(Clock clock) {
+        return daysUntilNextHoliday(LocalDate.now(clock));
+    }
+
     /** A query answering {@link #isHoliday(LocalDate)} for any temporal that holds a date. */
     TemporalQuery<Boolean> isHolidayQuery();
     /** A query answering {@link #holidayOn(LocalDate)} for any temporal that holds a date. */

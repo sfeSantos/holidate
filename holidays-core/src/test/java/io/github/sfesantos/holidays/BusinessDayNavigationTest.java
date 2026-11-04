@@ -162,11 +162,11 @@ class BusinessDayNavigationTest {
 
     @Test
     void rejectsNullDates() {
-        assertThrows(NullPointerException.class, () -> SPAIN.nextBusinessDay(null));
+        assertThrows(NullPointerException.class, () -> SPAIN.nextBusinessDay((LocalDate) null));
         assertThrows(NullPointerException.class, () -> SPAIN.nextOrSameBusinessDay(null));
         assertThrows(NullPointerException.class, () -> SPAIN.previousBusinessDay(null));
         assertThrows(NullPointerException.class, () -> SPAIN.previousOrSameBusinessDay(null));
-        assertThrows(NullPointerException.class, () -> SPAIN.addBusinessDays(null, 1));
+        assertThrows(NullPointerException.class, () -> SPAIN.addBusinessDays((LocalDate) null, 1));
         assertThrows(NullPointerException.class, () -> SPAIN.businessDaysBetween(null, LocalDate.EPOCH));
         assertThrows(NullPointerException.class, () -> SPAIN.businessDaysBetween(LocalDate.EPOCH, null));
     }
