@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.Year;
 import java.util.List;
@@ -88,6 +89,21 @@ class MalagaExampleTest {
     void saturdayHolidaysStayOnSaturday() {
         assertTrue(MALAGA_CALENDAR.isHoliday(LocalDate.of(2026, 2, 28)));
         assertFalse(MALAGA_CALENDAR.isHoliday(LocalDate.of(2026, 3, 2)));
+    }
+
+    @Test
+    void navigationFiguresQuotedInTheReadme() {
+        var dec9 = LocalDate.of(2026, 12, 9);
+        var christmasEve = LocalDate.of(2026, 12, 24);
+
+        assertEquals("Navidad", MALAGA_CALENDAR.nextHoliday(dec9).orElseThrow().name());
+        assertEquals(16, MALAGA_CALENDAR.daysUntilNextHoliday(dec9).orElseThrow());
+        assertEquals(LocalDate.of(2026, 12, 28), MALAGA_CALENDAR.nextBusinessDay(christmasEve));
+        assertEquals(LocalDate.of(2026, 12, 30), MALAGA_CALENDAR.addBusinessDays(christmasEve, 3));
+        assertEquals(8, MALAGA_CALENDAR.businessDaysBetween(LocalDate.of(2026, 12, 21), LocalDate.of(2027, 1, 1)));
+        assertEquals(LocalDateTime.of(2026, 12, 28, 18, 0),
+                christmasEve.atTime(18, 0).with(MALAGA_CALENDAR.nextBusinessDayAdjuster()));
+        assertTrue(LocalDate.of(2026, 12, 25).query(MALAGA_CALENDAR.isHolidayQuery()));
     }
 
     @Test

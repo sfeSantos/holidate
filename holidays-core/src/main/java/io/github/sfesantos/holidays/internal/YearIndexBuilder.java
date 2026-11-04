@@ -60,19 +60,25 @@ final class YearIndexBuilder {
             }
         }
 
-        var prefix = businessDayPrefix(year, length, nonWorking);
+        var businessDays = new long[YearIndex.WORDS];
+        var prefix = businessDayPrefix(year, length, nonWorking, businessDays);
 
-        return new YearIndex(year, length, anyHoliday, nonWorking, byDay,
+        return new YearIndex(year, length, anyHoliday, nonWorking, businessDays, byDay,
                 observedHere.toArray(HolidayOccurrence[]::new), prefix, own);
     }
 
-    private int[] businessDayPrefix(int year, int length, long[] nonWorking) {
+    private int[] businessDayPrefix(int year, int length, long[] nonWorking, long[] businessDays) {
         var prefix = new int[length + 2];
         var weekend = calendar.weekend();
         var day = LocalDate.ofYearDay(year, 1).getDayOfWeek();
 
         for (int d = 1; d <= length; d++) {
             boolean business = !weekend.contains(day) && !YearIndex.bit(nonWorking, d);
+
+            if (business) {
+                YearIndex.set(businessDays, d);
+            }
+
             prefix[d + 1] = prefix[d] + (business ? 1 : 0);
             day = day.plus(1);
         }

@@ -93,6 +93,18 @@ calendar.holidayOn(LocalDate.of(2026, 11, 2));
 //                            observed=2026-11-02, type=PUBLIC, layer=ES]]
 
 calendar.holidaysIn(Year.of(2026));                  // 14 occurrences, by date
+
+// Navigation. "Next" and "previous" are exclusive; there are *Inclusive variants
+var dec9 = LocalDate.of(2026, 12, 9);
+calendar.nextHoliday(dec9);                          // Navidad, 2026-12-25
+calendar.daysUntilNextHoliday(dec9);                 // OptionalLong[16]
+calendar.nextBusinessDay(LocalDate.of(2026, 12, 24)); // 2026-12-28
+calendar.addBusinessDays(LocalDate.of(2026, 12, 24), 3); // 2026-12-30
+calendar.businessDaysBetween(LocalDate.of(2026, 12, 21), LocalDate.of(2027, 1, 1)); // 8
+
+// java.time integration: adjusters keep the time of day, queries work on any temporal
+LocalDateTime.of(2026, 12, 24, 18, 0).with(calendar.nextBusinessDayAdjuster()); // 2026-12-28T18:00
+LocalDate.of(2026, 12, 25).query(calendar.isHolidayQuery());                   // true
 ```
 
 The 2026 output matches the calendars published in the BOE and the BOJA.
@@ -181,6 +193,17 @@ January on a Saturday under the US rule is observed on 31 December).
 **Occurrences.** Every query returns `HolidayOccurrence` records carrying
 the original date, the observed date, the type and the layer that defined
 the holiday.
+
+**Navigation.** `nextHoliday`, `previousHoliday`, `nextBusinessDay` and
+`previousBusinessDay` are exclusive: they never return the date you pass in.
+`nextHolidayInclusive`, `nextOrSameBusinessDay` and their `previous`
+counterparts do. `holidaysBetween` and `businessDaysBetween` take `from`
+inclusive and `to` exclusive, like `ChronoUnit.DAYS.between`, and
+`businessDaysBetween` is negative when `from` is after `to`. `addBusinessDays`
+accepts negative counts and skips whole years using precomputed counts. Holiday
+searches look at most one hundred years ahead or back and return empty beyond
+that; business day searches throw `IllegalStateException` when every day in
+that window is a weekend day or a holiday.
 
 **Weekend.** Any set of days: `weekend(DayOfWeek.FRIDAY, DayOfWeek.SATURDAY)`
 for the Gulf, a single day, or none.
