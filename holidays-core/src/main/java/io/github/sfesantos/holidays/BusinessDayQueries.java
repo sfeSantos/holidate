@@ -1,10 +1,13 @@
 package io.github.sfesantos.holidays;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalQuery;
+import java.util.Objects;
 
 /**
  * Read-only questions about working days. A business day is neither a
@@ -46,6 +49,24 @@ public interface BusinessDayQueries {
      */
     default LocalDate adjust(LocalDate date, BusinessDayConvention convention) {
         return BusinessDayConvention.apply(convention, date, this);
+    }
+
+    /**
+     * The business day an instruction received at that instant settles on:
+     * the {@link CutOff} turns the instant into a booking date in the market's
+     * zone, the convention moves it off holidays and weekends.
+     */
+    default LocalDate adjust(Instant instant, CutOff cutOff, BusinessDayConvention convention) {
+        Objects.requireNonNull(cutOff, "cutOff must not be null");
+
+        return adjust(cutOff.dateOf(instant), convention);
+    }
+
+    /** As {@link #adjust(Instant, CutOff, BusinessDayConvention)} for a local time already in the cut-off's zone. */
+    default LocalDate adjust(LocalDateTime dateTime, CutOff cutOff, BusinessDayConvention convention) {
+        Objects.requireNonNull(cutOff, "cutOff must not be null");
+
+        return adjust(cutOff.dateOf(dateTime), convention);
     }
 
     /** An adjuster applying {@link #adjust(LocalDate, BusinessDayConvention)} to any temporal that holds a date. */

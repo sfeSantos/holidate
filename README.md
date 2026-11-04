@@ -184,6 +184,17 @@ calendar.adjust(LocalDate.of(2026, 5, 31), MODIFIED_FOLLOWING); // 2026-05-29, J
 due.atTime(9, 0).with(calendar.adjuster(FOLLOWING)); // 2026-08-17T09:00
 ```
 
+A `CutOff` carries the market's cut-off time and zone. An instruction received
+at or after it is booked on the next day, and the convention then moves that
+date off holidays and weekends:
+
+```java
+var madrid = CutOff.at(LocalTime.of(16, 0), ZoneId.of("Europe/Madrid"));
+
+calendar.adjust(Instant.parse("2026-12-24T15:30:00Z"), madrid, FOLLOWING);   // 16:30 in Madrid -> 25 Dec -> 2026-12-28
+calendar.adjust(LocalDateTime.of(2026, 12, 24, 15, 59), madrid, FOLLOWING); // before cut-off -> 2026-12-24
+```
+
 ## Combining calendars
 
 Settlement between two markets needs both to be open. `union` composes

@@ -135,13 +135,17 @@ var rule = Holiday.custom("Election Day",
     .validFrom(Year.of(1845));
 ```
 
-### 2.8 Fora de escopo (v1)
+### 2.8 Horário, fusos e outros calendários
 
-- Horário comercial / meio-dia.
-- Calendários não gregorianos (lunar, hebraico, islâmico).
-- Download de dados de fontes externas.
-- Download de dados de fontes externas em runtime (o usuário carrega os ficheiros; a lib não faz HTTP).
-- Horário de corte (cut-off) e fusos horários.
+Eram "fora de escopo" até o 0.2.0. Entraram depois, em `main`, sem release próprio. Continua fora: download de dados de fontes externas em runtime (o usuário carrega os ficheiros; a lib não faz HTTP).
+
+- [x] **Horário de corte (cut-off) e fusos horários.** `CutOff.at(LocalTime, ZoneId)` transforma um `Instant` ou `LocalDateTime` na data de registo (dia seguinte quando recebido na hora de corte ou depois); `calendar.adjust(instant, cutOff, convenção)` aplica a convenção a essa data.
+
+- [ ] **Horário comercial / meio-dia.** `BusinessHours` no builder, `HALF_DAY` com hora de fecho, `isOpen(LocalDateTime)` e `businessHoursOn(LocalDate)`.
+
+- [ ] **Calendários não gregorianos.** Regras islâmicas via `HijrahChronology` (`java.base`, tabela Umm al-Qura); uma regra passa a poder dar duas datas no mesmo ano gregoriano.
+
+- [ ] **Calendário hebraico.** Aritmética própria (o JDK não traz), validada contra datas conhecidas de Rosh Hashaná e Pessach.
 ### 2.9 Country data: text format, registry and composition
 
 Why: a bank present in ten countries deals with hundreds of calendars (branches,
