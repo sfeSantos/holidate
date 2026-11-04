@@ -5,11 +5,13 @@ import java.time.LocalTime;
 import java.time.Month;
 import java.time.MonthDay;
 import java.time.Year;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
 import io.github.sfesantos.holidays.easter.EasterAlgorithm;
+import io.github.sfesantos.holidays.hebrew.HebrewMonth;
 
 /**
  * A named holiday: a {@link HolidayRule} plus the metadata a calendar needs.
@@ -55,6 +57,16 @@ public record Holiday(String name, HolidayType type, HolidayRule rule, YearRange
         return of(name, HolidayRule.custom(function));
     }
 
+    /** See {@link HolidayRule#hijri(int, int)}. */
+    public static Holiday hijri(String name, int month, int dayOfMonth) {
+        return of(name, HolidayRule.hijri(month, dayOfMonth));
+    }
+
+    /** See {@link HolidayRule#hebrew(HebrewMonth, int)}. */
+    public static Holiday hebrew(String name, HebrewMonth month, int dayOfMonth) {
+        return of(name, HolidayRule.hebrew(month, dayOfMonth));
+    }
+
     public Holiday ofType(HolidayType type) {
         return new Holiday(name, type, rule, validity, observance, closesAt);
     }
@@ -84,15 +96,22 @@ public record Holiday(String name, HolidayType type, HolidayRule rule, YearRange
         return observance == ObservanceRule.inherit();
     }
 
-    /** The date before any observance rule; empty outside the validity range or when the rule does not occur. */
-    public Optional<LocalDate> dateIn(Year year, EasterAlgorithm easter) {
+    /** The dates before any observance rule; empty outside the validity range or when the rule does not occur. */
+    public List<LocalDate> datesIn(Year year, EasterAlgorithm easter) {
         Objects.requireNonNull(year, "year must not be null");
 
         if (!validity.contains(year)) {
-            return Optional.empty();
+            return List.of();
         }
 
-        return rule.dateIn(year, easter);
+        return rule.datesIn(year, easter);
+    }
+
+    /** The first date in the year; see {@link HolidayRule#dateIn}. */
+    public Optional<LocalDate> dateIn(Year year, EasterAlgorithm easter) {
+        var dates = datesIn(year, easter);
+
+        return dates.isEmpty() ? Optional.empty() : Optional.of(dates.get(0));
     }
 
     private Holiday withValidity(YearRange validity) {

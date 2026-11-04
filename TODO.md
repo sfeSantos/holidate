@@ -7,7 +7,7 @@ Biblioteca Java pura (zero dependências externas, só `java.base`) para definir
 - [x] **Zero dependências.** Apenas `java.base` (`java.time`, `java.util`, `java.util.function`, `java.util.concurrent`). Nem Jackson, nem Guava, nem Lombok, nem SLF4J.
 - [x] **Performance é prioridade total.** Toda consulta (`isHoliday`, `nextHoliday`, `isBusinessDay`) deve ser O(1) ou O(log n) sobre dados pré-computados por ano. Nunca recalcular regras numa consulta.
 - [x] **Imutabilidade.** Calendários, regras e ocorrências são imutáveis e thread-safe. Construção via builder; depois disso, só leitura.
-- [x] **Regras, não datas.** Um feriado é `Year -> Optional<LocalDate>`. As datas concretas são derivadas e cacheadas.
+- [x] **Regras, não datas.** Um feriado é `Year -> List<LocalDate>` (zero ou uma data nas regras gregorianas; até duas nas lunares). As datas concretas são derivadas e cacheadas.
 - [x] **Core genérico, dados opcionais.** O motor não conhece Espanha nem Málaga. Catálogos de países são módulos separados ou classes utilitárias opcionais.
 - [x] **Integração nativa com `java.time`.** Expor `TemporalAdjuster` e `TemporalQuery` para que `date.with(calendar.nextBusinessDayAdjuster())` funcione.
 ---
@@ -21,6 +21,8 @@ Biblioteca Java pura (zero dependências externas, só `java.base`) para definir
 - [x] `NthWeekdayOfMonth` — enésimo dia da semana do mês (4ª quinta de novembro, 1ª segunda de maio). Suportar `n` negativo para "último".
 - [x] `WeekdayAfter` / `WeekdayBefore` — primeiro dia da semana X depois/antes de uma data base.
 - [x] `Custom` — `Function<Year, Optional<LocalDate>>` para casos que não encaixam.
+- [x] `Hijri` — dia do calendário islâmico via `HijrahChronology` (tabelas Umm al-Qura do JDK, anos 1883 a 2173). Pode dar duas datas no mesmo ano gregoriano.
+- [x] `Hebrew` — dia do calendário hebraico (`HebrewMonth`, `ADAR` resolve para Adar II em ano bissexto), aritmética própria em `hebrew.HebrewCalendar` validada contra Rosh Hashaná 1939 a 2026.
 - [x] Toda regra aceita **intervalo de validade** (`validFrom`, `validUntil`, ambos opcionais, em `Year`). Fora do intervalo, a regra devolve `Optional.empty()`.
 - [x] Toda regra tem **nome** e **tipo** (`PUBLIC`, `BANK`, `OBSERVANCE`, `HALF_DAY`) para o usuário filtrar o que conta como "dia não útil".
 ### 2.2 Cálculo da Páscoa

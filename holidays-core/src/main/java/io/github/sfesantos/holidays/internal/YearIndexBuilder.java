@@ -91,9 +91,9 @@ final class YearIndexBuilder {
         var context = new PlacementContext(calendar.weekend(), new HashSet<>());
 
         for (var resolved : calendar.holidays()) {
-            resolved.holiday()
-                    .dateIn(Year.of(year), calendar.easter())
-                    .ifPresent(original -> placed.add(place(resolved, original, context)));
+            for (var original : resolved.holiday().datesIn(Year.of(year), calendar.easter())) {
+                placed.add(place(resolved, original, context));
+            }
         }
 
         return placed;
