@@ -1,6 +1,7 @@
 package io.github.sfesantos.holidays;
 
 import java.time.DayOfWeek;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -20,6 +21,7 @@ public final class HolidayCalendarBuilder {
 
     private final List<Layer> layers = new ArrayList<>();
     private Weekend weekend = Weekend.standard();
+    private BusinessHours businessHours = BusinessHours.allDay();
     private ObservanceRule observance = ObservanceRule.none();
     private EasterAlgorithm easter = EasterAlgorithm.gregorian();
     private Set<HolidayType> nonWorkingTypes = EnumSet.of(HolidayType.PUBLIC, HolidayType.BANK);
@@ -32,6 +34,17 @@ public final class HolidayCalendarBuilder {
 
     public HolidayCalendarBuilder weekend(Weekend weekend) {
         this.weekend = Objects.requireNonNull(weekend, "weekend must not be null");
+
+        return this;
+    }
+
+    /** Opening hours of a business day. Without them a business day is open all day. */
+    public HolidayCalendarBuilder businessHours(LocalTime open, LocalTime close) {
+        return businessHours(BusinessHours.of(open, close));
+    }
+
+    public HolidayCalendarBuilder businessHours(BusinessHours businessHours) {
+        this.businessHours = Objects.requireNonNull(businessHours, "businessHours must not be null");
 
         return this;
     }
@@ -85,7 +98,8 @@ public final class HolidayCalendarBuilder {
 
         var resolution = LayerResolver.resolve(layers, observance);
 
-        return new CompiledCalendar(weekend, resolution.holidays(), resolution.observance(), easter, nonWorkingTypes);
+        return new CompiledCalendar(weekend, businessHours, resolution.holidays(), resolution.observance(), easter,
+                nonWorkingTypes);
     }
 
     private void requireUniqueLayerNames() {

@@ -1,7 +1,9 @@
 package io.github.sfesantos.holidays.internal;
 
+import java.time.LocalTime;
 import java.util.List;
 
+import io.github.sfesantos.holidays.BusinessHours;
 import io.github.sfesantos.holidays.HolidayCalendar;
 import io.github.sfesantos.holidays.Weekend;
 
@@ -30,6 +32,25 @@ public final class UnionCalendar extends IndexedCalendar {
     @Override
     protected boolean hasNoHolidays() {
         return false;
+    }
+
+    /** The hours every member is open. Fails when the members' hours do not overlap. */
+    @Override
+    public BusinessHours businessHours() {
+        var open = LocalTime.MIDNIGHT;
+        var close = LocalTime.MAX;
+
+        for (var member : members) {
+            var hours = member.businessHours();
+            open = hours.open().isAfter(open) ? hours.open() : open;
+            close = hours.close().isBefore(close) ? hours.close() : close;
+        }
+
+        if (!close.isAfter(open)) {
+            throw new IllegalStateException("the members' business hours do not overlap");
+        }
+
+        return BusinessHours.of(open, close);
     }
 
     public List<HolidayCalendar> members() {

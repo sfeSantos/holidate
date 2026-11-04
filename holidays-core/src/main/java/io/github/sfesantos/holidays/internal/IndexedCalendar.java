@@ -1,6 +1,8 @@
 package io.github.sfesantos.holidays.internal;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Year;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
@@ -13,6 +15,7 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.function.UnaryOperator;
 
+import io.github.sfesantos.holidays.BusinessHours;
 import io.github.sfesantos.holidays.HolidayCalendar;
 import io.github.sfesantos.holidays.HolidayOccurrence;
 import io.github.sfesantos.holidays.Weekend;
@@ -204,6 +207,54 @@ public abstract class IndexedCalendar implements HolidayCalendar {
         Objects.requireNonNull(date, "date must not be null");
 
         return index(date.getYear()).isBusinessDay(date.getDayOfYear());
+    }
+
+    @Override
+    public Optional<BusinessHours> businessHoursOn(LocalDate date) {
+        Objects.requireNonNull(date, "date must not be null");
+        var index = index(date.getYear());
+        int day = date.getDayOfYear();
+
+        if (!index.isBusinessDay(day)) {
+            return Optional.empty();
+        }
+
+        var hours = businessHours();
+        var close = earliestClose(index, day, hours.close());
+
+        if (!close.isAfter(hours.open())) {
+            return Optional.empty();
+        }
+
+        return Optional.of(hours.closingAt(close));
+    }
+
+    @Override
+    public boolean isHalfDay(LocalDate date) {
+        var hours = businessHoursOn(date);
+
+        return hours.isPresent() && hours.get().close().isBefore(businessHours().close());
+    }
+
+    @Override
+    public boolean isOpen(LocalDateTime dateTime) {
+        Objects.requireNonNull(dateTime, "dateTime must not be null");
+        var hours = businessHoursOn(dateTime.toLocalDate());
+
+        return hours.isPresent() && hours.get().contains(dateTime.toLocalTime());
+    }
+
+    private static LocalTime earliestClose(YearIndex index, int day, LocalTime close) {
+        var observed = index.byObserved();
+        var earliest = close;
+
+        for (int i = index.observedIndex(day); i < observed.length && observed[i].observed().getDayOfYear() == day; i++) {
+            if (observed[i].isHalfDay() && observed[i].closesAt().isBefore(earliest)) {
+                earliest = observed[i].closesAt();
+            }
+        }
+
+        return earliest;
     }
 
     @Override

@@ -4,10 +4,12 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalQuery;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Read-only questions about working days. A business day is neither a
@@ -22,6 +24,24 @@ public interface BusinessDayQueries {
     Weekend weekend();
     boolean isWeekend(LocalDate date);
     boolean isBusinessDay(LocalDate date);
+    /** The opening hours of an ordinary business day; {@link BusinessHours#allDay()} unless the builder set them. */
+    BusinessHours businessHours();
+    /**
+     * The hours business is open on that date: empty on weekends and
+     * non-working holidays, cut short on a {@link HolidayType#HALF_DAY}.
+     * A half day whose closing time is not after the opening time is closed.
+     */
+    Optional<BusinessHours> businessHoursOn(LocalDate date);
+    /** A business day on which a half-day holiday closes business early. */
+    boolean isHalfDay(LocalDate date);
+    boolean isOpen(LocalDateTime dateTime);
+    /** Whether business is open at that instant, read in the given zone. */
+    default boolean isOpen(Instant instant, ZoneId zone) {
+        Objects.requireNonNull(instant, "instant must not be null");
+        Objects.requireNonNull(zone, "zone must not be null");
+
+        return isOpen(LocalDateTime.ofInstant(instant, zone));
+    }
     /** The first business day strictly after the date. */
     LocalDate nextBusinessDay(LocalDate date);
     /** The date itself when it is a business day, otherwise the first business day after it. */
