@@ -165,6 +165,25 @@ rio.holidayOn(LocalDate.of(2028, 2, 29));       // Carnival Tuesday lands on a l
 
 See [RioDeJaneiroExampleTest](holidays-core/src/test/java/io/github/sfesantos/holidays/examples/RioDeJaneiroExampleTest.java).
 
+## Payment dates
+
+A direct debit due on a holiday or a weekend has to move. `BusinessDayConvention`
+names the usual choices: `FOLLOWING` takes the next business day, `PRECEDING`
+the one before, and the `MODIFIED_*` variants do the same unless that would
+leave the month, in which case they go the other way. A date that is already
+a business day never moves.
+
+```java
+import static io.github.sfesantos.holidays.BusinessDayConvention.*;
+
+var due = LocalDate.of(2026, 8, 15);                 // Saturday, and Asunción
+
+calendar.adjust(due, FOLLOWING);                     // 2026-08-17
+calendar.adjust(due, PRECEDING);                     // 2026-08-14
+calendar.adjust(LocalDate.of(2026, 5, 31), MODIFIED_FOLLOWING); // 2026-05-29, June 1 would leave May
+due.atTime(9, 0).with(calendar.adjuster(FOLLOWING)); // 2026-08-17T09:00
+```
+
 ## Combining calendars
 
 Settlement between two markets needs both to be open. `union` composes
