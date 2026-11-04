@@ -108,7 +108,8 @@ final class YearIndexBuilder {
             context.taken().add(observed);
         }
 
-        return new HolidayOccurrence(holiday.name(), original, observed, holiday.type(), resolved.layer());
+        return new HolidayOccurrence(holiday.name(), original, observed, holiday.type(), resolved.layer(),
+                holiday.closesAt());
     }
 
     private static void collectObservedIn(int year, List<HolidayOccurrence> placed, List<HolidayOccurrence> into) {

@@ -1,6 +1,7 @@
 package io.github.sfesantos.holidays;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.Month;
 import java.time.MonthDay;
 import java.time.Year;
@@ -15,8 +16,11 @@ import io.github.sfesantos.holidays.easter.EasterAlgorithm;
  * The name is the holiday's identity across layers; a layer overrides or
  * removes a holiday by name. {@code observance} defaults to
  * {@link ObservanceRule#inherit()}, meaning the layer or calendar rule applies.
+ * {@code closesAt} only matters for a {@link HolidayType#HALF_DAY}: it is when
+ * business closes that day, noon unless {@link #closingAt} says otherwise.
  */
-public record Holiday(String name, HolidayType type, HolidayRule rule, YearRange validity, ObservanceRule observance) {
+public record Holiday(String name, HolidayType type, HolidayRule rule, YearRange validity, ObservanceRule observance,
+        LocalTime closesAt) {
 
     public Holiday {
         Objects.requireNonNull(name, "name must not be null");
@@ -24,6 +28,7 @@ public record Holiday(String name, HolidayType type, HolidayRule rule, YearRange
         Objects.requireNonNull(rule, "rule must not be null");
         Objects.requireNonNull(validity, "validity must not be null");
         Objects.requireNonNull(observance, "observance must not be null");
+        Objects.requireNonNull(closesAt, "closesAt must not be null");
 
         if (name.isBlank()) {
             throw new IllegalArgumentException("name must not be blank");
@@ -31,7 +36,7 @@ public record Holiday(String name, HolidayType type, HolidayRule rule, YearRange
     }
 
     public static Holiday of(String name, HolidayRule rule) {
-        return new Holiday(name, HolidayType.PUBLIC, rule, YearRange.always(), ObservanceRule.inherit());
+        return new Holiday(name, HolidayType.PUBLIC, rule, YearRange.always(), ObservanceRule.inherit(), LocalTime.NOON);
     }
 
     public static Holiday fixed(String name, Month month, int dayOfMonth) {
@@ -51,7 +56,12 @@ public record Holiday(String name, HolidayType type, HolidayRule rule, YearRange
     }
 
     public Holiday ofType(HolidayType type) {
-        return new Holiday(name, type, rule, validity, observance);
+        return new Holiday(name, type, rule, validity, observance, closesAt);
+    }
+
+    /** Makes this a {@link HolidayType#HALF_DAY} on which business closes at the given time. */
+    public Holiday closingAt(LocalTime closesAt) {
+        return new Holiday(name, HolidayType.HALF_DAY, rule, validity, observance, closesAt);
     }
 
     public Holiday validFrom(Year from) {
@@ -67,7 +77,7 @@ public record Holiday(String name, HolidayType type, HolidayRule rule, YearRange
     }
 
     public Holiday withObservance(ObservanceRule observance) {
-        return new Holiday(name, type, rule, validity, observance);
+        return new Holiday(name, type, rule, validity, observance, closesAt);
     }
 
     public boolean inheritsObservance() {
@@ -86,6 +96,6 @@ public record Holiday(String name, HolidayType type, HolidayRule rule, YearRange
     }
 
     private Holiday withValidity(YearRange validity) {
-        return new Holiday(name, type, rule, validity, observance);
+        return new Holiday(name, type, rule, validity, observance, closesAt);
     }
 }

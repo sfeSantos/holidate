@@ -109,6 +109,9 @@ class RioDeJaneiroExampleTest {
 
         assertEquals(HolidayType.HALF_DAY, RIO.holidayOn(ashWednesday).orElseThrow().type());
         assertTrue(RIO.isBusinessDay(ashWednesday));
+        assertTrue(RIO.isHalfDay(ashWednesday));
+        assertTrue(RIO.isOpen(ashWednesday.atTime(11, 59)));
+        assertFalse(RIO.isOpen(ashWednesday.atTime(12, 0)));
     }
 
     @Test

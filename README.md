@@ -195,6 +195,30 @@ calendar.adjust(Instant.parse("2026-12-24T15:30:00Z"), madrid, FOLLOWING);   // 
 calendar.adjust(LocalDateTime.of(2026, 12, 24, 15, 59), madrid, FOLLOWING); // before cut-off -> 2026-12-24
 ```
 
+## Business hours and half days
+
+A calendar may declare opening hours; without them a business day is open all
+day. A `HALF_DAY` holiday keeps the day a business day but closes it early, at
+noon unless `closingAt` says otherwise.
+
+```java
+var calendar = HolidayCalendar.builder()
+        .businessHours(LocalTime.of(9, 0), LocalTime.of(17, 30))
+        .layer(Layer.named("ES")
+                .add(Holiday.fixed("Navidad", Month.DECEMBER, 25),
+                        Holiday.fixed("Nochebuena", Month.DECEMBER, 24).closingAt(LocalTime.of(13, 0)))
+                .build())
+        .build();
+
+calendar.businessHoursOn(LocalDate.of(2026, 12, 23)); // Optional[BusinessHours[09:00 to 17:30]]
+calendar.businessHoursOn(LocalDate.of(2026, 12, 24)); // Optional[BusinessHours[09:00 to 13:00]]
+calendar.businessHoursOn(LocalDate.of(2026, 12, 25)); // Optional.empty
+calendar.isHalfDay(LocalDate.of(2026, 12, 24));       // true
+calendar.isOpen(LocalDateTime.of(2026, 12, 24, 12, 59)); // true
+calendar.isOpen(LocalDateTime.of(2026, 12, 24, 13, 0));  // false
+calendar.isOpen(Instant.parse("2026-12-23T08:30:00Z"), ZoneId.of("Europe/Madrid")); // true, 09:30 local
+```
+
 ## Combining calendars
 
 Settlement between two markets needs both to be open. `union` composes
@@ -228,7 +252,8 @@ A `Holiday` is a rule plus a name, a `HolidayType` and a validity range
 
 **Types.** `PUBLIC` and `BANK` make a day non-working. `OBSERVANCE` and
 `HALF_DAY` show up in `isHoliday` and `holidayOn` but leave `isBusinessDay`
-true. Change the set with `nonWorkingTypes(...)` on the builder.
+true; a `HALF_DAY` also shortens that day's business hours. Change the set
+with `nonWorkingTypes(...)` on the builder.
 
 **Layers.** A `Layer` adds holidays, overrides inherited ones by name or
 removes them. Adding a name that a lower layer already defines is an error:

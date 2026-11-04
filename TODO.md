@@ -141,7 +141,7 @@ Eram "fora de escopo" até o 0.2.0. Entraram depois, em `main`, sem release pró
 
 - [x] **Horário de corte (cut-off) e fusos horários.** `CutOff.at(LocalTime, ZoneId)` transforma um `Instant` ou `LocalDateTime` na data de registo (dia seguinte quando recebido na hora de corte ou depois); `calendar.adjust(instant, cutOff, convenção)` aplica a convenção a essa data.
 
-- [ ] **Horário comercial / meio-dia.** `BusinessHours` no builder, `HALF_DAY` com hora de fecho, `isOpen(LocalDateTime)` e `businessHoursOn(LocalDate)`.
+- [x] **Horário comercial / meio-dia.** `BusinessHours` no builder (default: dia inteiro), `HALF_DAY` com hora de fecho via `Holiday.closingAt` (default meio-dia), `businessHoursOn(LocalDate)`, `isHalfDay`, `isOpen(LocalDateTime)` e `isOpen(Instant, ZoneId)`. Na união as horas são a interseção dos membros.
 
 - [ ] **Calendários não gregorianos.** Regras islâmicas via `HijrahChronology` (`java.base`, tabela Umm al-Qura); uma regra passa a poder dar duas datas no mesmo ano gregoriano.
 
@@ -459,7 +459,7 @@ class SettlementService {
 - [ ] Publicação em Maven Central.
 ### Depois
 - [ ] Páscoa juliana/ortodoxa.
-- [ ] Meio-dia / `HALF_DAY` com semântica real.
+- [x] Meio-dia / `HALF_DAY` com semântica real: `BusinessHours` no builder, `Holiday.closingAt`, `businessHoursOn`, `isHalfDay`, `isOpen`.
 - [ ] Mais packs de países (JSON files; community contributions are data edits plus a yearly test).
 - [ ] Plain text `.holidays` format as a second reader, if users ask for something easier to edit by hand.
 - [ ] Loading packs from a database or vendor feed as reference `HolidayDataProvider` implementations.
