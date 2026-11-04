@@ -207,11 +207,36 @@ union costs the same per query as a single calendar; any other
 `HolidayCalendar` implementation is read through its public queries once per
 year.
 
+## Lunar calendars
+
+`Holiday.hijri(name, month, day)` places a day of the Islamic calendar using
+the Umm al-Qura tables that ship with the JDK (`HijrahChronology`), valid for
+Gregorian years 1883 to 2173. Local moon sightings may differ from the tables
+by a day. Because the Islamic year is eleven days shorter, a holiday can fall
+twice in one Gregorian year, and the calendar lists both occurrences.
+
+```java
+var gulf = HolidayCalendar.builder()
+        .weekend(DayOfWeek.FRIDAY, DayOfWeek.SATURDAY)
+        .layer(Layer.named("AE")
+                .add(Holiday.hijri("Eid al-Fitr", 10, 1),
+                        Holiday.hijri("Arafat Day", 12, 9),
+                        Holiday.hijri("Eid al-Adha", 12, 10),
+                        Holiday.hijri("Islamic New Year", 1, 1))
+                .build())
+        .build();
+
+gulf.holidayOn(LocalDate.of(2026, 3, 20));           // Eid al-Fitr
+gulf.holidaysIn(Year.of(2008));                       // Islamic New Year on 10 Jan and again on 29 Dec
+```
+
 ## Concepts
 
-**Rules.** A `HolidayRule` turns a year into at most one date:
+**Rules.** A `HolidayRule` turns a year into dates:
 `fixed`, `easterRelative`, `nthWeekdayOfMonth` (negative `n` counts from the
-end), `weekdayAfter`, `weekdayBefore` and `custom(Function<Year, Optional<LocalDate>>)`.
+end), `weekdayAfter`, `weekdayBefore` and `custom(Function<Year, Optional<LocalDate>>)`
+give at most one date a year; `hijri` follows the Islamic calendar, whose
+shorter year can put the same holiday twice in one Gregorian year.
 A `Holiday` is a rule plus a name, a `HolidayType` and a validity range
 (`validFrom`, `validUntil`).
 

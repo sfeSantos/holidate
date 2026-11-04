@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.time.MonthDay;
 import java.time.Year;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Nested;
@@ -143,6 +144,48 @@ class HolidayRuleTest {
             var rule = HolidayRule.custom(year -> null);
 
             assertThrows(NullPointerException.class, () -> resolve(rule, 2026));
+        }
+    }
+
+    @Nested
+    class Hijri {
+
+        @Test
+        void islamicNewYearFellTwiceIn2008() {
+            var newYear = HolidayRule.hijri(1, 1);
+
+            assertEquals(List.of(LocalDate.of(2008, 1, 10), LocalDate.of(2008, 12, 29)), newYear.datesIn(Year.of(2008), EASTER));
+            assertEquals(Optional.of(LocalDate.of(2008, 1, 10)), resolve(newYear, 2008));
+            assertEquals(List.of(LocalDate.of(2026, 6, 16)), newYear.datesIn(Year.of(2026), EASTER));
+        }
+
+        @Test
+        void matchesTheUmmAlQuraTablesFor2026() {
+            assertEquals(Optional.of(LocalDate.of(2026, 2, 18)), resolve(HolidayRule.hijri(9, 1), 2026));
+            assertEquals(Optional.of(LocalDate.of(2026, 3, 20)), resolve(HolidayRule.hijri(10, 1), 2026));
+            assertEquals(Optional.of(LocalDate.of(2026, 5, 27)), resolve(HolidayRule.hijri(12, 10), 2026));
+        }
+
+        @Test
+        void thirtiethDayOnlyExistsWhenTheMonthHasThirtyDays() {
+            var lastOfRamadan = HolidayRule.hijri(9, 30);
+
+            assertTrue(resolve(lastOfRamadan, 2025).isEmpty());
+            assertEquals(Optional.of(LocalDate.of(2026, 3, 19)), resolve(lastOfRamadan, 2026));
+        }
+
+        @Test
+        void yearsOutsideTheTablesYieldNothing() {
+            assertTrue(resolve(HolidayRule.hijri(1, 1), 1800).isEmpty());
+            assertTrue(resolve(HolidayRule.hijri(1, 1), 2200).isEmpty());
+        }
+
+        @Test
+        void validatesMonthAndDay() {
+            assertThrows(IllegalArgumentException.class, () -> HolidayRule.hijri(0, 1));
+            assertThrows(IllegalArgumentException.class, () -> HolidayRule.hijri(13, 1));
+            assertThrows(IllegalArgumentException.class, () -> HolidayRule.hijri(1, 0));
+            assertThrows(IllegalArgumentException.class, () -> HolidayRule.hijri(1, 31));
         }
     }
 }

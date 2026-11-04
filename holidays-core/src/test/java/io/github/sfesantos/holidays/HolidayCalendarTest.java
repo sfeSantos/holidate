@@ -122,6 +122,21 @@ class HolidayCalendarTest {
     }
 
     @Test
+    void aLunarHolidayMayOccurTwiceInAYear() {
+        var calendar = HolidayCalendar.builder()
+                .layer(Layer.named("x").add(Holiday.hijri("Islamic New Year", 1, 1)).build())
+                .build();
+        var january = LocalDate.of(2008, 1, 10);
+        var december = LocalDate.of(2008, 12, 29);
+
+        assertEquals(2, calendar.holidaysIn(Year.of(2008)).size());
+        assertTrue(calendar.isHoliday(january));
+        assertTrue(calendar.isHoliday(december));
+        assertEquals(december, calendar.nextHoliday(january).orElseThrow().observed());
+        assertEquals(1, calendar.holidaysIn(Year.of(2026)).size());
+    }
+
+    @Test
     void warmUpCachesTheRequestedYears() {
         var calendar = assertInstanceOf(CompiledCalendar.class, HolidayCalendar.builder().layer(SPAIN).build());
 
