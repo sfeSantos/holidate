@@ -23,6 +23,7 @@ class BusinessDayConventionTest {
                     .add(Holiday.fixed("Año Nuevo", Month.JANUARY, 1),
                             Holiday.fixed("Fiesta del Trabajo", Month.MAY, 1),
                             Holiday.fixed("Asunción", Month.AUGUST, 15),
+                            Holiday.fixed("Fiesta Nacional", Month.OCTOBER, 12),
                             Holiday.fixed("Todos los Santos", Month.NOVEMBER, 1),
                             Holiday.fixed("Navidad", Month.DECEMBER, 25))
                     .build())
@@ -50,6 +51,15 @@ class BusinessDayConventionTest {
         assertEquals(LocalDate.of(2026, 12, 24), SPAIN.adjust(CHRISTMAS_FRIDAY, PRECEDING));
         assertEquals(LocalDate.of(2026, 8, 17), SPAIN.adjust(ASSUMPTION_SATURDAY, FOLLOWING));
         assertEquals(LocalDate.of(2026, 8, 14), SPAIN.adjust(ASSUMPTION_SATURDAY, PRECEDING));
+    }
+
+    @Test
+    void sundayFollowedByAMondayHolidayMovesToTuesday() {
+        var sunday = LocalDate.of(2026, 10, 11);
+
+        assertEquals(LocalDate.of(2026, 10, 13), SPAIN.adjust(sunday, FOLLOWING));
+        assertEquals(LocalDate.of(2026, 10, 13), SPAIN.adjust(sunday, MODIFIED_FOLLOWING));
+        assertEquals(LocalDate.of(2026, 10, 9), SPAIN.adjust(sunday, PRECEDING));
     }
 
     @Test
