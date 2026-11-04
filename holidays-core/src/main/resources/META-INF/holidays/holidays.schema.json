@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/sfeSantos/holidate/holidays.schema.json",
+  "title": "Holiday layers",
+  "description": "Layers of holidays as read by HolidayFormat.json(). A layer adds holidays, overrides or removes inherited ones by name, and may declare a weekend, an observance rule and the layer it extends.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["layers"],
+  "properties": {
+    "layers": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/layer" }
+    }
+  },
+  "$defs": {
+    "layer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "description": "Unique name, ISO 3166-1 or 3166-2 where one exists (ES, ES-AN), free text below that (ES-AN-MA)." },
+        "extends": { "type": "string", "minLength": 1, "description": "The id of the layer this one builds on." },
+        "weekend": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/dayOfWeek" }, "description": "Replaces the weekend in force from this layer up." },
+        "observance": { "$ref": "#/$defs/observance", "description": "Replaces the observance rule in force from this layer up. INHERIT is not allowed here." },
+        "holidays": { "type": "array", "items": { "$ref": "#/$defs/holiday" }, "description": "Holidays added by this layer. A name a lower layer defines must go in override or remove instead." },
+        "override": { "type": "array", "items": { "$ref": "#/$defs/holiday" }, "description": "Holidays replacing the inherited ones of the same name." },
+        "remove": { "type": "array", "items": { "type": "string" }, "description": "Names of inherited holidays this layer drops." }
+      }
+    },
+    "holiday": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "rule"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "description": "Identity across layers." },
+        "rule": { "$ref": "#/$defs/rule" },
+        "type": { "type": "string", "enum": ["PUBLIC", "BANK", "OBSERVANCE", "HALF_DAY"], "default": "PUBLIC" },
+        "from": { "type": "integer", "description": "First year the holiday is in force, inclusive." },
+        "until": { "type": "integer", "description": "Last year the holiday is in force, inclusive." },
+        "observance": { "$ref": "#/$defs/observance", "description": "Overrides the layer rule for this holiday only." },
+        "closesAt": { "type": "string", "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$", "description": "Closing time of a HALF_DAY; sets the type to HALF_DAY. Noon when absent." }
+      }
+    },
+    "rule": {
+      "type": "object",
+      "description": "Exactly one kind: fixed, easter, nth (with weekday and month), weekdayAfter or weekdayBefore (with base), hijri, hebrew.",
+      "oneOf": [
+        { "additionalProperties": false, "required": ["fixed"], "properties": { "fixed": { "$ref": "#/$defs/monthDay" } } },
+        { "additionalProperties": false, "required": ["easter"], "properties": { "easter": { "type": "integer", "minimum": -366, "maximum": 366, "description": "Days from Easter Sunday; negative before." } } },
+        { "additionalProperties": false, "required": ["nth", "weekday", "month"], "properties": {
+            "nth": { "type": "integer", "minimum": -5, "maximum": 5, "not": { "const": 0 }, "description": "1 to 5 from the start of the month, -1 to -5 from the end." },
+            "weekday": { "$ref": "#/$defs/dayOfWeek" },
+            "month": { "$ref": "#/$defs/month" } } },
+        { "additionalProperties": false, "required": ["weekdayAfter", "base"], "properties": { "weekdayAfter": { "$ref": "#/$defs/dayOfWeek" }, "base": { "$ref": "#/$defs/monthDay" } } },
+        { "additionalProperties": false, "required": ["weekdayBefore", "base"], "properties": { "weekdayBefore": { "$ref": "#/$defs/dayOfWeek" }, "base": { "$ref": "#/$defs/monthDay" } } },
+        { "additionalProperties": false, "required": ["hijri"], "properties": { "hijri": { "type": "string", "pattern": "^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|30)$", "description": "Islamic month and day, MM-DD, Umm al-Qura tables." } } },
+        { "additionalProperties": false, "required": ["hebrew"], "properties": { "hebrew": { "type": "string", "pattern": "^(NISAN|IYYAR|SIVAN|TAMMUZ|AV|ELUL|TISHRI|HESHVAN|KISLEV|TEVET|SHEVAT|ADAR_I|ADAR)-([1-9]|[12][0-9]|30)$", "description": "Hebrew month name and day, for example NISAN-15. ADAR is Adar II in a leap year; ADAR_I exists only in leap years." } } }
+      ]
+    },
+    "monthDay": { "type": "string", "pattern": "^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$", "description": "MM-DD" },
+    "dayOfWeek": { "type": "string", "enum": ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"] },
+    "month": { "type": "string", "enum": ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"] },
+    "observance": { "type": "string", "enum": ["NONE", "SUNDAY_TO_MONDAY", "WEEKEND_TO_MONDAY", "SATURDAY_TO_FRIDAY_SUNDAY_TO_MONDAY", "NEAREST_WEEKDAY", "INHERIT"] }
+  }
+}

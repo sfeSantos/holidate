@@ -160,7 +160,7 @@ dependencies, ships country packs as resource files in that same format, and
 lets the user load their own files, directories or database rows through the
 same door.
 
-- [ ] **JSON format** (`ES.json`, one file per country, regions inside). Same model as the Java API; a JSON Schema is published so users validate files with any tool before loading. Target shape:
+- [x] **JSON format** (`ES.json`, one file per country, regions inside). Same model as the Java API; the JSON Schema ships in the jar at `META-INF/holidays/holidays.schema.json`. Shape (plus `closesAt` on half days and the `hijri`/`hebrew` rule kinds):
 ```json
 {
   "layers": [
@@ -193,7 +193,7 @@ same door.
   ]
 }
 ```
-- [ ] JSON needs a parser and the core has no dependencies, so `internal.json` gets a hand-written one: objects, arrays, strings with escapes, numbers, booleans, null. About 200 lines, strict (RFC 8259), fails with line and column. No reflection, no generic binding: the reader walks the tree and calls the `Layer`/`Holiday` builders directly.
+- [x] JSON needs a parser and the core has no dependencies, so `internal.json` gets a hand-written one: objects, arrays, strings with escapes, numbers, booleans, null. About 200 lines, strict (RFC 8259), fails with line and column. No reflection, no generic binding: the reader walks the tree and calls the `Layer`/`Holiday` builders directly.
 - [ ] **Plain text alternative** (`.holidays`, `#` comments), kept as an open option because it is far easier to read and edit by hand:
 ```
 layer ES
@@ -214,7 +214,7 @@ layer ES-CT extends ES
   override Sant Joan = fixed 06-24
 ```
 - [ ] Grammar: `layer <id> [extends <id>]`, then one entry per line: `<name> = <rule> [type <T>] [from <year>] [until <year>] [observance <rule>]`, plus `remove <name>`, `override <name> = <rule> ...`, `weekend = ...`, `observance = ...`. Names may contain spaces; `=` splits name from rule. Rule kinds: `fixed MM-DD`, `easter <offset>`, `nth <n> <DOW> <MONTH>`, `weekday-after <DOW> MM-DD`, `weekday-before <DOW> MM-DD`. `custom` stays Java-only.
-- [ ] `HolidayFormat.json()` (and `HolidayFormat.text()` if the plain text option goes ahead): `parse(Reader)` / `parse(Path)` / `parse(String)` → `List<Layer>`; `write(List<Layer>)` round-trips so a calendar built in Java can be exported. Both readers hand-written, zero deps, fail fast with line numbers. `custom` rules cannot be serialised and are rejected by `write`.
+- [x] `HolidayFormat.json()` (and `HolidayFormat.text()` if the plain text option goes ahead): `parse(Reader)` / `parse(Path)` / `parse(String)` → `List<Layer>`; `write(List<Layer>)` round-trips so a calendar built in Java can be exported. Hand-written, zero deps, fails fast with line and column (`HolidayFormatException`). `custom` rules and observances cannot be serialised and are rejected by `write`.
 - [ ] **Registry**: `CalendarRegistry` resolves an id to a `HolidayCalendar` by composing the `extends` chain (`ES-AN-MA` → `ES`, `ES-AN`, `ES-AN-MA`). Ids follow ISO 3166-1/3166-2 where one exists (`ES`, `ES-AN`, `BR`, `BR-RJ`); below that, free text (`ES-AN-MA`, `BR-RJ-RIO`). Calendars are cached by id.
 - [ ] `HolidayDataProvider` (`ServiceLoader`): `Set<String> layerIds()` + `Optional<Layer> layer(String id)`. Built-in providers: classpath resources (`META-INF/holidays/*.holidays`), a directory on disk. Users write their own (database, vendor feed). Registry asks providers in order; the first that answers wins, so a user's provider overrides the shipped pack.
 - [ ] **Exception layers**: a user stacks `SANTANDER-ES` (one-off closures, `validBetween(2027, 2027)`) on top of `ES-AN-MA` without touching the base data. Already supported by layers; document the pattern.
@@ -251,11 +251,13 @@ holidays-core/                      # motor de regras, sem dados de país (estad
     YearIndex, YearIndexBuilder, UnionIndexBuilder
     CalendarCache, LayerResolver, ObservanceChain
  
-  io.github.<user>.holidays.format    # data formats (section 2.9)
-    HolidayFormat                   # json() / text(): parse and write
+  io.github.sfesantos.holidays.format    # data formats (section 2.9)
+    HolidayFormat                   # json(): parse and write; text() if the plain text option goes ahead
     HolidayFormatException          # line and column in the message
-  io.github.<user>.holidays.internal.json
-    JsonReader, JsonWriter          # hand-written, strict, no reflection
+  io.github.sfesantos.holidays.internal.json
+    JsonValue, JsonReader, JsonWriter          # hand-written, strict, positions on every node
+    JsonHolidayFormat, LayerJsonReader, LayerJsonWriter   # tree <-> Layer, calling the builders
+  (internal.ObservanceNames: data names of the built-in observance rules)
   io.github.<user>.holidays.registry
     CalendarRegistry                # id -> HolidayCalendar, composes the extends chain, caches
     HolidayDataProvider             # ServiceLoader SPI
@@ -454,7 +456,7 @@ class SettlementService {
 - [x] `BusinessDayConvention` para datas de pagamento (entrou em `main` depois do 0.2.0, sem release próprio).
 - [x] Seção 2.8: `CutOff`, `BusinessHours` e meio-dia, regras `hijri` e `hebrew` (em `main` depois do 0.2.0, sem release próprio).
 ### v0.3 — data format and registry (section 2.9)
-- [ ] `HolidayFormat.json()` parser and writer over a hand-written `JsonReader`/`JsonWriter`, round-trip tests, JSON Schema published, error messages with line and column.
+- [x] `HolidayFormat.json()` parser and writer over a hand-written `JsonReader`/`JsonWriter`, round-trip tests, JSON Schema published, error messages with line and column.
 - [ ] `HolidayDataProvider` SPI + `CalendarRegistry` resolving the `extends` chain, classpath and directory providers.
 - [ ] `holidays-data`: `ES.json` (Spain, Andalucía, Málaga, Catalunya) and `BR.json` (Brazil, RJ, Rio) validated against BOE/BOJA and the Brazilian federal/state laws for 2025, 2026 and 2027.
 - [ ] Java constants for shared definitions (`Holidays.CHRISTMAS`...). Optional `holidays-data-es` with Java `Layer` constants kept as the code-first alternative.
