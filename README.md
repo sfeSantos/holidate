@@ -18,10 +18,13 @@ Requires Java 25.
 
 ## Status
 
-Early. Version 0.2 covers rules, layers, observance, the queries shown below,
-navigation (`nextHoliday`, `addBusinessDays`, `businessDaysBetween`),
-`TemporalAdjuster` and `TemporalQuery` integration, `Clock` overloads and
-`union` of calendars. Country data packs and a JSON format are next. The
+Early. Version 0.2.0, the release on Maven Central, covers rules, layers,
+observance, the basic queries, navigation (`nextHoliday`, `addBusinessDays`,
+`businessDaysBetween`), `TemporalAdjuster` and `TemporalQuery` integration,
+`Clock` overloads and `union` of calendars. Since then `main` has gained
+payment date conventions and cut-off times, business hours and half days, and
+Islamic and Hebrew calendar rules; those sections below describe code that is
+not yet in a release. Country data packs and a JSON format are next. The
 public API may still change before 1.0. See [TODO.md](TODO.md) for the roadmap.
 
 ## Install
@@ -310,8 +313,8 @@ Monday and Tuesday. A holiday may even move into the neighbouring year (1
 January on a Saturday under the US rule is observed on 31 December).
 
 **Occurrences.** Every query returns `HolidayOccurrence` records carrying
-the original date, the observed date, the type and the layer that defined
-the holiday.
+the original date, the observed date, the type, the layer that defined the
+holiday and, for a `HALF_DAY`, the time business closes.
 
 **Navigation.** `nextHoliday`, `previousHoliday`, `nextBusinessDay` and
 `previousBusinessDay` are exclusive: they never return the date you pass in.
