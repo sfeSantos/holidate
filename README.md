@@ -18,24 +18,19 @@ Requires Java 25.
 
 ## Status
 
-Early. Version 0.1 covers rules, layers, observance and the basic queries shown
-below. Navigation (`nextHoliday`, `addBusinessDays`, `businessDaysBetween`,
-`TemporalAdjuster` integration) and country data packs are next. The public
-API may still change before 1.0. See [TODO.md](TODO.md) for the roadmap.
+Early. Version 0.2 covers rules, layers, observance, the queries shown below,
+navigation (`nextHoliday`, `addBusinessDays`, `businessDaysBetween`),
+`TemporalAdjuster` and `TemporalQuery` integration, `Clock` overloads and
+`union` of calendars. Country data packs and a JSON format are next. The
+public API may still change before 1.0. See [TODO.md](TODO.md) for the roadmap.
 
 ## Install
-
-Not yet on Maven Central. Build it locally:
-
-```sh
-mvn install
-```
 
 ```xml
 <dependency>
     <groupId>io.github.sfesantos</groupId>
     <artifactId>holidays-core</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
