@@ -210,7 +210,7 @@ layer ES-CT extends ES
 - [ ] **Registry**: `CalendarRegistry` resolves an id to a `HolidayCalendar` by composing the `extends` chain (`ES-AN-MA` → `ES`, `ES-AN`, `ES-AN-MA`). Ids follow ISO 3166-1/3166-2 where one exists (`ES`, `ES-AN`, `BR`, `BR-RJ`); below that, free text (`ES-AN-MA`, `BR-RJ-RIO`). Calendars are cached by id.
 - [ ] `HolidayDataProvider` (`ServiceLoader`): `Set<String> layerIds()` + `Optional<Layer> layer(String id)`. Built-in providers: classpath resources (`META-INF/holidays/*.holidays`), a directory on disk. Users write their own (database, vendor feed). Registry asks providers in order; the first that answers wins, so a user's provider overrides the shipped pack.
 - [ ] **Exception layers**: a user stacks `SANTANDER-ES` (one-off closures, `validBetween(2027, 2027)`) on top of `ES-AN-MA` without touching the base data. Already supported by layers; document the pattern.
-- [ ] **Composition**: `HolidayCalendar.union(a, b, ...)`: holiday if a holiday in any; business day only if a business day in all. Needed for cross-market settlement (EUR/BRL is a business day in `ES` and `BR`). Implemented as a composed calendar with its own `YearIndex` built by OR-ing the members, so queries stay O(1).
+- [x] **Composition**: `HolidayCalendar.union(a, b, ...)`: holiday if a holiday in any; business day only if a business day in all. Needed for cross-market settlement (EUR/BRL is a business day in `ES` and `BR`). Implemented as a composed calendar with its own `YearIndex` built by OR-ing the members, so queries stay O(1).
 - [ ] **Yearly validation**: one test per year and per official source (BOE 2027, BOJA 2027, B3 2027), as `MalagaExampleTest` does. Updating a pack is "edit the file, run the test".
 - [ ] Java constants (`Holidays.CHRISTMAS`, `Holidays.GOOD_FRIDAY`) stay for the handful of definitions every country shares, and `Layer`/`Holiday` builders stay for users who prefer code. Both options remain first-class; the text format is the recommended one for bulk data.
 ---
@@ -436,7 +436,7 @@ class SettlementService {
 - [x] `nextBusinessDay`, `previousBusinessDay`, `addBusinessDays`, `businessDaysBetween` com prefix sums.
 - [x] `TemporalAdjuster` / `TemporalQuery`.
 - [x] `Clock` injetável.
-- [ ] `HolidayCalendar.union(...)` for cross-market calendars (section 2.9).
+- [x] `HolidayCalendar.union(...)` for cross-market calendars (section 2.9).
 ### v0.3 — data format and registry (section 2.9)
 - [ ] `HolidayFormat.json()` parser and writer over a hand-written `JsonReader`/`JsonWriter`, round-trip tests, JSON Schema published, error messages with line and column.
 - [ ] `HolidayDataProvider` SPI + `CalendarRegistry` resolving the `extends` chain, classpath and directory providers.

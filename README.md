@@ -170,6 +170,29 @@ rio.holidayOn(LocalDate.of(2028, 2, 29));       // Carnival Tuesday lands on a l
 
 See [RioDeJaneiroExampleTest](holidays-core/src/test/java/io/github/sfesantos/holidays/examples/RioDeJaneiroExampleTest.java).
 
+## Combining calendars
+
+Settlement between two markets needs both to be open. `union` composes
+calendars: a day is a holiday when it is a holiday in any member and a
+business day only when it is a business day in all of them. The weekend is
+the union of the members' weekends, and every query, navigation included,
+works on the result.
+
+```java
+var eurBrl = HolidayCalendar.union(spain, brazil);
+
+eurBrl.isBusinessDay(LocalDate.of(2026, 11, 2));    // false, Finados in Brazil
+eurBrl.isBusinessDay(LocalDate.of(2026, 12, 8));    // false, Inmaculada in Spain
+eurBrl.addBusinessDays(LocalDate.of(2026, 12, 23), 2); // 2026-12-28, T+2 across both
+eurBrl.holidaysIn(Year.of(2026));                   // every member's occurrences, each with its layer
+```
+
+When two members share a day, `holidayOn` returns the first member's
+occurrence. Members built with this library hand over their indexes, so a
+union costs the same per query as a single calendar; any other
+`HolidayCalendar` implementation is read through its public queries once per
+year.
+
 ## Concepts
 
 **Rules.** A `HolidayRule` turns a year into at most one date:

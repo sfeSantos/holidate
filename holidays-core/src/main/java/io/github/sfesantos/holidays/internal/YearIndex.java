@@ -154,6 +154,29 @@ public final class YearIndex {
         return byObserved.length;
     }
 
+    long[] anyHolidayBits() {
+        return anyHoliday;
+    }
+
+    long[] nonWorkingBits() {
+        return nonWorking;
+    }
+
+    long[] businessDayBits() {
+        return businessDays;
+    }
+
+    /** Prefix sums over the business-day bits: {@code prefix[d]} is the count of business days before day {@code d}. */
+    static int[] prefixOf(long[] businessDays, int length) {
+        var prefix = new int[length + 2];
+
+        for (int d = 1; d <= length; d++) {
+            prefix[d + 1] = prefix[d] + (bit(businessDays, d) ? 1 : 0);
+        }
+
+        return prefix;
+    }
+
     /** The first holiday observed on that day, or null. */
     public HolidayOccurrence holidayOn(int dayOfYear) {
         return byDay[dayOfYear];

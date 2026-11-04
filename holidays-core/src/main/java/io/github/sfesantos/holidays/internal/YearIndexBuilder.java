@@ -60,30 +60,26 @@ final class YearIndexBuilder {
             }
         }
 
-        var businessDays = new long[YearIndex.WORDS];
-        var prefix = businessDayPrefix(year, length, nonWorking, businessDays);
+        var businessDays = businessDays(year, length, nonWorking);
 
         return new YearIndex(year, length, anyHoliday, nonWorking, businessDays, byDay,
-                observedHere.toArray(HolidayOccurrence[]::new), prefix, own);
+                observedHere.toArray(HolidayOccurrence[]::new), YearIndex.prefixOf(businessDays, length), own);
     }
 
-    private int[] businessDayPrefix(int year, int length, long[] nonWorking, long[] businessDays) {
-        var prefix = new int[length + 2];
+    private long[] businessDays(int year, int length, long[] nonWorking) {
+        var businessDays = new long[YearIndex.WORDS];
         var weekend = calendar.weekend();
         var day = LocalDate.ofYearDay(year, 1).getDayOfWeek();
 
         for (int d = 1; d <= length; d++) {
-            boolean business = !weekend.contains(day) && !YearIndex.bit(nonWorking, d);
-
-            if (business) {
+            if (!weekend.contains(day) && !YearIndex.bit(nonWorking, d)) {
                 YearIndex.set(businessDays, d);
             }
 
-            prefix[d + 1] = prefix[d] + (business ? 1 : 0);
             day = day.plus(1);
         }
 
-        return prefix;
+        return businessDays;
     }
 
     private List<HolidayOccurrence> place(int year) {
