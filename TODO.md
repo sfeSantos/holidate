@@ -145,9 +145,9 @@ Eram "fora de escopo" até o 0.2.0. Entraram depois, em `main`, sem release pró
 
 - [x] **Horário comercial / meio-dia.** `BusinessHours` no builder (default: dia inteiro), `HALF_DAY` com hora de fecho via `Holiday.closingAt` (default meio-dia), `businessHoursOn(LocalDate)`, `isHalfDay`, `isOpen(LocalDateTime)` e `isOpen(Instant, ZoneId)`. Na união as horas são a interseção dos membros.
 
-- [ ] **Calendários não gregorianos.** Regras islâmicas via `HijrahChronology` (`java.base`, tabela Umm al-Qura); uma regra passa a poder dar duas datas no mesmo ano gregoriano.
+- [x] **Calendários não gregorianos.** Regras islâmicas (`Holiday.hijri`) via `HijrahChronology` (`java.base`, tabela Umm al-Qura, anos 1883 a 2173); `datesIn` permite duas datas no mesmo ano gregoriano. Calendário chinês analisado e adiado: é astronómico, não aritmético; se voltar, a via é uma tabela de inícios de mês lunar (1900 a 2100) mais tabela de termos solares para o Qingming.
 
-- [ ] **Calendário hebraico.** Aritmética própria (o JDK não traz), validada contra datas conhecidas de Rosh Hashaná e Pessach.
+- [x] **Calendário hebraico.** `Holiday.hebrew(nome, HebrewMonth, dia)`; aritmética própria em `hebrew.HebrewCalendar` (o JDK não traz), validada contra Rosh Hashaná de 1939 a 2026, Pessach, Yom Kippur, Hanucá e Purim.
 ### 2.9 Country data: text format, registry and composition
 
 Why: a bank present in ten countries deals with hundreds of calendars (branches,
@@ -227,22 +227,28 @@ layer ES-CT extends ES
 ### 3.1 Módulos / pacotes
 
 ```
-holidays-core/                      # motor de regras, sem dados de país
-  io.github.<user>.holidays
-    HolidayCalendar                 # fachada pública (interface)
+holidays-core/                      # motor de regras, sem dados de país (estado atual)
+  io.github.sfesantos.holidays
+    HolidayCalendar                 # fachada pública (interface): builder(), union(...)
+    HolidayQueries, BusinessDayQueries   # as consultas, com defaults para Clock, convenções e cut-off
     HolidayCalendarBuilder
     Layer, LayerBuilder
-    HolidayRule (sealed) + records: FixedDate, EasterRelative, NthWeekdayOfMonth, WeekdayAfter, Custom
-    ObservanceRule (interface funcional) + fábricas estáticas
+    Holiday (record), YearRange (record)
+    HolidayRule (sealed) + records: FixedDate, EasterRelative, NthWeekdayOfMonth, WeekdayAfter, WeekdayBefore, Custom, Hijri, Hebrew
+    ObservanceRule (interface funcional) + fábricas estáticas, ObservanceContext
     HolidayOccurrence (record)
     HolidayType (enum)
-    Weekend (record sobre EnumSet<DayOfWeek>)
-  io.github.<user>.holidays.easter
+    Weekend (record sobre máscara de 7 bits)
+    BusinessDayConvention (enum), CutOff (record), BusinessHours (record)
+  io.github.sfesantos.holidays.easter
     EasterAlgorithm, GregorianEaster
-  io.github.<user>.holidays.internal  # não exportado no module-info
-    YearIndex                       # dados pré-computados de um ano
-    CalendarCache
-    CompiledLayer
+  io.github.sfesantos.holidays.hebrew
+    HebrewCalendar, HebrewMonth
+  io.github.sfesantos.holidays.internal  # não exportado no module-info
+    IndexedCalendar                 # consultas sobre um YearIndex por ano, cache incluído
+    CompiledCalendar, UnionCalendar # fornecem o índice de cada ano
+    YearIndex, YearIndexBuilder, UnionIndexBuilder
+    CalendarCache, LayerResolver, ObservanceChain
  
   io.github.<user>.holidays.format    # data formats (section 2.9)
     HolidayFormat                   # json() / text(): parse and write
@@ -270,7 +276,7 @@ holidays-spring-boot-starter/   (opcional, módulo separado — ÚNICO com depen
 
 - [x] `module-info.java` em cada módulo; exportar só a API pública; `internal` nunca exportado.
 - [ ] `ServiceLoader<HolidayDataProvider>` para descoberta opcional de packs de dados sem acoplar o core.
-- [x] Build: Maven multi-módulo, Java 25, `--release 25`. Sem plugins além dos essenciais (compiler, surefire, jar, javadoc).
+- [x] Build: Maven multi-módulo, Java 25, `--release 25`. Plugins: compiler, surefire, jar, enforcer (zero dependências), e só no perfil `release` source, javadoc, gpg e central-publishing.
 ### 3.2 Fluxo interno
 
 ```
@@ -290,11 +296,11 @@ YearIndex (imutável, por ano):
 - [x] `businessDaysBetween` sobre intervalos grandes: contar por ano inteiro usando contagem pré-computada no `YearIndex` (`businessDaysInYear`) e só iterar nas pontas.
 ### 3.3 Modelo de tipos (Java 25)
 
-- [x] `sealed interface HolidayRule permits FixedDate, EasterRelative, NthWeekdayOfMonth, WeekdayAfter, Custom` + `switch` com pattern matching exaustivo em vez de `instanceof` em cascata.
-- [ ] `record` para tudo o que é valor: `HolidayOccurrence(String name, LocalDate original, LocalDate observed, HolidayType type, String layer)`.
-- [ ] Compact constructors nos records para validação (`Objects.requireNonNull`, ranges).
+- [x] `sealed interface HolidayRule permits FixedDate, EasterRelative, NthWeekdayOfMonth, WeekdayAfter, WeekdayBefore, Custom, Hijri, Hebrew` + `switch` com pattern matching exaustivo em vez de `instanceof` em cascata.
+- [x] `record` para tudo o que é valor: `HolidayOccurrence(name, original, observed, type, layer, closesAt)`, `Holiday`, `Weekend`, `YearRange`, `CutOff`, `BusinessHours`.
+- [x] Compact constructors nos records para validação (`Objects.requireNonNull`, ranges).
 - [x] `ObservanceRule` como `@FunctionalInterface` para permitir lambdas.
-- [ ] `Optional` só como tipo de retorno; nunca como campo ou parâmetro.
+- [x] `Optional` só como tipo de retorno; nunca como campo ou parâmetro.
 ---
 
 ### 3.4 Integração com Spring (módulo opcional)
@@ -350,39 +356,39 @@ class SettlementService {
 - [ ] **Métodos de 10 a 15 linhas no máximo.** Se passar, extrair. Builders e `switch` de pattern matching podem ser a exceção documentada.
 - [ ] Uma responsabilidade por classe (SRP). `YearIndex` só indexa; `GregorianEaster` só calcula Páscoa; `HolidayCalendarBuilder` só constrói.
 - [ ] Nomes que dizem o quê, não o como: `nextBusinessDay`, não `findNextNonHolidayNonWeekendDate`.
-- [ ] Sem flags booleanas em parâmetros (`nextHoliday(date, true)`). Criar dois métodos ou um enum.
+- [x] Sem flags booleanas em parâmetros (`nextHoliday(date, true)`). Criar dois métodos ou um enum.
 - [ ] Máximo 3 parâmetros por método; acima disso, record de parâmetros.
 - [ ] Sem comentários que explicam o código; comentários só para o *porquê* (ex.: referência ao BOE, ao algoritmo da Páscoa).
-- [ ] Sem `null` na API pública. Entrada: `Objects.requireNonNull` com mensagem. Saída: `Optional` ou coleção vazia.
+- [x] Sem `null` na API pública. Entrada: `Objects.requireNonNull` com mensagem. Saída: `Optional` ou coleção vazia.
 - [x] Fail-fast no `build()`: nomes duplicados na mesma camada, `remove` de nome inexistente, `validFrom > validUntil` → `IllegalArgumentException` / `IllegalStateException` com mensagem clara.
-- [ ] Exceções próprias só se agregarem valor (`HolidayCalendarException` opcional); nunca checked.
+- [x] Exceções próprias só se agregarem valor (`HolidayCalendarException` opcional); nunca checked.
 ### 4.2 Uso de `var`
 
-- [ ] Usar `var` em variáveis locais **quando o tipo é óbvio pelo lado direito** (`var calendar = HolidayCalendar.builder()...build();`, `var easter = GregorianEaster.of(year);`).
-- [ ] Não usar `var` quando o tipo não é evidente (`var result = service.compute(x);`) ou quando o tipo explícito documenta a intenção (`List<HolidayOccurrence> sorted = ...`).
-- [ ] Nunca `var` com literais numéricos ambíguos (`var n = 1;` vs `long`).
-- [ ] Nunca `var` em campos, parâmetros ou retornos (a linguagem não permite, mas fica a regra).
+- [x] Usar `var` em variáveis locais **quando o tipo é óbvio pelo lado direito** (`var calendar = HolidayCalendar.builder()...build();`, `var easter = GregorianEaster.of(year);`).
+- [x] Não usar `var` quando o tipo não é evidente (`var result = service.compute(x);`) ou quando o tipo explícito documenta a intenção (`List<HolidayOccurrence> sorted = ...`).
+- [x] Nunca `var` com literais numéricos ambíguos (`var n = 1;` vs `long`).
+- [x] Nunca `var` em campos, parâmetros ou retornos (a linguagem não permite, mas fica a regra).
 ### 4.3 SOLID aplicado
 
 - [ ] **S** — ver 4.1.
-- [ ] **O** — novas regras de feriado entram como novo `permits` do sealed interface + um case no switch; novas observâncias entram como lambda sem tocar no core.
-- [ ] **L** — `HolidayCalendar` é interface; qualquer implementação (a compilada, uma composta, uma decorada com logging) deve respeitar o contrato documentado no Javadoc.
+- [x] **O** — novas regras de feriado entram como novo `permits` do sealed interface + um case no switch; novas observâncias entram como lambda sem tocar no core.
+- [x] **L** — `HolidayCalendar` é interface; qualquer implementação (a compilada, uma composta, uma decorada com logging) deve respeitar o contrato documentado no Javadoc.
 - [x] **I** — separar interfaces de leitura: `HolidayQueries`, `BusinessDayQueries`, e `HolidayCalendar extends` ambas. Quem só precisa de dias úteis não vê o resto.
 - [x] **D** — `Clock` injetável; `EasterAlgorithm` injetável no builder; nada instancia dependências concretas dentro de métodos.
 ### 4.4 Imutabilidade e concorrência
 
-- [ ] Todos os campos `final`. Coleções expostas via `List.copyOf` / `Collections.unmodifiableList`; nunca devolver o array interno.
+- [x] Todos os campos `final`. Coleções expostas via `List.copyOf` / `Collections.unmodifiableList`; nunca devolver o array interno.
 - [x] `ConcurrentHashMap.computeIfAbsent` no cache de anos; `YearIndex` imutável após construção → publicação segura garantida.
-- [ ] Sem `synchronized`, sem locks explícitos.
-- [ ] Builders **não** são thread-safe (documentar). Calendários construídos **são**.
+- [x] Sem `synchronized`, sem locks explícitos.
+- [x] Builders **não** são thread-safe (documentar). Calendários construídos **são**.
 ### 4.5 API pública
 
-- [ ] Fluente, estática e descobrível: `HolidayCalendar.builder()`, `Holiday.fixed(...)`, `Holiday.easterRelative(...)`, `Observance.sundayToMonday()`.
-- [ ] Nomes em inglês na API; nomes de feriados em texto livre (o usuário escolhe o idioma).
-- [ ] Javadoc completo em tudo o que é `public`, com exemplo de uso na classe principal.
-- [ ] Tudo o que não é API é `package-private` ou está em `internal` não exportado.
+- [x] Fluente, estática e descobrível: `HolidayCalendar.builder()`, `Holiday.fixed(...)`, `Holiday.easterRelative(...)`, `Observance.sundayToMonday()`.
+- [x] Nomes em inglês na API; nomes de feriados em texto livre (o usuário escolhe o idioma).
+- [ ] Javadoc onde acrescenta algo que o nome não diz (semântica, limites, convenções); não em todo método `public`. Exemplo de uso na classe principal.
+- [x] Tudo o que não é API é `package-private` ou está em `internal` não exportado.
 - [ ] Versionamento semântico; nada em `public` muda sem major bump.
-- [ ] `toString`, `equals`, `hashCode` consistentes (records dão de graça).
+- [x] `toString`, `equals`, `hashCode` consistentes (records dão de graça).
 ---
 
 ## 5. Performance (prioridade total)
@@ -445,6 +451,7 @@ class SettlementService {
 - [x] `Clock` injetável.
 - [x] `HolidayCalendar.union(...)` for cross-market calendars (section 2.9).
 - [x] `BusinessDayConvention` para datas de pagamento (entrou em `main` depois do 0.2.0, sem release próprio).
+- [x] Seção 2.8: `CutOff`, `BusinessHours` e meio-dia, regras `hijri` e `hebrew` (em `main` depois do 0.2.0, sem release próprio).
 ### v0.3 — data format and registry (section 2.9)
 - [ ] `HolidayFormat.json()` parser and writer over a hand-written `JsonReader`/`JsonWriter`, round-trip tests, JSON Schema published, error messages with line and column.
 - [ ] `HolidayDataProvider` SPI + `CalendarRegistry` resolving the `extends` chain, classpath and directory providers.
