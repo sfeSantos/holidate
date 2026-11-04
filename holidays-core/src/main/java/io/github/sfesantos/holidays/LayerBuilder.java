@@ -1,5 +1,6 @@
 package io.github.sfesantos.holidays;
 
+import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -15,6 +16,8 @@ import java.util.Set;
 public final class LayerBuilder {
 
     private final String name;
+    private String parent;
+    private Weekend weekend;
     private final List<Holiday> additions = new ArrayList<>();
     private final Map<String, Holiday> overrides = new LinkedHashMap<>();
     private final Set<String> removals = new LinkedHashSet<>();
@@ -28,6 +31,34 @@ public final class LayerBuilder {
         }
 
         this.name = name;
+    }
+
+    /** Names the layer this one builds on; see {@link Layer#parent()}. */
+    public LayerBuilder extending(String parent) {
+        Objects.requireNonNull(parent, "parent must not be null");
+
+        if (parent.isBlank()) {
+            throw new IllegalArgumentException("parent must not be blank");
+        }
+
+        if (parent.equals(name)) {
+            throw new IllegalArgumentException("layer " + name + " cannot extend itself");
+        }
+
+        this.parent = parent;
+
+        return this;
+    }
+
+    public LayerBuilder weekend(DayOfWeek... days) {
+        return weekend(Weekend.of(days));
+    }
+
+    /** The weekend the calendar uses from this layer up, replacing the one in force below. */
+    public LayerBuilder weekend(Weekend weekend) {
+        this.weekend = Objects.requireNonNull(weekend, "weekend must not be null");
+
+        return this;
     }
 
     public LayerBuilder add(Holiday holiday) {
@@ -86,7 +117,7 @@ public final class LayerBuilder {
             requireUnique(seen, name);
         }
 
-        return new Layer(name, additions, overrides, removals, observance);
+        return new Layer(name, parent, weekend, additions, overrides, removals, observance);
     }
 
     private void requireUnique(Set<String> seen, String holidayName) {

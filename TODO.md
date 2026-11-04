@@ -52,6 +52,7 @@ Regra aplicada **depois** de calcular a data original. Não pertence ao feriado;
   - `remove(name)` — remover feriado herdado (ex.: Catalunha troca nacionais por regionais).
   - definir a sua própria `ObservanceRule` (sobrepõe a da camada abaixo).
 - [x] Nomes de feriado são a chave de identidade entre camadas. Documentar isso.
+- [x] Uma camada pode declarar o seu **fim de semana** (a mais alta que declarar vence; o do builder é fallback) e o nome da camada que **estende** (`extending("ES")`), usado pelo formato de dados e pelo registry; o builder continua a empilhar na ordem dada.
 - [x] Camadas são reutilizáveis: `Layer SPAIN` pode ser partilhada por 17 calendários regionais.
 ### 2.5 Fim de semana
 

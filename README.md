@@ -301,8 +301,11 @@ with `nonWorkingTypes(...)` on the builder.
 
 **Layers.** A `Layer` adds holidays, overrides inherited ones by name or
 removes them. Adding a name that a lower layer already defines is an error:
-say `override` or `remove` explicitly. Layers are immutable and can be shared
-between calendars.
+say `override` or `remove` explicitly. A layer may also declare its own
+weekend or observance rule, which apply from that layer up, and may name the
+layer it extends (`extending("ES")`) for data files and registries; the
+builder itself stacks layers in the order given. Layers are immutable and can
+be shared between calendars.
 
 **Observance.** An `ObservanceRule` moves a holiday off a day on which it is
 not observed. The rule of the highest layer that declares one applies to the
@@ -328,7 +331,8 @@ that; business day searches throw `IllegalStateException` when every day in
 that window is a weekend day or a holiday.
 
 **Weekend.** Any set of days: `weekend(DayOfWeek.FRIDAY, DayOfWeek.SATURDAY)`
-for the Gulf, a single day, or none.
+for the Gulf, a single day, or none. The builder's weekend is the fallback;
+the highest layer that declares one wins.
 
 **Easter.** Gregorian by default. Plug a different `EasterAlgorithm` into the
 builder for Julian or Orthodox dates.

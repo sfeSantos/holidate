@@ -100,4 +100,16 @@ class HolidayCalendarBuilderTest {
         assertThrows(NullPointerException.class, () -> builder.weekend((Weekend) null));
         assertThrows(NullPointerException.class, () -> builder.easter(null));
     }
+
+    @Test
+    void layerWeekendOverridesTheBuilderFallback() {
+        var gulf = Layer.named("AE").weekend(DayOfWeek.FRIDAY, DayOfWeek.SATURDAY).build();
+        var fromLayer = HolidayCalendar.builder().layer(gulf).build();
+        var fallback = HolidayCalendar.builder().weekend(DayOfWeek.SUNDAY).layer(Layer.named("x").build()).build();
+
+        assertEquals(Weekend.of(DayOfWeek.FRIDAY, DayOfWeek.SATURDAY), fromLayer.weekend());
+        assertEquals(Weekend.of(DayOfWeek.FRIDAY, DayOfWeek.SATURDAY),
+                HolidayCalendar.builder().weekend(DayOfWeek.SUNDAY).layer(gulf).build().weekend());
+        assertEquals(Weekend.of(DayOfWeek.SUNDAY), fallback.weekend());
+    }
 }

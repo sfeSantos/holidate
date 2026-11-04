@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.DayOfWeek;
 import java.time.Month;
 import java.util.List;
 import java.util.Set;
@@ -61,5 +62,24 @@ class LayerTest {
         var layer = Layer.named("x").add(CHRISTMAS).build();
 
         assertThrows(UnsupportedOperationException.class, () -> layer.additions().add(NEW_YEAR));
+    }
+
+    @Test
+    void parentAndWeekendAreOptional() {
+        var plain = Layer.named("ES").build();
+        var regional = Layer.named("ES-AN").extending("ES").weekend(DayOfWeek.FRIDAY, DayOfWeek.SATURDAY).build();
+
+        assertTrue(plain.parent().isEmpty());
+        assertTrue(plain.weekend().isEmpty());
+        assertEquals("ES", regional.parent().orElseThrow());
+        assertEquals(Weekend.of(DayOfWeek.FRIDAY, DayOfWeek.SATURDAY), regional.weekend().orElseThrow());
+    }
+
+    @Test
+    void parentIsValidated() {
+        assertThrows(NullPointerException.class, () -> Layer.named("ES").extending(null));
+        assertThrows(IllegalArgumentException.class, () -> Layer.named("ES").extending(" "));
+        assertThrows(IllegalArgumentException.class, () -> Layer.named("ES").extending("ES"));
+        assertThrows(NullPointerException.class, () -> Layer.named("ES").weekend((Weekend) null));
     }
 }
