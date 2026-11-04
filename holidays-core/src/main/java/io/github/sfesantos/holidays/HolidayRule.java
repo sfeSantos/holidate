@@ -17,6 +17,8 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import io.github.sfesantos.holidays.easter.EasterAlgorithm;
+import io.github.sfesantos.holidays.hebrew.HebrewCalendar;
+import io.github.sfesantos.holidays.hebrew.HebrewMonth;
 
 /**
  * How a holiday's dates are derived for a given year. A rule is pure data.
@@ -34,6 +36,7 @@ public sealed interface HolidayRule {
 
         return switch (this) {
             case Hijri r -> hijri(r, year);
+            case Hebrew r -> hebrew(r, year);
             default -> single(year, easter).map(List::of).orElse(List.of());
         };
     }
@@ -54,6 +57,7 @@ public sealed interface HolidayRule {
             case WeekdayBefore r -> Optional.of(r.base().atYear(year.getValue()).with(TemporalAdjusters.previous(r.dayOfWeek())));
             case Custom r -> custom(r, year);
             case Hijri r -> throw new IllegalStateException("lunar rules resolve through datesIn");
+            case Hebrew r -> throw new IllegalStateException("lunar rules resolve through datesIn");
         };
     }
 
@@ -94,6 +98,11 @@ public sealed interface HolidayRule {
         return new Hijri(month, dayOfMonth);
     }
 
+    /** A day of the Hebrew calendar; see {@link HebrewMonth} for how Adar is handled in leap years. */
+    static Hebrew hebrew(HebrewMonth month, int dayOfMonth) {
+        return new Hebrew(month, dayOfMonth);
+    }
+
     private static Optional<LocalDate> fixedDate(FixedDate rule, Year year) {
         var monthDay = rule.monthDay();
 
@@ -117,6 +126,25 @@ public sealed interface HolidayRule {
 
     private static Optional<LocalDate> custom(Custom rule, Year year) {
         return Objects.requireNonNull(rule.function().apply(year), "custom rule returned null");
+    }
+
+    private static List<LocalDate> hebrew(Hebrew rule, Year year) {
+        var dates = new ArrayList<LocalDate>(2);
+        int first = year.getValue() + 3760;
+
+        for (int hebrewYear = first; hebrewYear <= first + 1; hebrewYear++) {
+            var month = rule.month().numberIn(hebrewYear);
+
+            if (month.isPresent() && rule.dayOfMonth() <= HebrewCalendar.daysInMonth(hebrewYear, month.getAsInt())) {
+                var date = HebrewCalendar.toLocalDate(hebrewYear, month.getAsInt(), rule.dayOfMonth());
+
+                if (date.getYear() == year.getValue()) {
+                    dates.add(date);
+                }
+            }
+        }
+
+        return List.copyOf(dates);
     }
 
     private static List<LocalDate> hijri(Hijri rule, Year year) {
@@ -222,6 +250,18 @@ public sealed interface HolidayRule {
             var max = LocalDate.from(HijrahDate.of((int) years.getMaximum(), 12, 1));
 
             return YearRange.between(Year.of(min.getYear() + 1), Year.of(max.getYear() - 1));
+        }
+    }
+
+    /** A 30th day only occurs in the years where that month has thirty days; {@code ADAR_I} only in leap years. */
+    record Hebrew(HebrewMonth month, int dayOfMonth) implements HolidayRule {
+
+        public Hebrew {
+            Objects.requireNonNull(month, "month must not be null");
+
+            if (dayOfMonth < 1 || dayOfMonth > 30) {
+                throw new IllegalArgumentException("dayOfMonth must be in 1..30: " + dayOfMonth);
+            }
         }
     }
 }

@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import io.github.sfesantos.holidays.easter.EasterAlgorithm;
+import io.github.sfesantos.holidays.hebrew.HebrewMonth;
 
 /**
  * A named holiday: a {@link HolidayRule} plus the metadata a calendar needs.
@@ -54,6 +55,11 @@ public record Holiday(String name, HolidayType type, HolidayRule rule, YearRange
     /** See {@link HolidayRule#hijri(int, int)}. */
     public static Holiday hijri(String name, int month, int dayOfMonth) {
         return of(name, HolidayRule.hijri(month, dayOfMonth));
+    }
+
+    /** See {@link HolidayRule#hebrew(HebrewMonth, int)}. */
+    public static Holiday hebrew(String name, HebrewMonth month, int dayOfMonth) {
+        return of(name, HolidayRule.hebrew(month, dayOfMonth));
     }
 
     public Holiday ofType(HolidayType type) {

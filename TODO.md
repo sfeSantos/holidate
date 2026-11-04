@@ -22,6 +22,7 @@ Biblioteca Java pura (zero dependências externas, só `java.base`) para definir
 - [x] `WeekdayAfter` / `WeekdayBefore` — primeiro dia da semana X depois/antes de uma data base.
 - [x] `Custom` — `Function<Year, Optional<LocalDate>>` para casos que não encaixam.
 - [x] `Hijri` — dia do calendário islâmico via `HijrahChronology` (tabelas Umm al-Qura do JDK, anos 1883 a 2173). Pode dar duas datas no mesmo ano gregoriano.
+- [x] `Hebrew` — dia do calendário hebraico (`HebrewMonth`, `ADAR` resolve para Adar II em ano bissexto), aritmética própria em `hebrew.HebrewCalendar` validada contra Rosh Hashaná 1939 a 2026.
 - [x] Toda regra aceita **intervalo de validade** (`validFrom`, `validUntil`, ambos opcionais, em `Year`). Fora do intervalo, a regra devolve `Optional.empty()`.
 - [x] Toda regra tem **nome** e **tipo** (`PUBLIC`, `BANK`, `OBSERVANCE`, `HALF_DAY`) para o usuário filtrar o que conta como "dia não útil".
 ### 2.2 Cálculo da Páscoa

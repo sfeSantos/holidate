@@ -230,13 +230,29 @@ gulf.holidayOn(LocalDate.of(2026, 3, 20));           // Eid al-Fitr
 gulf.holidaysIn(Year.of(2008));                       // Islamic New Year on 10 Jan and again on 29 Dec
 ```
 
+`Holiday.hebrew(name, HebrewMonth, day)` does the same for the Hebrew
+calendar, computed by the library since the JDK does not ship it. `HebrewMonth.ADAR`
+is the Adar that carries the festivals (Adar II in a leap year) and `ADAR_I`
+exists only in leap years.
+
+```java
+var israel = Layer.named("IL")
+        .add(Holiday.hebrew("Rosh Hashanah", HebrewMonth.TISHRI, 1),
+                Holiday.hebrew("Yom Kippur", HebrewMonth.TISHRI, 10),
+                Holiday.hebrew("Pesach", HebrewMonth.NISAN, 15),
+                Holiday.hebrew("Purim", HebrewMonth.ADAR, 14).ofType(HolidayType.OBSERVANCE))
+        .build();
+// Pesach 2026-04-02, Rosh Hashanah 2026-09-12, Yom Kippur 2026-09-21, Purim 2026-03-03
+```
+
 ## Concepts
 
 **Rules.** A `HolidayRule` turns a year into dates:
 `fixed`, `easterRelative`, `nthWeekdayOfMonth` (negative `n` counts from the
 end), `weekdayAfter`, `weekdayBefore` and `custom(Function<Year, Optional<LocalDate>>)`
-give at most one date a year; `hijri` follows the Islamic calendar, whose
-shorter year can put the same holiday twice in one Gregorian year.
+give at most one date a year; `hijri` and `hebrew` follow the Islamic and
+Hebrew calendars, whose shorter years can put the same holiday twice in one
+Gregorian year.
 A `Holiday` is a rule plus a name, a `HolidayType` and a validity range
 (`validFrom`, `validUntil`).
 
