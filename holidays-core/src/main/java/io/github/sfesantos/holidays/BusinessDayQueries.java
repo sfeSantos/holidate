@@ -2,6 +2,7 @@ package io.github.sfesantos.holidays;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalQuery;
 
@@ -38,6 +39,20 @@ public interface BusinessDayQueries {
      * {@code from} is after {@code to}.
      */
     long businessDaysBetween(LocalDate from, LocalDate to);
+    /**
+     * The date a payment or event scheduled for {@code date} actually falls
+     * on under the convention: unchanged when it is a business day, otherwise
+     * moved as the {@link BusinessDayConvention} says.
+     */
+    default LocalDate adjust(LocalDate date, BusinessDayConvention convention) {
+        return BusinessDayConvention.apply(convention, date, this);
+    }
+
+    /** An adjuster applying {@link #adjust(LocalDate, BusinessDayConvention)} to any temporal that holds a date. */
+    default TemporalAdjuster adjuster(BusinessDayConvention convention) {
+        return temporal -> temporal.with(ChronoField.EPOCH_DAY, adjust(LocalDate.from(temporal), convention).toEpochDay());
+    }
+
     default boolean isBusinessDayToday(Clock clock) {
         return isBusinessDay(LocalDate.now(clock));
     }

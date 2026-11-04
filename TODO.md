@@ -69,6 +69,7 @@ Regra aplicada **depois** de calcular a data original. Não pertence ao feriado;
 - [x] `LocalDate addBusinessDays(LocalDate, int)` — suportar negativos.
 - [x] `long businessDaysBetween(LocalDate, LocalDate)` — `from` inclusivo, `to` exclusivo, negativo quando `from > to` (convenção de `ChronoUnit.DAYS.between`).
 - [x] `TemporalAdjuster nextBusinessDayAdjuster()` etc., e `TemporalQuery` para `isHoliday`, `isBusinessDay` e `holidayOn`.
+- [x] `BusinessDayConvention` (`UNADJUSTED`, `FOLLOWING`, `PRECEDING`, `MODIFIED_FOLLOWING`, `MODIFIED_PRECEDING`) com `adjust(LocalDate, convention)` e `adjuster(convention)`: uma cobrança agendada num feriado ou fim de semana move para o dia útil seguinte ou anterior; as variantes `MODIFIED_*` não saem do mês.
 - [x] Versões com `Clock` injetável para "hoje" (`isHolidayToday(Clock)`, `holidayToday`, `nextHoliday(Clock)`, `daysUntilNextHoliday(Clock)`, `isBusinessDayToday`, `nextBusinessDay(Clock)`, `addBusinessDays(Clock, int)`), nunca `LocalDate.now()` hardcoded dentro da lib. Sem sobrecarga sem argumento: o chamador escolhe o relógio.
 ### 2.7 Exemplo de uso da API (referência de design)
 
@@ -437,6 +438,7 @@ class SettlementService {
 - [x] `TemporalAdjuster` / `TemporalQuery`.
 - [x] `Clock` injetável.
 - [x] `HolidayCalendar.union(...)` for cross-market calendars (section 2.9).
+- [x] `BusinessDayConvention` para datas de pagamento (entrou em `main` depois do 0.2.0, sem release próprio).
 ### v0.3 — data format and registry (section 2.9)
 - [ ] `HolidayFormat.json()` parser and writer over a hand-written `JsonReader`/`JsonWriter`, round-trip tests, JSON Schema published, error messages with line and column.
 - [ ] `HolidayDataProvider` SPI + `CalendarRegistry` resolving the `extends` chain, classpath and directory providers.
