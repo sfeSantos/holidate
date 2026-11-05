@@ -1,0 +1,33 @@
+{
+  "layers": [
+    {
+      "id": "ES",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Año Nuevo",     "rule": { "fixed": "01-01" } },
+        { "name": "Viernes Santo", "rule": { "easter": -2 } },
+        { "name": "Constitución",  "rule": { "fixed": "12-06" }, "from": 1978 },
+        { "name": "Thanksgiving",  "rule": { "nth": 4, "weekday": "THURSDAY", "month": "NOVEMBER" } },
+        { "name": "Election Day",  "rule": { "weekdayAfter": "MONDAY", "base": "11-01" }, "type": "OBSERVANCE", "until": 2030 },
+        { "name": "Nochebuena",    "rule": { "fixed": "12-24" }, "closesAt": "13:00" },
+        { "name": "Eid al-Fitr",   "rule": { "hijri": "10-01" } },
+        { "name": "Pesach",        "rule": { "hebrew": "NISAN-15" }, "type": "BANK" }
+      ]
+    },
+    {
+      "id": "ES-AN",
+      "extends": "ES",
+      "observance": "SUNDAY_TO_MONDAY",
+      "holidays": [
+        { "name": "Día de Andalucía", "rule": { "fixed": "02-28" } },
+        { "name": "Jueves Santo",     "rule": { "easter": -3 } }
+      ]
+    },
+    {
+      "id": "ES-CT",
+      "extends": "ES",
+      "remove": ["Constitución"],
+      "override": [ { "name": "Thanksgiving", "rule": { "fixed": "06-24" }, "observance": "NONE" } ]
+    }
+  ]
+}

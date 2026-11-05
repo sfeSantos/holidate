@@ -283,6 +283,62 @@ var israel = Layer.named("IL")
 // Pesach 2026-04-02, Rosh Hashanah 2026-09-12, Yom Kippur 2026-09-21, Purim 2026-03-03
 ```
 
+## Data files
+
+Holiday data is data, not code. `HolidayFormat.json()` reads and writes layers
+as JSON, with zero dependencies: the parser is hand-written and strict, and
+every error names the line and column. One file per country, regions inside;
+`extends` names the layer a region builds on.
+
+```json
+{
+  "layers": [
+    {
+      "id": "ES",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Año Nuevo",     "rule": { "fixed": "01-01" } },
+        { "name": "Viernes Santo", "rule": { "easter": -2 } },
+        { "name": "Constitución",  "rule": { "fixed": "12-06" }, "from": 1978 },
+        { "name": "Nochebuena",    "rule": { "fixed": "12-24" }, "closesAt": "13:00" }
+      ]
+    },
+    {
+      "id": "ES-AN",
+      "extends": "ES",
+      "observance": "SUNDAY_TO_MONDAY",
+      "holidays": [
+        { "name": "Día de Andalucía", "rule": { "fixed": "02-28" } },
+        { "name": "Jueves Santo",     "rule": { "easter": -3 } }
+      ]
+    },
+    {
+      "id": "ES-CT",
+      "extends": "ES",
+      "remove": ["Constitución"],
+      "override": [ { "name": "Sant Joan", "rule": { "fixed": "06-24" } } ]
+    }
+  ]
+}
+```
+
+```java
+var layers = HolidayFormat.json().parse(Path.of("ES.json"));
+var andalucia = HolidayCalendar.builder().layers(layers.get(0), layers.get(1)).build();
+
+HolidayFormat.json().write(List.of(spain, andalucia), Path.of("export.json")); // from Java to data
+```
+
+Rule kinds: `fixed` (`"MM-DD"`), `easter` (offset in days), `nth` with
+`weekday` and `month`, `weekdayAfter` or `weekdayBefore` with `base`, `hijri`
+(`"MM-DD"`) and `hebrew` (`"NISAN-15"`). Optional members on a holiday:
+`type`, `from`, `until`, `observance` and `closesAt`. Observance names are
+`NONE`, `SUNDAY_TO_MONDAY`, `WEEKEND_TO_MONDAY`,
+`SATURDAY_TO_FRIDAY_SUNDAY_TO_MONDAY` and `NEAREST_WEEKDAY`. `custom` rules
+and observances exist only in Java and cannot be written. The JSON Schema
+ships in the jar at `META-INF/holidays/holidays.schema.json`, so files can be
+validated with any tool before loading.
+
 ## Concepts
 
 **Rules.** A `HolidayRule` turns a year into dates:
@@ -301,8 +357,11 @@ with `nonWorkingTypes(...)` on the builder.
 
 **Layers.** A `Layer` adds holidays, overrides inherited ones by name or
 removes them. Adding a name that a lower layer already defines is an error:
-say `override` or `remove` explicitly. Layers are immutable and can be shared
-between calendars.
+say `override` or `remove` explicitly. A layer may also declare its own
+weekend or observance rule, which apply from that layer up, and may name the
+layer it extends (`extending("ES")`) for data files and registries; the
+builder itself stacks layers in the order given. Layers are immutable and can
+be shared between calendars.
 
 **Observance.** An `ObservanceRule` moves a holiday off a day on which it is
 not observed. The rule of the highest layer that declares one applies to the
@@ -328,7 +387,8 @@ that; business day searches throw `IllegalStateException` when every day in
 that window is a weekend day or a holiday.
 
 **Weekend.** Any set of days: `weekend(DayOfWeek.FRIDAY, DayOfWeek.SATURDAY)`
-for the Gulf, a single day, or none.
+for the Gulf, a single day, or none. The builder's weekend is the fallback;
+the highest layer that declares one wins.
 
 **Easter.** Gregorian by default. Plug a different `EasterAlgorithm` into the
 builder for Julian or Orthodox dates.

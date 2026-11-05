@@ -8,6 +8,7 @@ import java.util.Map;
 import io.github.sfesantos.holidays.Holiday;
 import io.github.sfesantos.holidays.Layer;
 import io.github.sfesantos.holidays.ObservanceRule;
+import io.github.sfesantos.holidays.Weekend;
 
 /**
  * Flattens an ordered list of layers (lowest precedence first) into the
@@ -17,13 +18,15 @@ public final class LayerResolver {
 
     public record ResolvedHoliday(Holiday holiday, String layer) {}
 
-    public record Resolution(List<ResolvedHoliday> holidays, ObservanceRule observance) {}
+    public record Resolution(List<ResolvedHoliday> holidays, ObservanceRule observance, Weekend weekend) {}
 
     private LayerResolver() {}
 
-    public static Resolution resolve(List<Layer> layers, ObservanceRule fallback) {
+    /** The fallbacks apply when no layer declares an observance rule or a weekend; the highest layer that does wins. */
+    public static Resolution resolve(List<Layer> layers, ObservanceRule fallbackObservance, Weekend fallbackWeekend) {
         var holidays = new LinkedHashMap<String, ResolvedHoliday>();
-        var observance = fallback;
+        var observance = fallbackObservance;
+        var weekend = fallbackWeekend;
 
         for (var layer : layers) {
             applyRemovals(layer, holidays);
@@ -33,9 +36,11 @@ public final class LayerResolver {
             if (layer.declaresObservance()) {
                 observance = layer.observance();
             }
+
+            weekend = layer.weekend().orElse(weekend);
         }
 
-        return new Resolution(new ArrayList<>(holidays.values()), observance);
+        return new Resolution(new ArrayList<>(holidays.values()), observance, weekend);
     }
 
     private static void applyRemovals(Layer layer, Map<String, ResolvedHoliday> holidays) {

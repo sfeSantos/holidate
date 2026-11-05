@@ -32,6 +32,7 @@ public final class HolidayCalendarBuilder {
         return weekend(Weekend.of(days));
     }
 
+    /** Applies when no layer declares a weekend of its own. Defaults to Saturday and Sunday. */
     public HolidayCalendarBuilder weekend(Weekend weekend) {
         this.weekend = Objects.requireNonNull(weekend, "weekend must not be null");
 
@@ -96,10 +97,10 @@ public final class HolidayCalendarBuilder {
             throw new IllegalArgumentException("calendar observance cannot be inherit()");
         }
 
-        var resolution = LayerResolver.resolve(layers, observance);
+        var resolution = LayerResolver.resolve(layers, observance, weekend);
 
-        return new CompiledCalendar(weekend, businessHours, resolution.holidays(), resolution.observance(), easter,
-                nonWorkingTypes);
+        return new CompiledCalendar(resolution.weekend(), businessHours, resolution.holidays(), resolution.observance(),
+                easter, nonWorkingTypes);
     }
 
     private void requireUniqueLayerNames() {
