@@ -8,6 +8,7 @@ import java.time.MonthDay;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import io.github.sfesantos.holidays.Holiday;
@@ -193,7 +194,7 @@ final class LayerJsonReader {
         }
     }
 
-    private static void forEachObject(JsonValue array, java.util.function.Consumer<JsonObject> action) {
+    private static void forEachObject(JsonValue array, Consumer<JsonObject> action) {
         for (var element : array.asArray().elements()) {
             action.accept(element.asObject());
         }
