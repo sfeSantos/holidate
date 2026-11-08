@@ -1,0 +1,17 @@
+{
+  "layers": [
+    {
+      "id": "ES",
+      "holidays": [
+        { "name": "Año Nuevo", "rule": { "fixed": "01-01" } },
+        { "name": "Navidad",   "rule": { "fixed": "12-25" } }
+      ]
+    },
+    {
+      "id": "ES-AN",
+      "extends": "ES",
+      "observance": "SUNDAY_TO_MONDAY",
+      "holidays": [ { "name": "Día de Andalucía", "rule": { "fixed": "02-28" } } ]
+    }
+  ]
+}

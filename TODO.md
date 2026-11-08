@@ -215,8 +215,8 @@ layer ES-CT extends ES
 ```
 - [ ] Grammar: `layer <id> [extends <id>]`, then one entry per line: `<name> = <rule> [type <T>] [from <year>] [until <year>] [observance <rule>]`, plus `remove <name>`, `override <name> = <rule> ...`, `weekend = ...`, `observance = ...`. Names may contain spaces; `=` splits name from rule. Rule kinds: `fixed MM-DD`, `easter <offset>`, `nth <n> <DOW> <MONTH>`, `weekday-after <DOW> MM-DD`, `weekday-before <DOW> MM-DD`. `custom` stays Java-only.
 - [x] `HolidayFormat.json()` (and `HolidayFormat.text()` if the plain text option goes ahead): `parse(Reader)` / `parse(Path)` / `parse(String)` → `List<Layer>`; `write(List<Layer>)` round-trips so a calendar built in Java can be exported. Hand-written, zero deps, fails fast with line and column (`HolidayFormatException`). `custom` rules and observances cannot be serialised and are rejected by `write`.
-- [ ] **Registry**: `CalendarRegistry` resolves an id to a `HolidayCalendar` by composing the `extends` chain (`ES-AN-MA` → `ES`, `ES-AN`, `ES-AN-MA`). Ids follow ISO 3166-1/3166-2 where one exists (`ES`, `ES-AN`, `BR`, `BR-RJ`); below that, free text (`ES-AN-MA`, `BR-RJ-RIO`). Calendars are cached by id.
-- [ ] `HolidayDataProvider` (`ServiceLoader`): `Set<String> layerIds()` + `Optional<Layer> layer(String id)`. Built-in providers: classpath resources (`META-INF/holidays/*.holidays`), a directory on disk. Users write their own (database, vendor feed). Registry asks providers in order; the first that answers wins, so a user's provider overrides the shipped pack.
+- [x] **Registry**: `CalendarRegistry` resolves an id to a `HolidayCalendar` by composing the `extends` chain (`ES-AN-MA` → `ES`, `ES-AN`, `ES-AN-MA`). Ids follow ISO 3166-1/3166-2 where one exists (`ES`, `ES-AN`, `BR`, `BR-RJ`); below that, free text (`ES-AN-MA`, `BR-RJ-RIO`). Calendars are cached by id.
+- [x] `HolidayDataProvider` (`ServiceLoader`): `Set<String> layerIds()` + `Optional<Layer> layer(String id)`. Built-in providers: classpath resources (`META-INF/holidays/*.holidays`), a directory on disk. Users write their own (database, vendor feed). Registry asks providers in order; the first that answers wins, so a user's provider overrides the shipped pack.
 - [ ] **Exception layers**: a user stacks `SANTANDER-ES` (one-off closures, `validBetween(2027, 2027)`) on top of `ES-AN-MA` without touching the base data. Already supported by layers; document the pattern.
 - [x] **Composition**: `HolidayCalendar.union(a, b, ...)`: holiday if a holiday in any; business day only if a business day in all. Needed for cross-market settlement (EUR/BRL is a business day in `ES` and `BR`). Implemented as a composed calendar with its own `YearIndex` built by OR-ing the members, so queries stay O(1).
 - [ ] **Yearly validation**: one test per year and per official source (BOE 2027, BOJA 2027, B3 2027), as `MalagaExampleTest` does. Updating a pack is "edit the file, run the test".
@@ -258,10 +258,10 @@ holidays-core/                      # motor de regras, sem dados de país (estad
     JsonValue, JsonReader, JsonWriter          # hand-written, strict, positions on every node
     JsonHolidayFormat, LayerJsonReader, LayerJsonWriter   # tree <-> Layer, calling the builders
   (internal.ObservanceNames: data names of the built-in observance rules)
-  io.github.<user>.holidays.registry
+  io.github.sfesantos.holidays.registry
     CalendarRegistry                # id -> HolidayCalendar, composes the extends chain, caches
     HolidayDataProvider             # ServiceLoader SPI
-    ClasspathDataProvider, DirectoryDataProvider
+    ClasspathDataProvider, DirectoryDataProvider   # JSON resources next to a class; *.json files in a directory
 
 holidays-data/        (opcional, módulo separado, sem código Java além do provider)
   META-INF/holidays/ES.json         # one resource file per country, regions inside
@@ -278,7 +278,7 @@ holidays-spring-boot-starter/   (opcional, módulo separado — ÚNICO com depen
 ```
 
 - [x] `module-info.java` em cada módulo; exportar só a API pública; `internal` nunca exportado.
-- [ ] `ServiceLoader<HolidayDataProvider>` para descoberta opcional de packs de dados sem acoplar o core.
+- [x] `ServiceLoader<HolidayDataProvider>` para descoberta opcional de packs de dados sem acoplar o core.
 - [x] Build: Maven multi-módulo, Java 25, `--release 25`. Plugins: compiler, surefire, jar, enforcer (zero dependências), e só no perfil `release` source, javadoc, gpg e central-publishing.
 ### 3.2 Fluxo interno
 
@@ -457,7 +457,7 @@ class SettlementService {
 - [x] Seção 2.8: `CutOff`, `BusinessHours` e meio-dia, regras `hijri` e `hebrew` (em `main` depois do 0.2.0, sem release próprio).
 ### v0.3 — data format and registry (section 2.9)
 - [x] `HolidayFormat.json()` parser and writer over a hand-written `JsonReader`/`JsonWriter`, round-trip tests, JSON Schema published, error messages with line and column.
-- [ ] `HolidayDataProvider` SPI + `CalendarRegistry` resolving the `extends` chain, classpath and directory providers.
+- [x] `HolidayDataProvider` SPI + `CalendarRegistry` resolving the `extends` chain, classpath and directory providers.
 - [ ] `holidays-data`: `ES.json` (Spain, Andalucía, Málaga, Catalunya) and `BR.json` (Brazil, RJ, Rio) validated against BOE/BOJA and the Brazilian federal/state laws for 2025, 2026 and 2027.
 - [ ] Java constants for shared definitions (`Holidays.CHRISTMAS`...). Optional `holidays-data-es` with Java `Layer` constants kept as the code-first alternative.
 - [ ] Document the exception-layer pattern and the registry in the README.
