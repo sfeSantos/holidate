@@ -7,7 +7,7 @@ import io.github.sfesantos.holidays.data.Spain;
 
 /**
  * Not a JMH benchmark: prints the heap a calendar holds after indexing one
- * hundred years. Target from TODO 5.1: under 500 KB. Run with a serial
+ * hundred years. Target: under 500 KB. Run with a serial
  * collector and a small heap so the number is stable:
  * {@code java -XX:+UseSerialGC -Xmx32m -cp target/benchmarks.jar
  * io.github.sfesantos.holidays.benchmarks.MemoryFootprint}.

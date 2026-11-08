@@ -20,7 +20,7 @@ import io.github.sfesantos.holidays.data.Spain;
 
 /**
  * The cold path: what a query pays the first time it touches a year.
- * Target from TODO 5.1: under 50 µs for a calendar of about twenty
+ * Target: under 50 µs for a calendar of about twenty
  * holidays. A fresh calendar per invocation keeps the cache empty; the
  * builder runs outside the measured region.
  */
