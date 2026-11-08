@@ -215,12 +215,12 @@ layer ES-CT extends ES
 ```
 - [ ] Grammar: `layer <id> [extends <id>]`, then one entry per line: `<name> = <rule> [type <T>] [from <year>] [until <year>] [observance <rule>]`, plus `remove <name>`, `override <name> = <rule> ...`, `weekend = ...`, `observance = ...`. Names may contain spaces; `=` splits name from rule. Rule kinds: `fixed MM-DD`, `easter <offset>`, `nth <n> <DOW> <MONTH>`, `weekday-after <DOW> MM-DD`, `weekday-before <DOW> MM-DD`. `custom` stays Java-only.
 - [x] `HolidayFormat.json()` (and `HolidayFormat.text()` if the plain text option goes ahead): `parse(Reader)` / `parse(Path)` / `parse(String)` → `List<Layer>`; `write(List<Layer>)` round-trips so a calendar built in Java can be exported. Hand-written, zero deps, fails fast with line and column (`HolidayFormatException`). `custom` rules and observances cannot be serialised and are rejected by `write`.
-- [ ] **Registry**: `CalendarRegistry` resolves an id to a `HolidayCalendar` by composing the `extends` chain (`ES-AN-MA` → `ES`, `ES-AN`, `ES-AN-MA`). Ids follow ISO 3166-1/3166-2 where one exists (`ES`, `ES-AN`, `BR`, `BR-RJ`); below that, free text (`ES-AN-MA`, `BR-RJ-RIO`). Calendars are cached by id.
-- [ ] `HolidayDataProvider` (`ServiceLoader`): `Set<String> layerIds()` + `Optional<Layer> layer(String id)`. Built-in providers: classpath resources (`META-INF/holidays/*.holidays`), a directory on disk. Users write their own (database, vendor feed). Registry asks providers in order; the first that answers wins, so a user's provider overrides the shipped pack.
-- [ ] **Exception layers**: a user stacks `SANTANDER-ES` (one-off closures, `validBetween(2027, 2027)`) on top of `ES-AN-MA` without touching the base data. Already supported by layers; document the pattern.
+- [x] **Registry**: `CalendarRegistry` resolves an id to a `HolidayCalendar` by composing the `extends` chain (`ES-AN-MA` → `ES`, `ES-AN`, `ES-AN-MA`). Ids follow ISO 3166-1/3166-2 where one exists (`ES`, `ES-AN`, `BR`, `BR-RJ`); below that, free text (`ES-AN-MA`, `BR-RJ-RIO`). Calendars are cached by id.
+- [x] `HolidayDataProvider` (`ServiceLoader`): `Set<String> layerIds()` + `Optional<Layer> layer(String id)`. Built-in providers: classpath resources (`META-INF/holidays/*.holidays`), a directory on disk. Users write their own (database, vendor feed). Registry asks providers in order; the first that answers wins, so a user's provider overrides the shipped pack.
+- [x] **Exception layers**: a user stacks `SANTANDER-ES` (one-off closures, `validBetween(2027, 2027)`) on top of `ES-AN-MA` without touching the base data. Already supported by layers; document the pattern.
 - [x] **Composition**: `HolidayCalendar.union(a, b, ...)`: holiday if a holiday in any; business day only if a business day in all. Needed for cross-market settlement (EUR/BRL is a business day in `ES` and `BR`). Implemented as a composed calendar with its own `YearIndex` built by OR-ing the members, so queries stay O(1).
-- [ ] **Yearly validation**: one test per year and per official source (BOE 2027, BOJA 2027, B3 2027), as `MalagaExampleTest` does. Updating a pack is "edit the file, run the test".
-- [ ] Java constants (`Holidays.CHRISTMAS`, `Holidays.GOOD_FRIDAY`) stay for the handful of definitions every country shares, and `Layer`/`Holiday` builders stay for users who prefer code. Both options remain first-class; the text format is the recommended one for bulk data.
+- [x] **Yearly validation**: one test per year and per official source (BOE 2027, BOJA 2027, B3 2027), as `MalagaExampleTest` does. Updating a pack is "edit the file, run the test".
+- [x] Java constants (`Holidays.CHRISTMAS`, `Holidays.GOOD_FRIDAY`) stay for the handful of definitions every country shares, and `Layer`/`Holiday` builders stay for users who prefer code. Both options remain first-class; the JSON format is the recommended one for bulk data.
 ---
 
 ## 3. Arquitetura
@@ -258,27 +258,25 @@ holidays-core/                      # motor de regras, sem dados de país (estad
     JsonValue, JsonReader, JsonWriter          # hand-written, strict, positions on every node
     JsonHolidayFormat, LayerJsonReader, LayerJsonWriter   # tree <-> Layer, calling the builders
   (internal.ObservanceNames: data names of the built-in observance rules)
-  io.github.<user>.holidays.registry
+  io.github.sfesantos.holidays.registry
     CalendarRegistry                # id -> HolidayCalendar, composes the extends chain, caches
     HolidayDataProvider             # ServiceLoader SPI
-    ClasspathDataProvider, DirectoryDataProvider
+    ClasspathDataProvider, DirectoryDataProvider   # JSON resources next to a class; *.json files in a directory
 
-holidays-data/        (opcional, módulo separado, sem código Java além do provider)
+holidays-data/        (opcional, módulo separado; depende só do core)
   META-INF/holidays/ES.json         # one resource file per country, regions inside
   META-INF/holidays/BR.json
-  holidays.schema.json              # JSON Schema for user files
-  Holidays.CHRISTMAS, NEW_YEAR, GOOD_FRIDAY, ALL_SAINTS, EASTER_MONDAY...  # Java constants for shared definitions
-holidays-data-es/ (alternativa mantida: constantes Java `Spain`, `Andalucia`, `Malaga` para quem prefere código)
+  io.github.sfesantos.holidays.data
+    BundledDataProvider             # ServiceLoader provider over the two files
+    Holidays                        # CHRISTMAS, NEW_YEAR, GOOD_FRIDAY... shared definitions
+    Spain, Brazil                   # the pack layers as constants for code-first users (no separate holidays-data-es)
+  (the JSON Schema stays in the core jar, META-INF/holidays/holidays.schema.json)
  
-holidays-spring-boot-starter/   (opcional, módulo separado — ÚNICO com dependências externas)
-  HolidayCalendarAutoConfiguration
-  HolidayCalendarProperties           # @ConfigurationProperties("holidays")
-  HolidayCalendarCustomizer           # interface funcional para o usuário ajustar o builder
-  (ver secção 3.4)
+(sem módulo Spring: um `HolidayCalendar` é um bean como outro qualquer; ver secção 3.4 e o README)
 ```
 
 - [x] `module-info.java` em cada módulo; exportar só a API pública; `internal` nunca exportado.
-- [ ] `ServiceLoader<HolidayDataProvider>` para descoberta opcional de packs de dados sem acoplar o core.
+- [x] `ServiceLoader<HolidayDataProvider>` para descoberta opcional de packs de dados sem acoplar o core.
 - [x] Build: Maven multi-módulo, Java 25, `--release 25`. Plugins: compiler, surefire, jar, enforcer (zero dependências), e só no perfil `release` source, javadoc, gpg e central-publishing.
 ### 3.2 Fluxo interno
 
@@ -306,51 +304,28 @@ YearIndex (imutável, por ano):
 - [x] `Optional` só como tipo de retorno; nunca como campo ou parâmetro.
 ---
 
-### 3.4 Integração com Spring (módulo opcional)
+### 3.4 Integração com Spring (decidido: sem módulo)
 
-O core continua com zero dependências. Spring entra num starter separado que só agrega conveniência; quem não usa Spring nunca o vê.
+Decisão de 2026-11-08: não há `holidays-spring-boot-starter`. Um
+`HolidayCalendar` é um objeto imutável e thread-safe, por isso em Spring é um
+`@Bean` normal; o README traz o exemplo. Razões:
 
-- [ ] Módulo `holidays-spring-boot-starter`, Spring Boot 4, dependência `spring-boot-autoconfigure` + `spring-boot-starter` com `optional`/`provided` onde fizer sentido.
-- [ ] `HolidayCalendarAutoConfiguration` registada em `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`.
-- [ ] `@ConditionalOnMissingBean(HolidayCalendar.class)` — se o usuário declarar o seu próprio bean, o starter recua.
-- [ ] `@ConfigurationProperties("holidays")` com:
-```yaml
-  holidays:
-    weekend: [SATURDAY, SUNDAY]
-    layers: [ES, ES-AN, ES-AN-MA]      # ids resolvidos via ServiceLoader<HolidayDataProvider>
-    observance: SUNDAY_TO_MONDAY
-    warm-up-years: 3                   # pré-computar ano atual ± N
-    clock: SYSTEM                      # ou zone id
-```
-- [ ] `HolidayCalendarCustomizer` (`@FunctionalInterface`, recebe o `HolidayCalendarBuilder`): o usuário regista um bean para adicionar camadas/regras em código sem perder a configuração por propriedades. Aplicar todos os customizers por `@Order`.
-- [ ] Registar como bean o `HolidayCalendar` e também um `Clock` se não existir (`@ConditionalOnMissingBean(Clock.class)`).
-- [ ] Suporte a **múltiplos calendários** nomeados: `holidays.calendars.es-malaga.layers: [...]`, `holidays.calendars.gb.layers: [...]` → beans qualificados por nome. Útil para apps multi-região.
-- [ ] `WebFlux`-friendly: o calendário é imutável e síncrono (nanosegundos), não precisa de `Mono`. Documentar explicitamente que é seguro chamar em qualquer thread, incluindo event loop do Netty/Vert.x.
-- [ ] Actuator (opcional, `@ConditionalOnClass`): `HealthIndicator` trivial + `InfoContributor` com camadas carregadas e anos em cache.
-- [ ] Metadata para o IDE: `spring-boot-configuration-processor` como dependência de compilação, gera `additional-spring-configuration-metadata.json` para autocomplete no `application.yml`.
-- [ ] Testes com `ApplicationContextRunner` (sem subir contexto web): auto-config liga/desliga, propriedades mapeadas, customizers aplicados em ordem, `@ConditionalOnMissingBean` respeitado.
-- [ ] Sem `@Scheduled`, sem reload automático, sem cache de Spring — o cache é o do core.
-- [ ] Nunca referenciar classes Spring fora deste módulo. Verificar no CI com um teste que o jar do core não tem `import org.springframework`.
-  Exemplo de uso para o usuário final:
+- Um starter seria o único artefacto com dependências externas e ficaria preso
+  a uma major do Spring Boot, obrigando a releases só para acompanhar.
+- O que ele pouparia ao utilizador são cinco linhas de configuração, em troca
+  de auto-config, properties, metadata, customizer e testes de contexto para
+  manter.
+- As decisões que um starter toma (qual o calendário "default", como mapear
+  beans para ids, se business hours entram por propriedades) são do utilizador,
+  não da biblioteca.
 
-```java
-@Bean
-HolidayCalendarCustomizer localHolidays() {
-    return builder -> builder.layer(Layer.named("my-office")
-        .add(Holiday.fixed("Company Day", Month.MARCH, 15))
-        .build());
-}
- 
-@Service
-class SettlementService {
-    private final HolidayCalendar calendar;
-    SettlementService(HolidayCalendar calendar) { this.calendar = calendar; }
- 
-    LocalDate settlementDate(LocalDate trade) {
-        return calendar.addBusinessDays(trade, 2);   // T+2
-    }
-}
-```
+- [x] Secção "Spring" no README com um exemplo funcional: `CalendarRegistry` e
+  `HolidayCalendar` como beans, id vindo de `application.yml`, vários
+  calendários por `@Qualifier`, nota de que é seguro em qualquer thread,
+  incluindo o event loop do WebFlux.
+- [ ] Reabrir só se utilizadores pedirem um starter com casos de uso concretos.
+  Nessa altura: módulo mínimo, `@ConditionalOnMissingBean`, propriedades para
+  os ids, sem Actuator nem reload.
 
 ## 4. Boas práticas de código
 
@@ -431,7 +406,7 @@ class SettlementService {
 - [x] Consultas: fronteira de ano (`nextHoliday` em 30/12), calendário vazio devolve `Optional.empty()`, `addBusinessDays` negativo, `businessDaysBetween` com `a > b`.
 - [x] Fim de semana sexta-sábado.
 - [x] Concorrência: 100 threads a consultar o mesmo calendário em anos diferentes sem erro e com um único `buildIndex` por ano (contador atómico no teste).
-- [ ] Dados de Espanha/Andalucía/Málaga validados contra o calendário laboral do BOE e BOJA de pelo menos 3 anos (2025, 2026, 2027). Testes nomeados pela fonte.
+- [x] Dados de Espanha/Andalucía/Málaga validados contra o calendário laboral do BOE e BOJA de pelo menos 3 anos (2025, 2026, 2027). Testes nomeados pela fonte.
 - [ ] Cobertura mínima 90% no core (JaCoCo, só em CI).
 - [ ] Benchmarks JMH num módulo `holidays-benchmarks` fora da publicação.
 ---
@@ -457,14 +432,12 @@ class SettlementService {
 - [x] Seção 2.8: `CutOff`, `BusinessHours` e meio-dia, regras `hijri` e `hebrew` (em `main` depois do 0.2.0, sem release próprio).
 ### v0.3 — data format and registry (section 2.9)
 - [x] `HolidayFormat.json()` parser and writer over a hand-written `JsonReader`/`JsonWriter`, round-trip tests, JSON Schema published, error messages with line and column.
-- [ ] `HolidayDataProvider` SPI + `CalendarRegistry` resolving the `extends` chain, classpath and directory providers.
-- [ ] `holidays-data`: `ES.json` (Spain, Andalucía, Málaga, Catalunya) and `BR.json` (Brazil, RJ, Rio) validated against BOE/BOJA and the Brazilian federal/state laws for 2025, 2026 and 2027.
-- [ ] Java constants for shared definitions (`Holidays.CHRISTMAS`...). Optional `holidays-data-es` with Java `Layer` constants kept as the code-first alternative.
-- [ ] Document the exception-layer pattern and the registry in the README.
-### v0.4 — Spring
-- [ ] `holidays-spring-boot-starter` com auto-config, properties, customizer e múltiplos calendários.
-- [ ] Testes com `ApplicationContextRunner`.
-- [ ] Teste de CI que garante zero `org.springframework` no jar do core.
+- [x] `HolidayDataProvider` SPI + `CalendarRegistry` resolving the `extends` chain, classpath and directory providers.
+- [x] `holidays-data`: `ES.json` (Spain, Andalucía, Málaga, Catalunya) and `BR.json` (Brazil, RJ, Rio) validated against BOE/BOJA and the Brazilian federal/state laws for 2025, 2026 and 2027.
+- [x] Java constants for shared definitions (`Holidays.CHRISTMAS`...) in `holidays-data`. The code-first alternative is `Spain.NATIONAL`, `Spain.MALAGA`, `Brazil.RIO_DE_JANEIRO_CITY`... constants that read the pack layers, so there is no separate `holidays-data-es` module to keep in sync.
+- [x] Document the exception-layer pattern and the registry in the README.
+### v0.4 — Spring (cancelado)
+- [x] Sem starter; secção "Spring" no README com o exemplo de beans (ver 3.4).
 ### v1.0 — estabilização
 - [ ] Benchmarks JMH publicados no README.
 - [ ] Revisão de API pública (nada muda depois).
@@ -480,8 +453,8 @@ class SettlementService {
 ## 8. Decisões em aberto
 
 - [x] `nextHoliday(date)` é inclusivo ou exclusivo? Exclusivo, com `nextHolidayInclusive` e `previousHolidayInclusive`.
-- [ ] Data format: JSON (interoperable, schema, tooling, bank systems already speak it; costs a hand-written parser and is verbose to edit by hand) vs own plain text syntax (easy to read and edit, no tooling, no schema) vs both. Suggestion: JSON first, text later only on demand; the model is the same and a second reader is cheap once the first exists.
-- [ ] Registry ids: should the shipped pack ship city ids (`ES-AN-MA`) or stop at ISO 3166-2 and leave cities to users? Suggestion: ship the capitals as examples, document how to add the rest.
+- [x] Data format: JSON (interoperable, schema, tooling, bank systems already speak it; costs a hand-written parser and is verbose to edit by hand) vs own plain text syntax (easy to read and edit, no tooling, no schema) vs both. Decided: JSON first (shipped in v0.3); the plain text reader stays in "Depois" until users ask for it.
+- [x] Registry ids: should the shipped pack ship city ids (`ES-AN-MA`) or stop at ISO 3166-2 and leave cities to users? Decided: ship one city per country as an example (`ES-AN-MA`, `BR-RJ-RIO`); the README shows how to add the rest with a provider of your own.
 - [x] Feriados de tipo `OBSERVANCE` (não folga) contam ou não em `isBusinessDay`? (sugestão: não; só `PUBLIC` e `BANK`, configurável no builder)
 - [x] Chave de identidade entre camadas: `String name` ou um `HolidayId` tipado? (sugestão: começar com `String`, trocar se doer)
 - [x] Nome do groupId / namespace do projeto: `io.github.sfesantos`, pacote `io.github.sfesantos.holidays`.

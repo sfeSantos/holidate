@@ -1,0 +1,42 @@
+{
+  "layers": [
+    {
+      "id": "BR",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Confraternização Universal", "rule": { "fixed": "01-01" } },
+        { "name": "Segunda-feira de Carnaval",  "rule": { "easter": -48 }, "type": "OBSERVANCE" },
+        { "name": "Terça-feira de Carnaval",    "rule": { "easter": -47 }, "type": "OBSERVANCE" },
+        { "name": "Sexta-feira Santa",          "rule": { "easter": -2 } },
+        { "name": "Tiradentes",                 "rule": { "fixed": "04-21" } },
+        { "name": "Dia do Trabalho",            "rule": { "fixed": "05-01" } },
+        { "name": "Corpus Christi",             "rule": { "easter": 60 }, "type": "OBSERVANCE" },
+        { "name": "Independência do Brasil",    "rule": { "fixed": "09-07" } },
+        { "name": "Nossa Senhora Aparecida",    "rule": { "fixed": "10-12" } },
+        { "name": "Finados",                    "rule": { "fixed": "11-02" } },
+        { "name": "Proclamação da República",   "rule": { "fixed": "11-15" } },
+        { "name": "Dia da Consciência Negra",   "rule": { "fixed": "11-20" }, "from": 2024 },
+        { "name": "Natal",                      "rule": { "fixed": "12-25" } }
+      ]
+    },
+    {
+      "id": "BR-RJ",
+      "extends": "BR",
+      "holidays": [
+        { "name": "São Jorge", "rule": { "fixed": "04-23" } }
+      ],
+      "override": [
+        { "name": "Terça-feira de Carnaval",  "rule": { "easter": -47 } },
+        { "name": "Dia da Consciência Negra", "rule": { "fixed": "11-20" }, "from": 2002 }
+      ]
+    },
+    {
+      "id": "BR-RJ-RIO",
+      "extends": "BR-RJ",
+      "holidays": [
+        { "name": "São Sebastião",           "rule": { "fixed": "01-20" } },
+        { "name": "Quarta-feira de Cinzas",  "rule": { "easter": -46 }, "type": "HALF_DAY" }
+      ]
+    }
+  ]
+}

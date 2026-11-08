@@ -11,8 +11,9 @@ answers questions like "is this a business day?" from precomputed indexes.
 - Zero dependencies: only `java.base`.
 - Immutable and thread-safe calendars, built once with a builder.
 - Queries are O(1) or O(log n) over per-year indexes, computed lazily and cached.
-- The core knows nothing about any country. Country data is yours to define or
-  will ship as optional modules.
+- The core knows nothing about any country. Country data is JSON: write your
+  own or add the optional `holidays-data` module and ask a registry for
+  `ES-AN-MA`.
 
 Requires Java 25.
 
@@ -22,10 +23,11 @@ Early. Version 0.2.0, the release on Maven Central, covers rules, layers,
 observance, the basic queries, navigation (`nextHoliday`, `addBusinessDays`,
 `businessDaysBetween`), `TemporalAdjuster` and `TemporalQuery` integration,
 `Clock` overloads and `union` of calendars. Since then `main` has gained
-payment date conventions and cut-off times, business hours and half days, and
-Islamic and Hebrew calendar rules; those sections below describe code that is
-not yet in a release. Country data packs and a JSON format are next. The
-public API may still change before 1.0. See [TODO.md](TODO.md) for the roadmap.
+payment date conventions and cut-off times, business hours and half days,
+Islamic and Hebrew calendar rules, a JSON data format, a calendar registry
+with a provider SPI and the `holidays-data` module with Spain and Brazil;
+those sections below describe code that is not yet in a release. The public
+API may still change before 1.0. See [TODO.md](TODO.md) for the roadmap.
 
 ## Install
 
@@ -33,6 +35,16 @@ public API may still change before 1.0. See [TODO.md](TODO.md) for the roadmap.
 <dependency>
     <groupId>io.github.sfesantos</groupId>
     <artifactId>holidays-core</artifactId>
+    <version>0.2.0</version>
+</dependency>
+```
+
+The country packs are a separate, optional artifact:
+
+```xml
+<dependency>
+    <groupId>io.github.sfesantos</groupId>
+    <artifactId>holidays-data</artifactId>
     <version>0.2.0</version>
 </dependency>
 ```
@@ -119,7 +131,7 @@ keeps it that way.
 Brazil never moves a holiday, so no observance rule is needed. What it has
 instead is holiday types: Carnival and Corpus Christi are a national "ponto
 facultativo" (optional day off), the state of Rio de Janeiro makes Carnival
-Tuesday a real holiday, and the city gives Ash Wednesday off until 2 pm.
+Tuesday a real holiday, and the city gives Ash Wednesday off until noon.
 Black Awareness Day was a state holiday for years before it became national
 in 2024.
 
@@ -339,6 +351,74 @@ and observances exist only in Java and cannot be written. The JSON Schema
 ships in the jar at `META-INF/holidays/holidays.schema.json`, so files can be
 validated with any tool before loading.
 
+## Country packs and the registry
+
+`holidays-data` ships one JSON file per country under `META-INF/holidays`
+and registers itself as a `HolidayDataProvider` service. A `CalendarRegistry`
+resolves an id to a calendar by stacking the layer on the chain it extends,
+builds it once and caches it:
+
+```java
+import io.github.sfesantos.holidays.registry.*;
+
+var registry = CalendarRegistry.load();          // every provider on the module path or classpath
+
+var malaga = registry.calendar("ES-AN-MA");      // ES, then ES-AN, then ES-AN-MA
+var rio = registry.calendar("BR-RJ-RIO");
+registry.layerIds();                             // [BR, BR-RJ, BR-RJ-RIO, ES, ES-AN, ES-AN-MA, ES-CT]
+```
+
+Ids follow ISO 3166-1 and 3166-2 where one exists (`ES`, `ES-AN`, `ES-CT`,
+`BR`, `BR-RJ`) and are free text below that (`ES-AN-MA`, `BR-RJ-RIO`). The
+shipped packs cover Spain with Andalucía, Málaga and Catalunya, and Brazil
+with the state and the city of Rio de Janeiro. Each pack is pinned by one test
+per year and per official source (BOE, BOJA, DOGC, Brazilian federal and state
+law) for 2025, 2026 and 2027; updating a pack is editing the file and running
+the tests. The same layers are available as Java constants for calendars
+built in code, read from the pack rather than duplicated:
+
+```java
+import io.github.sfesantos.holidays.data.*;
+
+var malaga = HolidayCalendar.builder()
+        .layers(Spain.NATIONAL, Spain.ANDALUCIA, Spain.MALAGA)
+        .build();
+
+var germany = Layer.named("DE")
+        .add(Holidays.NEW_YEAR, Holidays.GOOD_FRIDAY, Holidays.EASTER_MONDAY, Holidays.LABOUR_DAY,
+                Holidays.ASCENSION, Holidays.WHIT_MONDAY, Holidays.CHRISTMAS, Holidays.BOXING_DAY)
+        .build();
+```
+
+**Your own data.** Providers are asked in the order given and the first that
+knows an id wins, so a provider placed ahead of the shipped pack overrides it.
+`DirectoryDataProvider` reads every `.json` file in a directory,
+`ClasspathDataProvider` reads named resources, and `HolidayDataProvider` is
+two methods to implement over a database or a vendor feed:
+
+```java
+var mine = DirectoryDataProvider.of(Path.of("/etc/holidays"));   // my ES.json replaces the shipped one
+var registry = CalendarRegistry.load(mine);                       // mine first, then the discovered providers
+
+var standalone = CalendarRegistry.of(mine, HolidayDataProvider.of(spain, andalucia));  // no ServiceLoader
+```
+
+**Exception layers.** A branch that closes on days the region does not can
+keep those closures in a layer of its own, stacked on top of the registry's
+chain without touching the base data. A one-off closure is a holiday valid
+for a single year:
+
+```java
+var closures = Layer.named("SANTANDER-ES")
+        .add(Holiday.fixed("Inventory", Month.JULY, 3).validBetween(Year.of(2027), Year.of(2027)))
+        .build();
+
+var branch = registry.builder("ES-AN-MA")        // the chain, ready for more layers
+        .layer(closures)
+        .businessHours(LocalTime.of(8, 30), LocalTime.of(14, 30))
+        .build();
+```
+
 ## Concepts
 
 **Rules.** A `HolidayRule` turns a year into dates:
@@ -392,6 +472,334 @@ the highest layer that declares one wins.
 
 **Easter.** Gregorian by default. Plug a different `EasterAlgorithm` into the
 builder for Julian or Orthodox dates.
+
+## Classes
+
+What each public type is for and how it is used. Where an earlier section
+already shows a class at work, this only points there.
+
+### Building a calendar (`io.github.sfesantos.holidays`)
+
+**`HolidayCalendar`** is the calendar: an immutable, thread-safe object that
+answers every query in `HolidayQueries` and `BusinessDayQueries`. It is built
+with `HolidayCalendar.builder()`, composed with `HolidayCalendar.union(...)`
+or taken from a `CalendarRegistry`. `warmUp(from, until)` precomputes years.
+
+**`HolidayCalendarBuilder`** stacks layers in precedence order and sets the
+calendar-wide defaults: the weekend and observance that apply when no layer
+declares one, the business hours, the Easter algorithm and which holiday
+types make a day non-working.
+
+```java
+var calendar = HolidayCalendar.builder()
+        .layers(spain, andalucia, malaga)
+        .weekend(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)      // fallback, a layer may override it
+        .observance(ObservanceRule.none())                   // fallback, a layer may override it
+        .businessHours(LocalTime.of(9, 0), LocalTime.of(17, 0))
+        .easter(EasterAlgorithm.gregorian())
+        .nonWorkingTypes(HolidayType.PUBLIC)                 // BANK days stay business days here
+        .build();
+
+calendar.warmUp(Year.of(2026), Year.of(2030));
+```
+
+**`Layer`** and **`LayerBuilder`** group holidays by jurisdiction. A layer
+adds holidays, overrides or removes inherited ones by name, may declare its
+own weekend or observance, and may name the layer it extends. See
+[Málaga](#example-málaga-spain) and [Rio de Janeiro](#example-rio-de-janeiro-brazil).
+
+```java
+var catalunya = Layer.named("ES-CT")
+        .extending("ES")                                     // used by the registry, ignored by the builder
+        .add(Holiday.fixed("Sant Joan", Month.JUNE, 24))
+        .override(Holiday.fixed("Día de la Constitución", Month.DECEMBER, 6).withObservance(ObservanceRule.none()))
+        .remove("Epifanía del Señor")
+        .weekend(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
+        .observance(ObservanceRule.sundayToMonday())
+        .build();
+```
+
+**`Holiday`** is a named rule plus a `HolidayType`, a `YearRange` and an
+optional observance of its own. The name is the identity across layers.
+Factories cover the common rules; `validFrom`, `validUntil`, `validBetween`,
+`ofType`, `closingAt` and `withObservance` return modified copies.
+
+**`HolidayRule`** is the sealed family of rules behind a holiday: `FixedDate`,
+`EasterRelative`, `NthWeekdayOfMonth`, `WeekdayAfter`, `WeekdayBefore`,
+`Custom`, `Hijri` and `Hebrew`. Use it directly when `Holiday` has no shortcut
+for the rule you need, or to ask a rule for its dates.
+
+```java
+var thanksgiving = Holiday.of("Thanksgiving", HolidayRule.nthWeekdayOfMonth(4, DayOfWeek.THURSDAY, Month.NOVEMBER));
+var memorialDay = Holiday.of("Memorial Day", HolidayRule.nthWeekdayOfMonth(-1, DayOfWeek.MONDAY, Month.MAY));
+var electionDay = Holiday.of("Election Day", HolidayRule.weekdayAfter(DayOfWeek.TUESDAY, MonthDay.of(11, 1)))
+        .ofType(HolidayType.OBSERVANCE)
+        .validUntil(Year.of(2030));
+var juneteenth = Holiday.fixed("Juneteenth", Month.JUNE, 19).validFrom(Year.of(2021));
+var leapDay = Holiday.custom("Leap Day", year -> year.isLeap() ? Optional.of(year.atDay(60)) : Optional.empty());
+
+thanksgiving.dateIn(Year.of(2026), EasterAlgorithm.gregorian());   // Optional[2026-11-26]
+HolidayRule.easterRelative(-2).datesIn(Year.of(2026), EasterAlgorithm.gregorian()); // [2026-04-03]
+```
+
+**`HolidayType`** is `PUBLIC`, `BANK`, `OBSERVANCE` or `HALF_DAY`. The first
+two make a day non-working by default; the builder's `nonWorkingTypes` changes
+that. See [Rio de Janeiro](#example-rio-de-janeiro-brazil).
+
+**`YearRange`** is the closed range of years a holiday is in force:
+`always()`, `from(year)`, `until(year)` or `between(from, until)`. Usually
+set through `Holiday.validFrom` and friends.
+
+**`Weekend`** is the set of non-working weekdays, stored as a bit mask:
+`Weekend.standard()` is Saturday and Sunday, `Weekend.none()` has no weekend,
+`Weekend.of(days...)` anything else. `contains(day)` and `days()` read it.
+
+**`ObservanceRule`** moves a holiday off a day on which it is not observed.
+Built-in rules: `none()`, `sundayToMonday()`, `weekendToMonday()`,
+`saturdayToFridaySundayToMonday()` (the US federal model), `nearestWeekday()`
+and `inherit()`, which means "use the layer's or calendar's rule". A custom
+rule is a lambda that gets an **`ObservanceContext`** to ask whether a date is
+a weekend or already taken by another holiday.
+
+```java
+ObservanceRule skipSaturdayToo = (date, context) -> switch (date.getDayOfWeek()) {
+    case SATURDAY -> date.plusDays(2);
+    case SUNDAY -> date.plusDays(1);
+    default -> context.isHoliday(date) ? date.plusDays(1) : date;   // repeated until the date settles
+};
+
+var layer = Layer.named("GB")
+        .add(Holiday.fixed("Christmas Day", Month.DECEMBER, 25),
+                Holiday.fixed("Boxing Day", Month.DECEMBER, 26),
+                Holiday.fixed("Remembrance Sunday", Month.NOVEMBER, 11).withObservance(ObservanceRule.none()))
+        .observance(ObservanceRule.weekendToMonday())
+        .build();
+```
+
+**`HolidayOccurrence`** is what queries return: `name`, `original` date,
+`observed` date, `type`, the `layer` that defined it and `closesAt` for a
+half day. `isMoved()` tells whether the observance rule shifted it.
+
+```java
+for (var occurrence : calendar.holidaysIn(Year.of(2026))) {
+    if (occurrence.isMoved()) {
+        System.out.println(occurrence.name() + " moved from " + occurrence.original() + " to " + occurrence.observed());
+    }
+}
+```
+
+### Asking questions (`io.github.sfesantos.holidays`)
+
+**`HolidayQueries`** holds everything about holidays: `isHoliday`,
+`holidayOn`, `holidaysIn`, `holidaysBetween`, `nextHoliday`,
+`previousHoliday`, `daysUntilNextHoliday`, their `Inclusive` variants, the
+`Clock` overloads for today and the `TemporalQuery` factories. See the
+[Málaga example](#example-málaga-spain).
+
+**`BusinessDayQueries`** holds everything about working days: `isBusinessDay`,
+`nextBusinessDay`, `addBusinessDays`, `businessDaysBetween`, `adjust` with a
+convention or a cut-off, `businessHoursOn`, `isOpen`, `isHalfDay`, the
+`TemporalAdjuster` factories and the `Clock` overloads. See
+[Payment dates](#payment-dates) and [Business hours](#business-hours-and-half-days).
+
+**`BusinessDayConvention`** is `UNADJUSTED`, `FOLLOWING`, `PRECEDING`,
+`MODIFIED_FOLLOWING` or `MODIFIED_PRECEDING`. It is normally passed to
+`calendar.adjust(date, convention)`, and can be applied on its own with
+`convention.adjust(date, calendar)`. See [Payment dates](#payment-dates).
+
+**`CutOff`** is a time of day in a market's zone after which an instruction
+counts for the next day. `dateOf(instant)` and `dateOf(localDateTime)` give the
+booking date; `calendar.adjust(instant, cutOff, convention)` goes on to the
+settlement date. See [Payment dates](#payment-dates).
+
+**`BusinessHours`** is an open and a close time, `open` inclusive and `close`
+exclusive. `allDay()` is the default; `contains(time)` and `closingAt(time)`
+help when you read `businessHoursOn`. See
+[Business hours](#business-hours-and-half-days).
+
+```java
+var hours = calendar.businessHoursOn(LocalDate.of(2026, 12, 24)).orElseThrow();   // 09:00 to 13:00 on a half day
+
+hours.contains(LocalTime.of(12, 30));   // true
+hours.contains(LocalTime.of(13, 0));    // false, close is exclusive
+hours.isAllDay();                       // false
+```
+
+### Easter and other calendars
+
+**`EasterAlgorithm`** (`io.github.sfesantos.holidays.easter`) turns a year
+into Easter Sunday. `EasterAlgorithm.gregorian()` is the default; any
+implementation plugs into the builder, which is how Julian or Orthodox dates
+would come in. **`GregorianEaster.of(year)`** is the computation on its own.
+
+```java
+GregorianEaster.of(2026);                                 // 2026-04-05
+
+EasterAlgorithm julianOnGregorian = year -> /* your Julian computation */ LocalDate.of(year, 4, 12);
+var orthodox = HolidayCalendar.builder()
+        .easter(julianOnGregorian)
+        .layer(Layer.named("GR").add(Holiday.easterRelative("Μεγάλη Παρασκευή", -2)).build())
+        .build();
+```
+
+**`HebrewCalendar`** and **`HebrewMonth`** (`io.github.sfesantos.holidays.hebrew`)
+are the arithmetic behind `Holiday.hebrew`, usable on their own:
+`HebrewCalendar.toLocalDate(year, month, day)`, `yearOf(date)`,
+`isLeapYear(year)`, `daysInMonth(year, month)`; `HebrewMonth.ADAR` is the Adar
+that carries the festivals and `ADAR_I` exists only in leap years. See
+[Lunar calendars](#lunar-calendars).
+
+```java
+HebrewCalendar.yearOf(LocalDate.of(2026, 4, 2));                   // 5786
+HebrewCalendar.isLeapYear(5787);                                   // true
+HebrewCalendar.toLocalDate(5786, HebrewMonth.NISAN.numberIn(5786).orElseThrow(), 15); // 2026-04-02
+```
+
+### Data files (`io.github.sfesantos.holidays.format`)
+
+**`HolidayFormat`** reads and writes layers as data. `HolidayFormat.json()`
+is the only format today; `parse(String | Reader | Path)` returns
+`List<Layer>` and `write(layers)` or `write(layers, Path)` goes the other way.
+**`HolidayFormatException`** carries the `line()` and `column()` of the first
+problem. See [Data files](#data-files).
+
+```java
+try {
+    var layers = HolidayFormat.json().parse(Path.of("ES.json"));
+} catch (HolidayFormatException e) {
+    log.error("ES.json line {} column {}: {}", e.line(), e.column(), e.getMessage());
+}
+```
+
+### Registry (`io.github.sfesantos.holidays.registry`)
+
+**`CalendarRegistry`** turns an id into a calendar by stacking the layer on
+the chain it extends, caching the result. `of(providers...)` takes explicit
+providers, `load(first...)` adds every `ServiceLoader` provider after the
+given ones. `layerIds()`, `layer(id)`, `layers(id)`, `builder(id)` and
+`calendar(id)` read it. See [Country packs](#country-packs-and-the-registry).
+
+**`HolidayDataProvider`** is the two-method SPI a source of layers
+implements: `layerIds()` and `layer(id)`. `HolidayDataProvider.of(layers...)`
+wraps layers already in memory. Register your own class in
+`META-INF/services/io.github.sfesantos.holidays.registry.HolidayDataProvider`
+(or `provides ... with` in `module-info.java`) and `CalendarRegistry.load()`
+picks it up.
+
+```java
+public final class JdbcHolidayProvider implements HolidayDataProvider {
+
+    private final Map<String, Layer> layers;
+
+    public JdbcHolidayProvider(DataSource dataSource) {
+        layers = loadLayers(dataSource);   // one SELECT at startup, rows mapped onto Layer.named(...).add(...)
+    }
+
+    @Override
+    public Set<String> layerIds() {
+        return layers.keySet();
+    }
+
+    @Override
+    public Optional<Layer> layer(String id) {
+        return Optional.ofNullable(layers.get(id));
+    }
+}
+
+var registry = CalendarRegistry.load(new JdbcHolidayProvider(dataSource));   // database first, shipped packs after
+```
+
+**`DirectoryDataProvider.of(path)`** reads every `.json` file directly in a
+directory; **`ClasspathDataProvider.of(anchor, resources...)`** reads named
+resources as `Class.getResourceAsStream` resolves them. Both parse at
+construction and fail on a missing file or a duplicate id.
+
+```java
+var ops = DirectoryDataProvider.of(Path.of("/etc/holidays"));
+var bundled = ClasspathDataProvider.of(MyApp.class, "/holidays/branches.json", "/holidays/exchanges.json");
+var registry = CalendarRegistry.of(ops, bundled);
+```
+
+### Country packs (`io.github.sfesantos.holidays.data`, artifact `holidays-data`)
+
+**`BundledDataProvider`** is the service that exposes `ES.json` and `BR.json`
+from the jar. You rarely name it: `CalendarRegistry.load()` finds it.
+**`Spain`** and **`Brazil`** hold the same layers as constants for code-first
+calendars, and **`Holidays`** holds the definitions most countries share
+(`NEW_YEAR`, `GOOD_FRIDAY`, `EASTER_MONDAY`, `ASCENSION`, `WHIT_MONDAY`,
+`CORPUS_CHRISTI`, `LABOUR_DAY`, `ASSUMPTION`, `ALL_SAINTS`, `CHRISTMAS`,
+`BOXING_DAY` and more). See [Country packs](#country-packs-and-the-registry).
+
+## Spring
+
+There is no Spring module and none is planned. A `HolidayCalendar` is an
+immutable, thread-safe object, so it is an ordinary bean. With `holidays-data`
+on the classpath this is the whole integration:
+
+```yaml
+# application.yml
+holidays:
+  calendar: ES-AN-MA
+```
+
+```java
+@Configuration
+class HolidayConfiguration {
+
+    @Bean
+    CalendarRegistry calendarRegistry() {
+        return CalendarRegistry.load();
+    }
+
+    @Bean
+    HolidayCalendar holidayCalendar(CalendarRegistry registry, @Value("${holidays.calendar}") String id) {
+        return registry.calendar(id);
+    }
+}
+
+@Service
+class SettlementService {
+
+    private final HolidayCalendar calendar;
+
+    SettlementService(HolidayCalendar calendar) {
+        this.calendar = calendar;
+    }
+
+    LocalDate settlementDate(LocalDate trade) {
+        return calendar.addBusinessDays(trade, 2);   // T+2
+    }
+}
+```
+
+An application that serves several regions declares one bean per calendar and
+injects them by qualifier, or exposes the registry itself and lets each
+service ask for the id it needs:
+
+```java
+@Bean
+HolidayCalendar madrid(CalendarRegistry registry) {
+    return registry.builder("ES").layer(headOfficeClosures).build();
+}
+
+@Bean
+HolidayCalendar rio(CalendarRegistry registry) {
+    return registry.calendar("BR-RJ-RIO");
+}
+
+@Service
+class PaymentService {
+
+    PaymentService(@Qualifier("madrid") HolidayCalendar madrid, @Qualifier("rio") HolidayCalendar rio) {
+        ...
+    }
+}
+```
+
+Nothing here blocks or allocates per call, so the same bean is safe in a
+WebFlux handler or any other event loop. Keep the `Clock` a bean too and pass
+it to the `*Today` queries, and tests can freeze time without touching the
+calendar.
 
 ## Thread safety
 

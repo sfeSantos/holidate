@@ -36,6 +36,7 @@
 
     <modules>
         <module>holidays-core</module>
+        <module>holidays-data</module>
     </modules>
 
     <properties>
@@ -143,8 +144,9 @@
                                     </excludes>
                                     <includes>
                                         <include>*:*:*:*:test</include>
+                                        <include>io.github.sfesantos:*</include>
                                     </includes>
-                                    <message>Only java.base is allowed outside test scope</message>
+                                    <message>Only java.base and the project's own modules are allowed outside test scope</message>
                                 </bannedDependencies>
                             </rules>
                         </configuration>

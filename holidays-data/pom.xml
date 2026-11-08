@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.github.sfesantos</groupId>
+        <artifactId>holidays-parent</artifactId>
+        <version>0.2.0</version>
+    </parent>
+
+    <artifactId>holidays-data</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Holidays Data</name>
+    <description>Country holiday packs as JSON files, discovered by the core registry through HolidayDataProvider.</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.github.sfesantos</groupId>
+            <artifactId>holidays-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
