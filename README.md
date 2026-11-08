@@ -11,8 +11,9 @@ answers questions like "is this a business day?" from precomputed indexes.
 - Zero dependencies: only `java.base`.
 - Immutable and thread-safe calendars, built once with a builder.
 - Queries are O(1) or O(log n) over per-year indexes, computed lazily and cached.
-- The core knows nothing about any country. Country data is yours to define or
-  will ship as optional modules.
+- The core knows nothing about any country. Country data is JSON: write your
+  own or add the optional `holidays-data` module and ask a registry for
+  `ES-AN-MA`.
 
 Requires Java 25.
 
@@ -22,10 +23,11 @@ Early. Version 0.2.0, the release on Maven Central, covers rules, layers,
 observance, the basic queries, navigation (`nextHoliday`, `addBusinessDays`,
 `businessDaysBetween`), `TemporalAdjuster` and `TemporalQuery` integration,
 `Clock` overloads and `union` of calendars. Since then `main` has gained
-payment date conventions and cut-off times, business hours and half days, and
-Islamic and Hebrew calendar rules; those sections below describe code that is
-not yet in a release. Country data packs and a JSON format are next. The
-public API may still change before 1.0. See [TODO.md](TODO.md) for the roadmap.
+payment date conventions and cut-off times, business hours and half days,
+Islamic and Hebrew calendar rules, a JSON data format, a calendar registry
+with a provider SPI and the `holidays-data` module with Spain and Brazil;
+those sections below describe code that is not yet in a release. The public
+API may still change before 1.0. See [TODO.md](TODO.md) for the roadmap.
 
 ## Install
 
@@ -33,6 +35,16 @@ public API may still change before 1.0. See [TODO.md](TODO.md) for the roadmap.
 <dependency>
     <groupId>io.github.sfesantos</groupId>
     <artifactId>holidays-core</artifactId>
+    <version>0.2.0</version>
+</dependency>
+```
+
+The country packs are a separate, optional artifact:
+
+```xml
+<dependency>
+    <groupId>io.github.sfesantos</groupId>
+    <artifactId>holidays-data</artifactId>
     <version>0.2.0</version>
 </dependency>
 ```
@@ -119,7 +131,7 @@ keeps it that way.
 Brazil never moves a holiday, so no observance rule is needed. What it has
 instead is holiday types: Carnival and Corpus Christi are a national "ponto
 facultativo" (optional day off), the state of Rio de Janeiro makes Carnival
-Tuesday a real holiday, and the city gives Ash Wednesday off until 2 pm.
+Tuesday a real holiday, and the city gives Ash Wednesday off until noon.
 Black Awareness Day was a state holiday for years before it became national
 in 2024.
 
@@ -338,6 +350,74 @@ Rule kinds: `fixed` (`"MM-DD"`), `easter` (offset in days), `nth` with
 and observances exist only in Java and cannot be written. The JSON Schema
 ships in the jar at `META-INF/holidays/holidays.schema.json`, so files can be
 validated with any tool before loading.
+
+## Country packs and the registry
+
+`holidays-data` ships one JSON file per country under `META-INF/holidays`
+and registers itself as a `HolidayDataProvider` service. A `CalendarRegistry`
+resolves an id to a calendar by stacking the layer on the chain it extends,
+builds it once and caches it:
+
+```java
+import io.github.sfesantos.holidays.registry.*;
+
+var registry = CalendarRegistry.load();          // every provider on the module path or classpath
+
+var malaga = registry.calendar("ES-AN-MA");      // ES, then ES-AN, then ES-AN-MA
+var rio = registry.calendar("BR-RJ-RIO");
+registry.layerIds();                             // [BR, BR-RJ, BR-RJ-RIO, ES, ES-AN, ES-AN-MA, ES-CT]
+```
+
+Ids follow ISO 3166-1 and 3166-2 where one exists (`ES`, `ES-AN`, `ES-CT`,
+`BR`, `BR-RJ`) and are free text below that (`ES-AN-MA`, `BR-RJ-RIO`). The
+shipped packs cover Spain with Andalucía, Málaga and Catalunya, and Brazil
+with the state and the city of Rio de Janeiro. Each pack is pinned by one test
+per year and per official source (BOE, BOJA, DOGC, Brazilian federal and state
+law) for 2025, 2026 and 2027; updating a pack is editing the file and running
+the tests. The same layers are available as Java constants for calendars
+built in code, read from the pack rather than duplicated:
+
+```java
+import io.github.sfesantos.holidays.data.*;
+
+var malaga = HolidayCalendar.builder()
+        .layers(Spain.NATIONAL, Spain.ANDALUCIA, Spain.MALAGA)
+        .build();
+
+var germany = Layer.named("DE")
+        .add(Holidays.NEW_YEAR, Holidays.GOOD_FRIDAY, Holidays.EASTER_MONDAY, Holidays.LABOUR_DAY,
+                Holidays.ASCENSION, Holidays.WHIT_MONDAY, Holidays.CHRISTMAS, Holidays.BOXING_DAY)
+        .build();
+```
+
+**Your own data.** Providers are asked in the order given and the first that
+knows an id wins, so a provider placed ahead of the shipped pack overrides it.
+`DirectoryDataProvider` reads every `.json` file in a directory,
+`ClasspathDataProvider` reads named resources, and `HolidayDataProvider` is
+two methods to implement over a database or a vendor feed:
+
+```java
+var mine = DirectoryDataProvider.of(Path.of("/etc/holidays"));   // my ES.json replaces the shipped one
+var registry = CalendarRegistry.load(mine);                       // mine first, then the discovered providers
+
+var standalone = CalendarRegistry.of(mine, HolidayDataProvider.of(spain, andalucia));  // no ServiceLoader
+```
+
+**Exception layers.** A branch that closes on days the region does not can
+keep those closures in a layer of its own, stacked on top of the registry's
+chain without touching the base data. A one-off closure is a holiday valid
+for a single year:
+
+```java
+var closures = Layer.named("SANTANDER-ES")
+        .add(Holiday.fixed("Inventory", Month.JULY, 3).validBetween(Year.of(2027), Year.of(2027)))
+        .build();
+
+var branch = registry.builder("ES-AN-MA")        // the chain, ready for more layers
+        .layer(closures)
+        .businessHours(LocalTime.of(8, 30), LocalTime.of(14, 30))
+        .build();
+```
 
 ## Concepts
 

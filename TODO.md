@@ -217,7 +217,7 @@ layer ES-CT extends ES
 - [x] `HolidayFormat.json()` (and `HolidayFormat.text()` if the plain text option goes ahead): `parse(Reader)` / `parse(Path)` / `parse(String)` → `List<Layer>`; `write(List<Layer>)` round-trips so a calendar built in Java can be exported. Hand-written, zero deps, fails fast with line and column (`HolidayFormatException`). `custom` rules and observances cannot be serialised and are rejected by `write`.
 - [x] **Registry**: `CalendarRegistry` resolves an id to a `HolidayCalendar` by composing the `extends` chain (`ES-AN-MA` → `ES`, `ES-AN`, `ES-AN-MA`). Ids follow ISO 3166-1/3166-2 where one exists (`ES`, `ES-AN`, `BR`, `BR-RJ`); below that, free text (`ES-AN-MA`, `BR-RJ-RIO`). Calendars are cached by id.
 - [x] `HolidayDataProvider` (`ServiceLoader`): `Set<String> layerIds()` + `Optional<Layer> layer(String id)`. Built-in providers: classpath resources (`META-INF/holidays/*.holidays`), a directory on disk. Users write their own (database, vendor feed). Registry asks providers in order; the first that answers wins, so a user's provider overrides the shipped pack.
-- [ ] **Exception layers**: a user stacks `SANTANDER-ES` (one-off closures, `validBetween(2027, 2027)`) on top of `ES-AN-MA` without touching the base data. Already supported by layers; document the pattern.
+- [x] **Exception layers**: a user stacks `SANTANDER-ES` (one-off closures, `validBetween(2027, 2027)`) on top of `ES-AN-MA` without touching the base data. Already supported by layers; document the pattern.
 - [x] **Composition**: `HolidayCalendar.union(a, b, ...)`: holiday if a holiday in any; business day only if a business day in all. Needed for cross-market settlement (EUR/BRL is a business day in `ES` and `BR`). Implemented as a composed calendar with its own `YearIndex` built by OR-ing the members, so queries stay O(1).
 - [x] **Yearly validation**: one test per year and per official source (BOE 2027, BOJA 2027, B3 2027), as `MalagaExampleTest` does. Updating a pack is "edit the file, run the test".
 - [x] Java constants (`Holidays.CHRISTMAS`, `Holidays.GOOD_FRIDAY`) stay for the handful of definitions every country shares, and `Layer`/`Holiday` builders stay for users who prefer code. Both options remain first-class; the JSON format is the recommended one for bulk data.
@@ -263,12 +263,14 @@ holidays-core/                      # motor de regras, sem dados de país (estad
     HolidayDataProvider             # ServiceLoader SPI
     ClasspathDataProvider, DirectoryDataProvider   # JSON resources next to a class; *.json files in a directory
 
-holidays-data/        (opcional, módulo separado, sem código Java além do provider)
+holidays-data/        (opcional, módulo separado; depende só do core)
   META-INF/holidays/ES.json         # one resource file per country, regions inside
   META-INF/holidays/BR.json
-  holidays.schema.json              # JSON Schema for user files
-  Holidays.CHRISTMAS, NEW_YEAR, GOOD_FRIDAY, ALL_SAINTS, EASTER_MONDAY...  # Java constants for shared definitions
-holidays-data-es/ (alternativa mantida: constantes Java `Spain`, `Andalucia`, `Malaga` para quem prefere código)
+  io.github.sfesantos.holidays.data
+    BundledDataProvider             # ServiceLoader provider over the two files
+    Holidays                        # CHRISTMAS, NEW_YEAR, GOOD_FRIDAY... shared definitions
+    Spain, Brazil                   # the pack layers as constants for code-first users (no separate holidays-data-es)
+  (the JSON Schema stays in the core jar, META-INF/holidays/holidays.schema.json)
  
 holidays-spring-boot-starter/   (opcional, módulo separado — ÚNICO com dependências externas)
   HolidayCalendarAutoConfiguration
@@ -460,7 +462,7 @@ class SettlementService {
 - [x] `HolidayDataProvider` SPI + `CalendarRegistry` resolving the `extends` chain, classpath and directory providers.
 - [x] `holidays-data`: `ES.json` (Spain, Andalucía, Málaga, Catalunya) and `BR.json` (Brazil, RJ, Rio) validated against BOE/BOJA and the Brazilian federal/state laws for 2025, 2026 and 2027.
 - [x] Java constants for shared definitions (`Holidays.CHRISTMAS`...) in `holidays-data`. The code-first alternative is `Spain.NATIONAL`, `Spain.MALAGA`, `Brazil.RIO_DE_JANEIRO_CITY`... constants that read the pack layers, so there is no separate `holidays-data-es` module to keep in sync.
-- [ ] Document the exception-layer pattern and the registry in the README.
+- [x] Document the exception-layer pattern and the registry in the README.
 ### v0.4 — Spring
 - [ ] `holidays-spring-boot-starter` com auto-config, properties, customizer e múltiplos calendários.
 - [ ] Testes com `ApplicationContextRunner`.
@@ -480,8 +482,8 @@ class SettlementService {
 ## 8. Decisões em aberto
 
 - [x] `nextHoliday(date)` é inclusivo ou exclusivo? Exclusivo, com `nextHolidayInclusive` e `previousHolidayInclusive`.
-- [ ] Data format: JSON (interoperable, schema, tooling, bank systems already speak it; costs a hand-written parser and is verbose to edit by hand) vs own plain text syntax (easy to read and edit, no tooling, no schema) vs both. Suggestion: JSON first, text later only on demand; the model is the same and a second reader is cheap once the first exists.
-- [ ] Registry ids: should the shipped pack ship city ids (`ES-AN-MA`) or stop at ISO 3166-2 and leave cities to users? Suggestion: ship the capitals as examples, document how to add the rest.
+- [x] Data format: JSON (interoperable, schema, tooling, bank systems already speak it; costs a hand-written parser and is verbose to edit by hand) vs own plain text syntax (easy to read and edit, no tooling, no schema) vs both. Decided: JSON first (shipped in v0.3); the plain text reader stays in "Depois" until users ask for it.
+- [x] Registry ids: should the shipped pack ship city ids (`ES-AN-MA`) or stop at ISO 3166-2 and leave cities to users? Decided: ship one city per country as an example (`ES-AN-MA`, `BR-RJ-RIO`); the README shows how to add the rest with a provider of your own.
 - [x] Feriados de tipo `OBSERVANCE` (não folga) contam ou não em `isBusinessDay`? (sugestão: não; só `PUBLIC` e `BANK`, configurável no builder)
 - [x] Chave de identidade entre camadas: `String name` ou um `HolidayId` tipado? (sugestão: começar com `String`, trocar se doer)
 - [x] Nome do groupId / namespace do projeto: `io.github.sfesantos`, pacote `io.github.sfesantos.holidays`.
