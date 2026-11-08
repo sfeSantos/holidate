@@ -45,7 +45,6 @@ final class YearIndexBuilder {
         int length = Year.isLeap(year) ? 366 : 365;
         var anyHoliday = new long[YearIndex.WORDS];
         var nonWorking = new long[YearIndex.WORDS];
-        var byDay = new HolidayOccurrence[length + 1];
 
         for (var occurrence : observedHere) {
             int day = occurrence.observed().getDayOfYear();
@@ -54,16 +53,12 @@ final class YearIndexBuilder {
             if (calendar.isNonWorking(occurrence.type())) {
                 YearIndex.set(nonWorking, day);
             }
-
-            if (byDay[day] == null) {
-                byDay[day] = occurrence;
-            }
         }
 
         var businessDays = businessDays(year, length, nonWorking);
 
-        return new YearIndex(year, length, anyHoliday, nonWorking, businessDays, byDay,
-                observedHere.toArray(HolidayOccurrence[]::new), YearIndex.prefixOf(businessDays, length), own);
+        return new YearIndex(year, length, anyHoliday, nonWorking, businessDays,
+                observedHere.toArray(HolidayOccurrence[]::new), own);
     }
 
     private long[] businessDays(int year, int length, long[] nonWorking) {

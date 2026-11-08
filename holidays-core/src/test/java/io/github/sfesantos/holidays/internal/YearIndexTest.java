@@ -101,6 +101,36 @@ class YearIndexTest {
     }
 
     @Test
+    void businessDayCountsAndRanksAgreeOnEveryDayOfTheYear() {
+        var index = calendarWith(ObservanceRule.none(), NEW_YEAR, CHRISTMAS, BOXING_DAY).index(2024);
+        int seen = 0;
+
+        for (int day = 1; day <= index.length(); day++) {
+            assertEquals(seen, index.businessDaysBefore(day), "before day " + day);
+
+            if (index.isBusinessDay(day)) {
+                seen++;
+                assertEquals(day, index.nthBusinessDay(seen), "rank " + seen);
+            }
+        }
+
+        assertEquals(seen, index.businessDaysBefore(index.length() + 1));
+        assertEquals(seen, index.businessDaysInYear());
+    }
+
+    @Test
+    void holidayOnFindsOnlyObservedDays() {
+        var index = calendarWith(ObservanceRule.none(), NEW_YEAR, CHRISTMAS, BOXING_DAY).index(2026);
+
+        assertEquals("New Year", index.holidayOn(1).name());
+        assertNull(index.holidayOn(2));
+        assertNull(index.holidayOn(358));
+        assertEquals("Christmas", index.holidayOn(359).name());
+        assertEquals("Boxing Day", index.holidayOn(360).name());
+        assertNull(index.holidayOn(365));
+    }
+
+    @Test
     void emptyCalendarOnlyKnowsWeekends() {
         var index = compile(HolidayCalendar.builder()).index(2026);
 

@@ -48,22 +48,8 @@ final class UnionIndexBuilder {
         observed.sort(BY_OBSERVED);
         original.sort(BY_ORIGINAL);
 
-        return new YearIndex(year, length, anyHoliday, nonWorking, businessDays, firstPerDay(observed, length),
-                observed.toArray(HolidayOccurrence[]::new), YearIndex.prefixOf(businessDays, length), original);
-    }
-
-    private static HolidayOccurrence[] firstPerDay(List<HolidayOccurrence> observed, int length) {
-        var byDay = new HolidayOccurrence[length + 1];
-
-        for (var occurrence : observed) {
-            int day = occurrence.observed().getDayOfYear();
-
-            if (byDay[day] == null) {
-                byDay[day] = occurrence;
-            }
-        }
-
-        return byDay;
+        return new YearIndex(year, length, anyHoliday, nonWorking, businessDays,
+                observed.toArray(HolidayOccurrence[]::new), original);
     }
 
     private static long[] allDays(int length) {

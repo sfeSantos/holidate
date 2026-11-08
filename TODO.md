@@ -375,9 +375,9 @@ Decisão de 2026-11-08: não há `holidays-spring-boot-starter`. Um
 
 - [x] `isHoliday(date)` com ano já cacheado: < 20 ns, zero alocação. Medido: 1,3 ns, 0 B.
 - [x] `nextHoliday(date)`: < 100 ns, no máximo uma alocação (o `Optional`). Medido: 4,7 ns, 16 B.
-- [x] `buildIndex(year)` para calendário de ~20 feriados: < 50 µs. Medido: 3,4 µs.
+- [x] `buildIndex(year)` para calendário de ~20 feriados: < 50 µs. Medido: 2,9 µs.
 - [x] `businessDaysBetween` sobre 10 anos: < 5 µs usando contagens anuais pré-computadas. Medido: 64 ns.
-- [x] Cache de 100 anos de um calendário com 20 feriados: < 500 KB de heap. Medido: 490 KB com SerialGC.
+- [x] Cache de 100 anos de um calendário com 20 feriados: < 500 KB de heap. Medido: 197 KB com SerialGC (eram 490 KB antes de remover as tabelas por dia do `YearIndex`).
 ### 5.2 Técnicas
 
 - [x] **Índice por `dayOfYear`**: arrays de tamanho 367 (índice 1..366) em vez de `Map<LocalDate, ...>` no hot path. `BitSet` ou `long[6]` para `isHoliday`; `HolidayOccurrence[367]` para `holidayOn`.

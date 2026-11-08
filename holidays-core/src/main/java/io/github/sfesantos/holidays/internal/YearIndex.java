@@ -17,24 +17,21 @@ public final class YearIndex {
     private final long[] anyHoliday;
     private final long[] nonWorking;
     private final long[] businessDays;
-    private final HolidayOccurrence[] byDay;
+    private final int[] businessDaysBeforeWord;
     private final HolidayOccurrence[] byObserved;
     private final int[] observedDays;
-    private final int[] businessDaysBefore;
     private final List<HolidayOccurrence> occurrences;
 
     YearIndex(int year, int length, long[] anyHoliday, long[] nonWorking, long[] businessDays,
-            HolidayOccurrence[] byDay, HolidayOccurrence[] byObserved, int[] businessDaysBefore,
-            List<HolidayOccurrence> occurrences) {
+            HolidayOccurrence[] byObserved, List<HolidayOccurrence> occurrences) {
         this.year = year;
         this.length = length;
         this.anyHoliday = anyHoliday;
         this.nonWorking = nonWorking;
         this.businessDays = businessDays;
-        this.byDay = byDay;
+        this.businessDaysBeforeWord = prefixOf(businessDays);
         this.byObserved = byObserved;
         this.observedDays = daysOf(byObserved);
-        this.businessDaysBefore = businessDaysBefore;
         this.occurrences = List.copyOf(occurrences);
     }
 
@@ -105,20 +102,33 @@ public final class YearIndex {
 
     /** The day of year of the n-th business day of the year, 1-based; n must be within the year's count. */
     public int nthBusinessDay(int n) {
-        int low = 1;
-        int high = length;
+        int word = 0;
 
-        while (low < high) {
-            int mid = (low + high) >>> 1;
+        while (businessDaysBeforeWord[word + 1] < n) {
+            word++;
+        }
 
-            if (businessDaysBefore[mid + 1] < n) {
-                low = mid + 1;
+        return (word << 6) + selectBit(businessDays[word], n - businessDaysBeforeWord[word]);
+    }
+
+    /** Position of the n-th set bit, 1-based, by halving: six bit counts instead of a scan. */
+    private static int selectBit(long bits, int n) {
+        int offset = 0;
+
+        for (int width = 32; width > 0; width >>= 1) {
+            long lower = bits & ((1L << width) - 1);
+            int count = Long.bitCount(lower);
+
+            if (count < n) {
+                n -= count;
+                bits >>>= width;
+                offset += width;
             } else {
-                high = mid;
+                bits = lower;
             }
         }
 
-        return low;
+        return offset;
     }
 
     /** Index into {@link #byObserved()} of the first holiday observed at or after the day, or -1. */
@@ -166,12 +176,12 @@ public final class YearIndex {
         return businessDays;
     }
 
-    /** Prefix sums over the business-day bits: {@code prefix[d]} is the count of business days before day {@code d}. */
-    static int[] prefixOf(long[] businessDays, int length) {
-        var prefix = new int[length + 2];
+    /** Business days in the words below each word, so a count below any day is one lookup and one bit count. */
+    private static int[] prefixOf(long[] businessDays) {
+        var prefix = new int[WORDS + 1];
 
-        for (int d = 1; d <= length; d++) {
-            prefix[d + 1] = prefix[d] + (bit(businessDays, d) ? 1 : 0);
+        for (int w = 0; w < WORDS; w++) {
+            prefix[w + 1] = prefix[w] + Long.bitCount(businessDays[w]);
         }
 
         return prefix;
@@ -179,7 +189,9 @@ public final class YearIndex {
 
     /** The first holiday observed on that day, or null. */
     public HolidayOccurrence holidayOn(int dayOfYear) {
-        return byDay[dayOfYear];
+        int i = lowerBound(observedDays, dayOfYear);
+
+        return i < observedDays.length && observedDays[i] == dayOfYear ? byObserved[i] : null;
     }
 
     /** Holidays whose original date falls in this year, by original date. */
@@ -196,13 +208,15 @@ public final class YearIndex {
         return observedDays;
     }
 
-    /** Business days strictly before the given day of year. */
+    /** Business days strictly before the given day of year, which may be one past the year's end. */
     public int businessDaysBefore(int dayOfYear) {
-        return businessDaysBefore[dayOfYear];
+        int word = dayOfYear >>> 6;
+
+        return businessDaysBeforeWord[word] + Long.bitCount(businessDays[word] & ((1L << (dayOfYear & 63)) - 1));
     }
 
     public int businessDaysInYear() {
-        return businessDaysBefore[length + 1];
+        return businessDaysBeforeWord[WORDS];
     }
 
     /** Smallest index whose value is at least {@code key}, or the array length. */
