@@ -18,3 +18,4 @@ Thumbs.db
 # JMH / misc
 *.log
 *.hprof
+dependency-reduced-pom.xml
