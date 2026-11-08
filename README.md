@@ -1,5 +1,9 @@
 # Holidays
 
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.sfesantos/holidays-core)](https://central.sonatype.com/artifact/io.github.sfesantos/holidays-core)
+[![CI](https://github.com/sfeSantos/holidate/actions/workflows/ci.yml/badge.svg)](https://github.com/sfeSantos/holidate/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE)
+
 A dependency-free Java library for holiday calendars and business day queries.
 
 You describe holidays as rules (a fixed day, an offset from Easter, the fourth
@@ -907,6 +911,10 @@ release.
   packs, and new optional members in the JSON format.
 - **Major** (x.0.0): anything that changes or removes a public member, changes
   the meaning of an existing JSON member, or raises the minimum Java version.
+
+Every version has its notes on the
+[releases page](https://github.com/sfeSantos/holidate/releases), with the
+changes since the previous one and any breaking change called out.
 
 ## Thread safety
 
