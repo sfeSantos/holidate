@@ -838,10 +838,14 @@ second each. The targets are the ones in [TODO.md](TODO.md), section 5.1.
 | `HolidayCalendar.builder().build()` | 0.3 µs | 5.4 KB | |
 | Heap for 100 indexed years | 197 KB | 2.0 KB per year | < 500 KB |
 
-A year's index is three 366-bit sets, the holidays observed in it sorted by
-date, and a six-entry prefix count over the business-day bits. Lookups by
-day of year are a bit test or a bit count; `holidayOn` is a binary search
-over the year's handful of holidays. Nothing is stored per day.
+A year's index is three bit sets of six 64-bit words (any holiday,
+non-working holiday, business day), the holidays observed in the year sorted
+by observed date next to an `int[]` of their days, the same holidays listed
+by original date for `holidaysIn`, and a seven-entry running count of
+business days at each word boundary. `isHoliday` and `isBusinessDay` are one
+bit test; `businessDaysBetween` is two lookups in that running count plus two
+`Long.bitCount` calls; `holidayOn` and `nextHoliday` are a binary search over
+the year's handful of holidays. Nothing is stored per day.
 
 That last point is recent. Up to 0.3.0 the index also kept two arrays with
 one slot per day of the year, a `HolidayOccurrence[367]` behind `holidayOn`
