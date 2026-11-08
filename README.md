@@ -473,6 +473,77 @@ the highest layer that declares one wins.
 **Easter.** Gregorian by default. Plug a different `EasterAlgorithm` into the
 builder for Julian or Orthodox dates.
 
+## Spring
+
+There is no Spring module and none is planned. A `HolidayCalendar` is an
+immutable, thread-safe object, so it is an ordinary bean. With `holidays-data`
+on the classpath this is the whole integration:
+
+```yaml
+# application.yml
+holidays:
+  calendar: ES-AN-MA
+```
+
+```java
+@Configuration
+class HolidayConfiguration {
+
+    @Bean
+    CalendarRegistry calendarRegistry() {
+        return CalendarRegistry.load();
+    }
+
+    @Bean
+    HolidayCalendar holidayCalendar(CalendarRegistry registry, @Value("${holidays.calendar}") String id) {
+        return registry.calendar(id);
+    }
+}
+
+@Service
+class SettlementService {
+
+    private final HolidayCalendar calendar;
+
+    SettlementService(HolidayCalendar calendar) {
+        this.calendar = calendar;
+    }
+
+    LocalDate settlementDate(LocalDate trade) {
+        return calendar.addBusinessDays(trade, 2);   // T+2
+    }
+}
+```
+
+An application that serves several regions declares one bean per calendar and
+injects them by qualifier, or exposes the registry itself and lets each
+service ask for the id it needs:
+
+```java
+@Bean
+HolidayCalendar madrid(CalendarRegistry registry) {
+    return registry.builder("ES").layer(headOfficeClosures).build();
+}
+
+@Bean
+HolidayCalendar rio(CalendarRegistry registry) {
+    return registry.calendar("BR-RJ-RIO");
+}
+
+@Service
+class PaymentService {
+
+    PaymentService(@Qualifier("madrid") HolidayCalendar madrid, @Qualifier("rio") HolidayCalendar rio) {
+        ...
+    }
+}
+```
+
+Nothing here blocks or allocates per call, so the same bean is safe in a
+WebFlux handler or any other event loop. Keep the `Clock` a bean too and pass
+it to the `*Today` queries, and tests can freeze time without touching the
+calendar.
+
 ## Thread safety
 
 Builders are not thread-safe. A built `HolidayCalendar` is immutable and may

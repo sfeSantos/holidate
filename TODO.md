@@ -272,11 +272,7 @@ holidays-data/        (opcional, módulo separado; depende só do core)
     Spain, Brazil                   # the pack layers as constants for code-first users (no separate holidays-data-es)
   (the JSON Schema stays in the core jar, META-INF/holidays/holidays.schema.json)
  
-holidays-spring-boot-starter/   (opcional, módulo separado — ÚNICO com dependências externas)
-  HolidayCalendarAutoConfiguration
-  HolidayCalendarProperties           # @ConfigurationProperties("holidays")
-  HolidayCalendarCustomizer           # interface funcional para o usuário ajustar o builder
-  (ver secção 3.4)
+(sem módulo Spring: um `HolidayCalendar` é um bean como outro qualquer; ver secção 3.4 e o README)
 ```
 
 - [x] `module-info.java` em cada módulo; exportar só a API pública; `internal` nunca exportado.
@@ -308,51 +304,28 @@ YearIndex (imutável, por ano):
 - [x] `Optional` só como tipo de retorno; nunca como campo ou parâmetro.
 ---
 
-### 3.4 Integração com Spring (módulo opcional)
+### 3.4 Integração com Spring (decidido: sem módulo)
 
-O core continua com zero dependências. Spring entra num starter separado que só agrega conveniência; quem não usa Spring nunca o vê.
+Decisão de 2026-11-08: não há `holidays-spring-boot-starter`. Um
+`HolidayCalendar` é um objeto imutável e thread-safe, por isso em Spring é um
+`@Bean` normal; o README traz o exemplo. Razões:
 
-- [ ] Módulo `holidays-spring-boot-starter`, Spring Boot 4, dependência `spring-boot-autoconfigure` + `spring-boot-starter` com `optional`/`provided` onde fizer sentido.
-- [ ] `HolidayCalendarAutoConfiguration` registada em `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`.
-- [ ] `@ConditionalOnMissingBean(HolidayCalendar.class)` — se o usuário declarar o seu próprio bean, o starter recua.
-- [ ] `@ConfigurationProperties("holidays")` com:
-```yaml
-  holidays:
-    weekend: [SATURDAY, SUNDAY]
-    layers: [ES, ES-AN, ES-AN-MA]      # ids resolvidos via ServiceLoader<HolidayDataProvider>
-    observance: SUNDAY_TO_MONDAY
-    warm-up-years: 3                   # pré-computar ano atual ± N
-    clock: SYSTEM                      # ou zone id
-```
-- [ ] `HolidayCalendarCustomizer` (`@FunctionalInterface`, recebe o `HolidayCalendarBuilder`): o usuário regista um bean para adicionar camadas/regras em código sem perder a configuração por propriedades. Aplicar todos os customizers por `@Order`.
-- [ ] Registar como bean o `HolidayCalendar` e também um `Clock` se não existir (`@ConditionalOnMissingBean(Clock.class)`).
-- [ ] Suporte a **múltiplos calendários** nomeados: `holidays.calendars.es-malaga.layers: [...]`, `holidays.calendars.gb.layers: [...]` → beans qualificados por nome. Útil para apps multi-região.
-- [ ] `WebFlux`-friendly: o calendário é imutável e síncrono (nanosegundos), não precisa de `Mono`. Documentar explicitamente que é seguro chamar em qualquer thread, incluindo event loop do Netty/Vert.x.
-- [ ] Actuator (opcional, `@ConditionalOnClass`): `HealthIndicator` trivial + `InfoContributor` com camadas carregadas e anos em cache.
-- [ ] Metadata para o IDE: `spring-boot-configuration-processor` como dependência de compilação, gera `additional-spring-configuration-metadata.json` para autocomplete no `application.yml`.
-- [ ] Testes com `ApplicationContextRunner` (sem subir contexto web): auto-config liga/desliga, propriedades mapeadas, customizers aplicados em ordem, `@ConditionalOnMissingBean` respeitado.
-- [ ] Sem `@Scheduled`, sem reload automático, sem cache de Spring — o cache é o do core.
-- [ ] Nunca referenciar classes Spring fora deste módulo. Verificar no CI com um teste que o jar do core não tem `import org.springframework`.
-  Exemplo de uso para o usuário final:
+- Um starter seria o único artefacto com dependências externas e ficaria preso
+  a uma major do Spring Boot, obrigando a releases só para acompanhar.
+- O que ele pouparia ao utilizador são cinco linhas de configuração, em troca
+  de auto-config, properties, metadata, customizer e testes de contexto para
+  manter.
+- As decisões que um starter toma (qual o calendário "default", como mapear
+  beans para ids, se business hours entram por propriedades) são do utilizador,
+  não da biblioteca.
 
-```java
-@Bean
-HolidayCalendarCustomizer localHolidays() {
-    return builder -> builder.layer(Layer.named("my-office")
-        .add(Holiday.fixed("Company Day", Month.MARCH, 15))
-        .build());
-}
- 
-@Service
-class SettlementService {
-    private final HolidayCalendar calendar;
-    SettlementService(HolidayCalendar calendar) { this.calendar = calendar; }
- 
-    LocalDate settlementDate(LocalDate trade) {
-        return calendar.addBusinessDays(trade, 2);   // T+2
-    }
-}
-```
+- [x] Secção "Spring" no README com um exemplo funcional: `CalendarRegistry` e
+  `HolidayCalendar` como beans, id vindo de `application.yml`, vários
+  calendários por `@Qualifier`, nota de que é seguro em qualquer thread,
+  incluindo o event loop do WebFlux.
+- [ ] Reabrir só se utilizadores pedirem um starter com casos de uso concretos.
+  Nessa altura: módulo mínimo, `@ConditionalOnMissingBean`, propriedades para
+  os ids, sem Actuator nem reload.
 
 ## 4. Boas práticas de código
 
@@ -463,10 +436,8 @@ class SettlementService {
 - [x] `holidays-data`: `ES.json` (Spain, Andalucía, Málaga, Catalunya) and `BR.json` (Brazil, RJ, Rio) validated against BOE/BOJA and the Brazilian federal/state laws for 2025, 2026 and 2027.
 - [x] Java constants for shared definitions (`Holidays.CHRISTMAS`...) in `holidays-data`. The code-first alternative is `Spain.NATIONAL`, `Spain.MALAGA`, `Brazil.RIO_DE_JANEIRO_CITY`... constants that read the pack layers, so there is no separate `holidays-data-es` module to keep in sync.
 - [x] Document the exception-layer pattern and the registry in the README.
-### v0.4 — Spring
-- [ ] `holidays-spring-boot-starter` com auto-config, properties, customizer e múltiplos calendários.
-- [ ] Testes com `ApplicationContextRunner`.
-- [ ] Teste de CI que garante zero `org.springframework` no jar do core.
+### v0.4 — Spring (cancelado)
+- [x] Sem starter; secção "Spring" no README com o exemplo de beans (ver 3.4).
 ### v1.0 — estabilização
 - [ ] Benchmarks JMH publicados no README.
 - [ ] Revisão de API pública (nada muda depois).
