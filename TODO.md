@@ -219,7 +219,7 @@ layer ES-CT extends ES
 - [x] `HolidayDataProvider` (`ServiceLoader`): `Set<String> layerIds()` + `Optional<Layer> layer(String id)`. Built-in providers: classpath resources (`META-INF/holidays/*.holidays`), a directory on disk. Users write their own (database, vendor feed). Registry asks providers in order; the first that answers wins, so a user's provider overrides the shipped pack.
 - [ ] **Exception layers**: a user stacks `SANTANDER-ES` (one-off closures, `validBetween(2027, 2027)`) on top of `ES-AN-MA` without touching the base data. Already supported by layers; document the pattern.
 - [x] **Composition**: `HolidayCalendar.union(a, b, ...)`: holiday if a holiday in any; business day only if a business day in all. Needed for cross-market settlement (EUR/BRL is a business day in `ES` and `BR`). Implemented as a composed calendar with its own `YearIndex` built by OR-ing the members, so queries stay O(1).
-- [ ] **Yearly validation**: one test per year and per official source (BOE 2027, BOJA 2027, B3 2027), as `MalagaExampleTest` does. Updating a pack is "edit the file, run the test".
+- [x] **Yearly validation**: one test per year and per official source (BOE 2027, BOJA 2027, B3 2027), as `MalagaExampleTest` does. Updating a pack is "edit the file, run the test".
 - [ ] Java constants (`Holidays.CHRISTMAS`, `Holidays.GOOD_FRIDAY`) stay for the handful of definitions every country shares, and `Layer`/`Holiday` builders stay for users who prefer code. Both options remain first-class; the text format is the recommended one for bulk data.
 ---
 
@@ -431,7 +431,7 @@ class SettlementService {
 - [x] Consultas: fronteira de ano (`nextHoliday` em 30/12), calendário vazio devolve `Optional.empty()`, `addBusinessDays` negativo, `businessDaysBetween` com `a > b`.
 - [x] Fim de semana sexta-sábado.
 - [x] Concorrência: 100 threads a consultar o mesmo calendário em anos diferentes sem erro e com um único `buildIndex` por ano (contador atómico no teste).
-- [ ] Dados de Espanha/Andalucía/Málaga validados contra o calendário laboral do BOE e BOJA de pelo menos 3 anos (2025, 2026, 2027). Testes nomeados pela fonte.
+- [x] Dados de Espanha/Andalucía/Málaga validados contra o calendário laboral do BOE e BOJA de pelo menos 3 anos (2025, 2026, 2027). Testes nomeados pela fonte.
 - [ ] Cobertura mínima 90% no core (JaCoCo, só em CI).
 - [ ] Benchmarks JMH num módulo `holidays-benchmarks` fora da publicação.
 ---
@@ -458,7 +458,7 @@ class SettlementService {
 ### v0.3 — data format and registry (section 2.9)
 - [x] `HolidayFormat.json()` parser and writer over a hand-written `JsonReader`/`JsonWriter`, round-trip tests, JSON Schema published, error messages with line and column.
 - [x] `HolidayDataProvider` SPI + `CalendarRegistry` resolving the `extends` chain, classpath and directory providers.
-- [ ] `holidays-data`: `ES.json` (Spain, Andalucía, Málaga, Catalunya) and `BR.json` (Brazil, RJ, Rio) validated against BOE/BOJA and the Brazilian federal/state laws for 2025, 2026 and 2027.
+- [x] `holidays-data`: `ES.json` (Spain, Andalucía, Málaga, Catalunya) and `BR.json` (Brazil, RJ, Rio) validated against BOE/BOJA and the Brazilian federal/state laws for 2025, 2026 and 2027.
 - [ ] Java constants for shared definitions (`Holidays.CHRISTMAS`...). Optional `holidays-data-es` with Java `Layer` constants kept as the code-first alternative.
 - [ ] Document the exception-layer pattern and the registry in the README.
 ### v0.4 — Spring
