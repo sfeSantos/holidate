@@ -18,4 +18,4 @@ jobs:
           cache: maven
 
       - name: Build and test
-        run: mvn -B --no-transfer-progress verify
+        run: mvn -B --no-transfer-progress verify -Pbenchmarks

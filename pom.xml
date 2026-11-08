@@ -156,8 +156,15 @@
         </plugins>
     </build>
 
-    <!-- mvn deploy -Prelease: sources, javadoc and signatures, uploaded to the Central Portal -->
     <profiles>
+        <!-- mvn verify -Pbenchmarks: builds holidays-benchmarks/target/benchmarks.jar; never part of a release -->
+        <profile>
+            <id>benchmarks</id>
+            <modules>
+                <module>holidays-benchmarks</module>
+            </modules>
+        </profile>
+        <!-- mvn deploy -Prelease: sources, javadoc and signatures, uploaded to the Central Portal -->
         <profile>
             <id>release</id>
             <build>
