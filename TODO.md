@@ -373,11 +373,11 @@ Decisão de 2026-11-08: não há `holidays-spring-boot-starter`. Um
 
 ### 5.1 Objetivos mensuráveis
 
-- [ ] `isHoliday(date)` com ano já cacheado: < 20 ns, zero alocação.
-- [ ] `nextHoliday(date)`: < 100 ns, no máximo uma alocação (o `Optional`).
-- [ ] `buildIndex(year)` para calendário de ~20 feriados: < 50 µs.
-- [ ] `businessDaysBetween` sobre 10 anos: < 5 µs usando contagens anuais pré-computadas.
-- [ ] Cache de 100 anos de um calendário com 20 feriados: < 500 KB de heap.
+- [x] `isHoliday(date)` com ano já cacheado: < 20 ns, zero alocação. Medido: 1,3 ns, 0 B.
+- [x] `nextHoliday(date)`: < 100 ns, no máximo uma alocação (o `Optional`). Medido: 4,7 ns, 16 B.
+- [x] `buildIndex(year)` para calendário de ~20 feriados: < 50 µs. Medido: 3,4 µs.
+- [x] `businessDaysBetween` sobre 10 anos: < 5 µs usando contagens anuais pré-computadas. Medido: 64 ns.
+- [x] Cache de 100 anos de um calendário com 20 feriados: < 500 KB de heap. Medido: 490 KB com SerialGC.
 ### 5.2 Técnicas
 
 - [x] **Índice por `dayOfYear`**: arrays de tamanho 367 (índice 1..366) em vez de `Map<LocalDate, ...>` no hot path. `BitSet` ou `long[6]` para `isHoliday`; `HolidayOccurrence[367]` para `holidayOn`.
@@ -387,13 +387,13 @@ Decisão de 2026-11-08: não há `holidays-spring-boot-starter`. Um
 - [x] **`addBusinessDays(date, n)`** com `n` grande: saltar anos inteiros via `businessDaysInYear` e só iterar na ponta.
 - [x] **Lazy por ano** — nunca pré-computar intervalos que o usuário não pediu. Oferecer `warmUp(Year from, Year to)` opcional.
 - [x] **Sem Streams no hot path.** Streams só no `build()` e em métodos que já devolvem listas. Loops `for` indexados nas consultas.
-- [ ] **Sem boxing**: `int year` como chave do cache (`ConcurrentHashMap<Integer, ...>` boxa; avaliar array esparso ou `Int2ObjectMap` caseiro com open addressing se o benchmark justificar).
+- [x] **Sem boxing**: `int year` como chave do cache (`ConcurrentHashMap<Integer, ...>` boxa; avaliar array esparso ou `Int2ObjectMap` caseiro com open addressing se o benchmark justificar). Decidido em 2026-11-08: fica o `ConcurrentHashMap`; `isHoliday` já corre em 1,3 ns sem alocar, o boxing não aparece no perfil.
 - [x] **Evitar `LocalDate` intermédios** nas consultas quando `dayOfYear`/`year` chegam.
 - [x] **Resolução de camadas no `build()`**, nunca na consulta (ver 3.2).
 - [x] **Observância encadeada** limitada a 7 iterações (uma semana) para garantir terminação.
 - [x] **Sem reflexão, sem proxies, sem `String.format` em caminhos quentes.**
-- [ ] Medir tudo com **JMH** (dependência só de teste/benchmark, fora do artefacto publicado) antes e depois de cada otimização. Não otimizar sem número.
-- [ ] Testar com `-XX:+UseSerialGC` e heap pequeno para confirmar que o uso de memória é previsível.
+- [x] Medir tudo com **JMH** (dependência só de teste/benchmark, fora do artefacto publicado) antes e depois de cada otimização. Não otimizar sem número.
+- [x] Testar com `-XX:+UseSerialGC` e heap pequeno para confirmar que o uso de memória é previsível. Feito em `MemoryFootprint`.
 ---
 
 ## 6. Testes
@@ -408,7 +408,7 @@ Decisão de 2026-11-08: não há `holidays-spring-boot-starter`. Um
 - [x] Concorrência: 100 threads a consultar o mesmo calendário em anos diferentes sem erro e com um único `buildIndex` por ano (contador atómico no teste).
 - [x] Dados de Espanha/Andalucía/Málaga validados contra o calendário laboral do BOE e BOJA de pelo menos 3 anos (2025, 2026, 2027). Testes nomeados pela fonte.
 - [ ] Cobertura mínima 90% no core (JaCoCo, só em CI).
-- [ ] Benchmarks JMH num módulo `holidays-benchmarks` fora da publicação.
+- [x] Benchmarks JMH num módulo `holidays-benchmarks` fora da publicação.
 ---
 
 ## 7. Roadmap
@@ -439,7 +439,7 @@ Decisão de 2026-11-08: não há `holidays-spring-boot-starter`. Um
 ### v0.4 — Spring (cancelado)
 - [x] Sem starter; secção "Spring" no README com o exemplo de beans (ver 3.4).
 ### v1.0 — estabilização
-- [ ] Benchmarks JMH publicados no README.
+- [x] Benchmarks JMH publicados no README.
 - [ ] Revisão de API pública (nada muda depois).
 - [ ] Publicação em Maven Central.
 ### Depois

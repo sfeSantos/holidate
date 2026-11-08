@@ -800,6 +800,42 @@ WebFlux handler or any other event loop. Keep the `Clock` a bean too and pass
 it to the `*Today` queries, and tests can freeze time without touching the
 calendar.
 
+## Performance
+
+Every query runs against a per-year index computed once and cached, so the
+hot path is a bit test or a binary search over precomputed arrays. The
+`holidays-benchmarks` module measures it with JMH; it is built only with
+`-Pbenchmarks` and never published.
+
+```sh
+mvn verify -Pbenchmarks
+java -jar holidays-benchmarks/target/benchmarks.jar                  # every benchmark
+java -jar holidays-benchmarks/target/benchmarks.jar -prof gc QueryBenchmark   # with bytes allocated per call
+java -XX:+UseSerialGC -Xmx32m -cp holidays-benchmarks/target/benchmarks.jar \
+    io.github.sfesantos.holidays.benchmarks.MemoryFootprint          # heap held by 100 indexed years
+```
+
+Measured on the Málaga calendar (14 holidays, three layers) with Temurin
+25.0.1 on a Ryzen 9 9950X3D under WSL2, one fork, three iterations of one
+second each. The targets are the ones in [TODO.md](TODO.md), section 5.1.
+
+| Query | Time | Allocated | Target |
+|---|---|---|---|
+| `isHoliday(date)` | 1.3 ns | 0 B | < 20 ns, zero allocation |
+| `isBusinessDay(date)` | 1.3 ns | 0 B | |
+| `holidayOn(date)` | 2.1 ns | 16 B (the `Optional`) | |
+| `nextHoliday(date)` | 4.7 ns | 16 B (the `Optional`) | < 100 ns, one allocation |
+| `nextBusinessDay(date)` | 6.6 ns | 24 B (the `LocalDate`) | |
+| `addBusinessDays(date, 2)` | 10.5 ns | 24 B | |
+| `businessDaysBetween` over 10 years | 64 ns | 176 B | < 5 µs |
+| `union` of two calendars, `isBusinessDay` | 1.3 ns | 0 B | |
+| First touch of a year (build the index) | 3.4 µs | 13.8 KB | < 50 µs |
+| `HolidayCalendar.builder().build()` | 0.3 µs | 5.3 KB | |
+| Heap for 100 indexed years | 490 KB | 4.9 KB per year | < 500 KB |
+
+Numbers from another machine will differ; the point is the order of
+magnitude and that the hot queries do not allocate.
+
 ## Thread safety
 
 Builders are not thread-safe. A built `HolidayCalendar` is immutable and may
