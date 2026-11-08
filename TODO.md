@@ -220,7 +220,7 @@ layer ES-CT extends ES
 - [ ] **Exception layers**: a user stacks `SANTANDER-ES` (one-off closures, `validBetween(2027, 2027)`) on top of `ES-AN-MA` without touching the base data. Already supported by layers; document the pattern.
 - [x] **Composition**: `HolidayCalendar.union(a, b, ...)`: holiday if a holiday in any; business day only if a business day in all. Needed for cross-market settlement (EUR/BRL is a business day in `ES` and `BR`). Implemented as a composed calendar with its own `YearIndex` built by OR-ing the members, so queries stay O(1).
 - [x] **Yearly validation**: one test per year and per official source (BOE 2027, BOJA 2027, B3 2027), as `MalagaExampleTest` does. Updating a pack is "edit the file, run the test".
-- [ ] Java constants (`Holidays.CHRISTMAS`, `Holidays.GOOD_FRIDAY`) stay for the handful of definitions every country shares, and `Layer`/`Holiday` builders stay for users who prefer code. Both options remain first-class; the text format is the recommended one for bulk data.
+- [x] Java constants (`Holidays.CHRISTMAS`, `Holidays.GOOD_FRIDAY`) stay for the handful of definitions every country shares, and `Layer`/`Holiday` builders stay for users who prefer code. Both options remain first-class; the JSON format is the recommended one for bulk data.
 ---
 
 ## 3. Arquitetura
@@ -459,7 +459,7 @@ class SettlementService {
 - [x] `HolidayFormat.json()` parser and writer over a hand-written `JsonReader`/`JsonWriter`, round-trip tests, JSON Schema published, error messages with line and column.
 - [x] `HolidayDataProvider` SPI + `CalendarRegistry` resolving the `extends` chain, classpath and directory providers.
 - [x] `holidays-data`: `ES.json` (Spain, Andalucía, Málaga, Catalunya) and `BR.json` (Brazil, RJ, Rio) validated against BOE/BOJA and the Brazilian federal/state laws for 2025, 2026 and 2027.
-- [ ] Java constants for shared definitions (`Holidays.CHRISTMAS`...). Optional `holidays-data-es` with Java `Layer` constants kept as the code-first alternative.
+- [x] Java constants for shared definitions (`Holidays.CHRISTMAS`...) in `holidays-data`. The code-first alternative is `Spain.NATIONAL`, `Spain.MALAGA`, `Brazil.RIO_DE_JANEIRO_CITY`... constants that read the pack layers, so there is no separate `holidays-data-es` module to keep in sync.
 - [ ] Document the exception-layer pattern and the registry in the README.
 ### v0.4 — Spring
 - [ ] `holidays-spring-boot-starter` com auto-config, properties, customizer e múltiplos calendários.
