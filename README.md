@@ -30,8 +30,9 @@ JSON data format, a calendar registry with a provider SPI and the
 `holidays-data` module with Spain and Brazil. Since then `main` has gained a
 JMH benchmark module and a leaner year index that holds less than half the
 heap it did in 0.3.0; both are measured in [Performance](#performance). The
-public API may still change before 1.0. See [TODO.md](TODO.md) for the
-roadmap.
+public API may still change before 1.0. The roadmap is the
+[issue list](https://github.com/sfeSantos/holidate/issues): `P1` is what
+stands between `main` and 1.0, `P3` is what may come after.
 
 ## Install
 
@@ -822,7 +823,7 @@ java -XX:+UseSerialGC -Xmx32m -cp holidays-benchmarks/target/benchmarks.jar \
 
 Measured on the Málaga calendar (14 holidays, three layers) with Temurin
 25.0.1 on a Ryzen 9 9950X3D under WSL2, one fork, five iterations of one
-second each. The targets are the ones in [TODO.md](TODO.md), section 5.1.
+second each. The targets are the ones the project set for itself at the start.
 
 | Query | Time | Allocated | Target |
 |---|---|---|---|
@@ -868,6 +869,33 @@ tens and hundreds of megabytes.
 
 Numbers from another machine will differ; the point is the order of
 magnitude and that the hot queries do not allocate.
+
+## Design decisions
+
+Choices that are not visible in the code and are not going to be revisited
+without a reason:
+
+- **Zero dependencies.** Published artifacts depend on `java.base` only; the
+  Maven enforcer rule and `ModuleTest` keep it that way. Anything that needs
+  another JDK module (`java.sql`, `java.net.http`) goes in an optional module
+  of its own.
+- **Data is JSON.** It was chosen over a bespoke text format because tooling,
+  schemas and bank systems already speak it. A plain text reader stays an open
+  issue, to be built only if users ask for something easier to edit by hand.
+- **Packs ship one example city per country.** Regions follow ISO 3166-2 and
+  ship in full; below that, one city (`ES-AN-MA`, `BR-RJ-RIO`) shows the
+  pattern and users add the rest through a provider of their own.
+- **No Spring module.** See [Spring](#spring).
+- **Layer names are identities.** Adding a holiday a lower layer already
+  defines is an error; `override` or `remove` have to be said. It makes a
+  pack's intent explicit and catches typos in names.
+- **Rules are strict where the calendar is strict.** `weekdayAfter` and
+  `weekdayBefore` exclude the base day, `nextHoliday` and `nextBusinessDay`
+  exclude the given date; inclusive variants exist under their own names
+  rather than behind a flag.
+- **Lunisolar calendars with astronomical rules are out for now.** Hijri and
+  Hebrew are arithmetic and ship; the Chinese calendar needs tables of new
+  moons and solar terms and is deferred until there is a concrete need.
 
 ## Thread safety
 

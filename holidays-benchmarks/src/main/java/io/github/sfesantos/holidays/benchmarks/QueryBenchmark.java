@@ -22,7 +22,7 @@ import io.github.sfesantos.holidays.data.Brazil;
 import io.github.sfesantos.holidays.data.Spain;
 
 /**
- * The hot path: queries on years already indexed. Targets from TODO 5.1:
+ * The hot path: queries on years already indexed. Targets:
  * isHoliday under 20 ns with zero allocation, nextHoliday under 100 ns with
  * at most the Optional, businessDaysBetween over ten years under 5 µs.
  * Run with {@code -prof gc} to see {@code gc.alloc.rate.norm}.
