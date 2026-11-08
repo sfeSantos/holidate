@@ -19,15 +19,14 @@ Requires Java 25.
 
 ## Status
 
-Early. Version 0.2.0, the release on Maven Central, covers rules, layers,
-observance, the basic queries, navigation (`nextHoliday`, `addBusinessDays`,
+Early. Version 0.3.0, the release on Maven Central, covers rules, layers,
+observance, the queries, navigation (`nextHoliday`, `addBusinessDays`,
 `businessDaysBetween`), `TemporalAdjuster` and `TemporalQuery` integration,
-`Clock` overloads and `union` of calendars. Since then `main` has gained
-payment date conventions and cut-off times, business hours and half days,
-Islamic and Hebrew calendar rules, a JSON data format, a calendar registry
-with a provider SPI and the `holidays-data` module with Spain and Brazil;
-those sections below describe code that is not yet in a release. The public
-API may still change before 1.0. See [TODO.md](TODO.md) for the roadmap.
+`Clock` overloads, `union` of calendars, payment date conventions and cut-off
+times, business hours and half days, Islamic and Hebrew calendar rules, the
+JSON data format, a calendar registry with a provider SPI and the
+`holidays-data` module with Spain and Brazil. The public API may still change
+before 1.0. See [TODO.md](TODO.md) for the roadmap.
 
 ## Install
 
@@ -35,7 +34,7 @@ API may still change before 1.0. See [TODO.md](TODO.md) for the roadmap.
 <dependency>
     <groupId>io.github.sfesantos</groupId>
     <artifactId>holidays-core</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
 </dependency>
 ```
 
@@ -45,7 +44,7 @@ The country packs are a separate, optional artifact:
 <dependency>
     <groupId>io.github.sfesantos</groupId>
     <artifactId>holidays-data</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
 </dependency>
 ```
 

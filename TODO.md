@@ -140,7 +140,7 @@ var rule = Holiday.custom("Election Day",
 
 ### 2.8 Horário, fusos e outros calendários
 
-Eram "fora de escopo" até o 0.2.0. Entraram depois, em `main`, sem release próprio. Continua fora: download de dados de fontes externas em runtime (o usuário carrega os ficheiros; a lib não faz HTTP).
+Eram "fora de escopo" até o 0.2.0 e entraram no 0.3.0. Continua fora: download de dados de fontes externas em runtime (o usuário carrega os ficheiros; a lib não faz HTTP).
 
 - [x] **Horário de corte (cut-off) e fusos horários.** `CutOff.at(LocalTime, ZoneId)` transforma um `Instant` ou `LocalDateTime` na data de registo (dia seguinte quando recebido na hora de corte ou depois); `calendar.adjust(instant, cutOff, convenção)` aplica a convenção a essa data.
 
@@ -428,8 +428,8 @@ Decisão de 2026-11-08: não há `holidays-spring-boot-starter`. Um
 - [x] `TemporalAdjuster` / `TemporalQuery`.
 - [x] `Clock` injetável.
 - [x] `HolidayCalendar.union(...)` for cross-market calendars (section 2.9).
-- [x] `BusinessDayConvention` para datas de pagamento (entrou em `main` depois do 0.2.0, sem release próprio).
-- [x] Seção 2.8: `CutOff`, `BusinessHours` e meio-dia, regras `hijri` e `hebrew` (em `main` depois do 0.2.0, sem release próprio).
+- [x] `BusinessDayConvention` para datas de pagamento (lançado no 0.3.0).
+- [x] Seção 2.8: `CutOff`, `BusinessHours` e meio-dia, regras `hijri` e `hebrew` (lançado no 0.3.0).
 ### v0.3 — data format and registry (section 2.9)
 - [x] `HolidayFormat.json()` parser and writer over a hand-written `JsonReader`/`JsonWriter`, round-trip tests, JSON Schema published, error messages with line and column.
 - [x] `HolidayDataProvider` SPI + `CalendarRegistry` resolving the `extends` chain, classpath and directory providers.
