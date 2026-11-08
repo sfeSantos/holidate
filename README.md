@@ -10,7 +10,9 @@ answers questions like "is this a business day?" from precomputed indexes.
 
 - Zero dependencies: only `java.base`.
 - Immutable and thread-safe calendars, built once with a builder.
-- Queries are O(1) or O(log n) over per-year indexes, computed lazily and cached.
+- Queries are O(1) or O(log n) over per-year indexes, computed lazily and
+  cached: `isHoliday` runs in about a nanosecond without allocating, and an
+  indexed year costs about 2 KB of heap. See [Performance](#performance).
 - The core knows nothing about any country. Country data is JSON: write your
   own or add the optional `holidays-data` module and ask a registry for
   `ES-AN-MA`.
@@ -25,8 +27,11 @@ observance, the queries, navigation (`nextHoliday`, `addBusinessDays`,
 `Clock` overloads, `union` of calendars, payment date conventions and cut-off
 times, business hours and half days, Islamic and Hebrew calendar rules, the
 JSON data format, a calendar registry with a provider SPI and the
-`holidays-data` module with Spain and Brazil. The public API may still change
-before 1.0. See [TODO.md](TODO.md) for the roadmap.
+`holidays-data` module with Spain and Brazil. Since then `main` has gained a
+JMH benchmark module and a leaner year index that holds less than half the
+heap it did in 0.3.0; both are measured in [Performance](#performance). The
+public API may still change before 1.0. See [TODO.md](TODO.md) for the
+roadmap.
 
 ## Install
 
@@ -837,6 +842,25 @@ A year's index is three 366-bit sets, the holidays observed in it sorted by
 date, and a six-entry prefix count over the business-day bits. Lookups by
 day of year are a bit test or a bit count; `holidayOn` is a binary search
 over the year's handful of holidays. Nothing is stored per day.
+
+That last point is recent. Up to 0.3.0 the index also kept two arrays with
+one slot per day of the year, a `HolidayOccurrence[367]` behind `holidayOn`
+and an `int[367]` of business day prefix sums, and together they were about
+60% of a year's footprint. Replacing them with the binary search and the
+six-entry prefix count changed the numbers like this, on the same machine
+and the same run settings:
+
+| | 0.3.0 | `main` |
+|---|---|---|
+| Heap for 100 indexed years | 490 KB | 197 KB |
+| First touch of a year | 3.3 µs, 13.8 KB allocated | 2.9 µs, 10.2 KB allocated |
+| `holidayOn(date)` | 1.8 ns | 5.4 ns |
+| Every other query | | unchanged |
+
+`holidayOn` is the one query that pays for it, and it stays in single-digit
+nanoseconds. For one calendar none of this matters; for an application that
+keeps hundreds of calendars warm for decades it is the difference between
+tens and hundreds of megabytes.
 
 Numbers from another machine will differ; the point is the order of
 magnitude and that the hot queries do not allocate.
