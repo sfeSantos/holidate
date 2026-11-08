@@ -21,18 +21,15 @@ Requires Java 25.
 
 ## Status
 
-Early. Version 0.3.0, the release on Maven Central, covers rules, layers,
-observance, the queries, navigation (`nextHoliday`, `addBusinessDays`,
-`businessDaysBetween`), `TemporalAdjuster` and `TemporalQuery` integration,
-`Clock` overloads, `union` of calendars, payment date conventions and cut-off
-times, business hours and half days, Islamic and Hebrew calendar rules, the
-JSON data format, a calendar registry with a provider SPI and the
-`holidays-data` module with Spain and Brazil. Since then `main` has gained a
-JMH benchmark module and a leaner year index that holds less than half the
-heap it did in 0.3.0; both are measured in [Performance](#performance). The
-public API may still change before 1.0. The roadmap is the
-[issue list](https://github.com/sfeSantos/holidate/issues): `P1` is what
-stands between `main` and 1.0, `P3` is what may come after.
+Version 1.0.0 is on Maven Central. It covers rules, layers, observance, the
+queries, navigation (`nextHoliday`, `addBusinessDays`, `businessDaysBetween`),
+`TemporalAdjuster` and `TemporalQuery` integration, `Clock` overloads, `union`
+of calendars, payment date conventions and cut-off times, business hours and
+half days, Islamic and Hebrew calendar rules, the JSON data format, a calendar
+registry with a provider SPI and the `holidays-data` module with Spain and
+Brazil. The public API is stable from this version on; see
+[Versioning](#versioning). The roadmap is the
+[issue list](https://github.com/sfeSantos/holidate/issues).
 
 ## Install
 
@@ -40,7 +37,7 @@ stands between `main` and 1.0, `P3` is what may come after.
 <dependency>
     <groupId>io.github.sfesantos</groupId>
     <artifactId>holidays-core</artifactId>
-    <version>0.3.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -50,7 +47,7 @@ The country packs are a separate, optional artifact:
 <dependency>
     <groupId>io.github.sfesantos</groupId>
     <artifactId>holidays-data</artifactId>
-    <version>0.3.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -855,7 +852,7 @@ and an `int[367]` of business day prefix sums, and together they were about
 six-entry prefix count changed the numbers like this, on the same machine
 and the same run settings:
 
-| | 0.3.0 | `main` |
+| | 0.3.0 | 1.0.0 |
 |---|---|---|
 | Heap for 100 indexed years | 490 KB | 197 KB |
 | First touch of a year | 3.3 µs, 13.8 KB allocated | 2.9 µs, 10.2 KB allocated |
@@ -896,6 +893,20 @@ without a reason:
 - **Lunisolar calendars with astronomical rules are out for now.** Hijri and
   Hebrew are arithmetic and ship; the Chinese calendar needs tables of new
   moons and solar terms and is deferred until there is a concrete need.
+
+## Versioning
+
+From 1.0.0 the project follows semantic versioning over its public API, which
+is every type in the packages `module-info.java` exports from `holidays-core`
+and `holidays-data`; `internal` packages are not API and may change in any
+release.
+
+- **Patch** (1.0.x): bug fixes and country data updates, including a new
+  year's local holidays or a decree that moves one.
+- **Minor** (1.x.0): new methods, types, rule kinds, observance rules, country
+  packs, and new optional members in the JSON format.
+- **Major** (x.0.0): anything that changes or removes a public member, changes
+  the meaning of an existing JSON member, or raises the minimum Java version.
 
 ## Thread safety
 
