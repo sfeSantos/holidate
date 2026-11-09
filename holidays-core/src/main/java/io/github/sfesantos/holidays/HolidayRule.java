@@ -35,9 +35,15 @@ public sealed interface HolidayRule {
         Objects.requireNonNull(easter, "easter must not be null");
 
         return switch (this) {
+            case FixedDate r -> list(fixedDate(r, year));
+            case OnDate r -> r.date().getYear() == year.getValue() ? List.of(r.date()) : List.of();
+            case EasterRelative r -> List.of(easter.easterSunday(year.getValue()).plusDays(r.offsetDays()));
+            case NthWeekdayOfMonth r -> list(nthWeekdayOfMonth(r, year));
+            case WeekdayAfter r -> List.of(r.base().atYear(year.getValue()).with(TemporalAdjusters.next(r.dayOfWeek())));
+            case WeekdayBefore r -> List.of(r.base().atYear(year.getValue()).with(TemporalAdjusters.previous(r.dayOfWeek())));
+            case Custom r -> list(custom(r, year));
             case Hijri r -> hijri(r, year);
             case Hebrew r -> hebrew(r, year);
-            default -> single(year, easter).map(List::of).orElse(List.of());
         };
     }
 
@@ -46,20 +52,6 @@ public sealed interface HolidayRule {
         var dates = datesIn(year, easter);
 
         return dates.isEmpty() ? Optional.empty() : Optional.of(dates.get(0));
-    }
-
-    private Optional<LocalDate> single(Year year, EasterAlgorithm easter) {
-        return switch (this) {
-            case FixedDate r -> fixedDate(r, year);
-            case OnDate r -> r.date().getYear() == year.getValue() ? Optional.of(r.date()) : Optional.empty();
-            case EasterRelative r -> Optional.of(easter.easterSunday(year.getValue()).plusDays(r.offsetDays()));
-            case NthWeekdayOfMonth r -> nthWeekdayOfMonth(r, year);
-            case WeekdayAfter r -> Optional.of(r.base().atYear(year.getValue()).with(TemporalAdjusters.next(r.dayOfWeek())));
-            case WeekdayBefore r -> Optional.of(r.base().atYear(year.getValue()).with(TemporalAdjusters.previous(r.dayOfWeek())));
-            case Custom r -> custom(r, year);
-            case Hijri r -> throw new IllegalStateException("lunar rules resolve through datesIn");
-            case Hebrew r -> throw new IllegalStateException("lunar rules resolve through datesIn");
-        };
     }
 
     static FixedDate fixed(MonthDay monthDay) {
@@ -107,6 +99,10 @@ public sealed interface HolidayRule {
     /** A day of the Hebrew calendar; see {@link HebrewMonth} for how Adar is handled in leap years. */
     static Hebrew hebrew(HebrewMonth month, int dayOfMonth) {
         return new Hebrew(month, dayOfMonth);
+    }
+
+    private static List<LocalDate> list(Optional<LocalDate> date) {
+        return date.map(List::of).orElse(List.of());
     }
 
     private static Optional<LocalDate> fixedDate(FixedDate rule, Year year) {
