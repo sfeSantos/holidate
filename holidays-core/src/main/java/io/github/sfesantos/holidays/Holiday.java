@@ -49,6 +49,11 @@ public record Holiday(String name, HolidayType type, HolidayRule rule, YearRange
         return of(name, HolidayRule.fixed(monthDay));
     }
 
+    /** See {@link HolidayRule#on(LocalDate)}. */
+    public static Holiday on(String name, LocalDate date) {
+        return of(name, HolidayRule.on(date));
+    }
+
     public static Holiday easterRelative(String name, int offsetDays) {
         return of(name, HolidayRule.easterRelative(offsetDays));
     }

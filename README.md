@@ -347,7 +347,8 @@ var andalucia = HolidayCalendar.builder().layers(layers.get(0), layers.get(1)).b
 HolidayFormat.json().write(List.of(spain, andalucia), Path.of("export.json")); // from Java to data
 ```
 
-Rule kinds: `fixed` (`"MM-DD"`), `easter` (offset in days), `nth` with
+Rule kinds: `fixed` (`"MM-DD"`), `date` (`"YYYY-MM-DD"`, a holiday that
+happens once, in that year only), `easter` (offset in days), `nth` with
 `weekday` and `month`, `weekdayAfter` or `weekdayBefore` with `base`, `hijri`
 (`"MM-DD"`) and `hebrew` (`"NISAN-15"`). Optional members on a holiday:
 `type`, `from`, `until`, `observance` and `closesAt`. Observance names are
@@ -411,12 +412,12 @@ var standalone = CalendarRegistry.of(mine, HolidayDataProvider.of(spain, andaluc
 
 **Exception layers.** A branch that closes on days the region does not can
 keep those closures in a layer of its own, stacked on top of the registry's
-chain without touching the base data. A one-off closure is a holiday valid
-for a single year:
+chain without touching the base data. A one-off closure is a holiday on a
+single date:
 
 ```java
 var closures = Layer.named("SANTANDER-ES")
-        .add(Holiday.fixed("Inventory", Month.JULY, 3).validBetween(Year.of(2027), Year.of(2027)))
+        .add(Holiday.on("Inventory", LocalDate.of(2027, 7, 3)))
         .build();
 
 var branch = registry.builder("ES-AN-MA")        // the chain, ready for more layers
@@ -428,8 +429,9 @@ var branch = registry.builder("ES-AN-MA")        // the chain, ready for more la
 ## Concepts
 
 **Rules.** A `HolidayRule` turns a year into dates:
-`fixed`, `easterRelative`, `nthWeekdayOfMonth` (negative `n` counts from the
-end), `weekdayAfter`, `weekdayBefore` and `custom(Function<Year, Optional<LocalDate>>)`
+`fixed`, `on` (one date, in its own year only), `easterRelative`,
+`nthWeekdayOfMonth` (negative `n` counts from the end), `weekdayAfter`,
+`weekdayBefore` and `custom(Function<Year, Optional<LocalDate>>)`
 give at most one date a year; `hijri` and `hebrew` follow the Islamic and
 Hebrew calendars, whose shorter years can put the same holiday twice in one
 Gregorian year.
@@ -531,9 +533,9 @@ Factories cover the common rules; `validFrom`, `validUntil`, `validBetween`,
 `ofType`, `closingAt` and `withObservance` return modified copies.
 
 **`HolidayRule`** is the sealed family of rules behind a holiday: `FixedDate`,
-`EasterRelative`, `NthWeekdayOfMonth`, `WeekdayAfter`, `WeekdayBefore`,
-`Custom`, `Hijri` and `Hebrew`. Use it directly when `Holiday` has no shortcut
-for the rule you need, or to ask a rule for its dates.
+`OnDate`, `EasterRelative`, `NthWeekdayOfMonth`, `WeekdayAfter`,
+`WeekdayBefore`, `Custom`, `Hijri` and `Hebrew`. Use it directly when
+`Holiday` has no shortcut for the rule you need, or to ask a rule for its dates.
 
 ```java
 var thanksgiving = Holiday.of("Thanksgiving", HolidayRule.nthWeekdayOfMonth(4, DayOfWeek.THURSDAY, Month.NOVEMBER));
@@ -542,6 +544,7 @@ var electionDay = Holiday.of("Election Day", HolidayRule.weekdayAfter(DayOfWeek.
         .ofType(HolidayType.OBSERVANCE)
         .validUntil(Year.of(2030));
 var juneteenth = Holiday.fixed("Juneteenth", Month.JUNE, 19).validFrom(Year.of(2021));
+var royalWedding = Holiday.on("Royal Wedding", LocalDate.of(2011, 4, 29));
 var leapDay = Holiday.custom("Leap Day", year -> year.isLeap() ? Optional.of(year.atDay(60)) : Optional.empty());
 
 thanksgiving.dateIn(Year.of(2026), EasterAlgorithm.gregorian());   // Optional[2026-11-26]

@@ -103,6 +103,7 @@ final class LayerJsonWriter {
 
         switch (holiday.rule()) {
             case HolidayRule.FixedDate r -> members.put("fixed", monthDay(r.monthDay()));
+            case HolidayRule.OnDate r -> members.put("date", string(r.date().toString()));
             case HolidayRule.EasterRelative r -> members.put("easter", number(r.offsetDays()));
             case HolidayRule.NthWeekdayOfMonth r -> {
                 members.put("nth", number(r.n()));

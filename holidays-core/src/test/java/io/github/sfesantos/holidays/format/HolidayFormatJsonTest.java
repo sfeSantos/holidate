@@ -185,13 +185,23 @@ class HolidayFormatJsonTest {
                 .add(Holiday.of("a", HolidayRule.weekdayBefore(DayOfWeek.FRIDAY, java.time.MonthDay.of(12, 25))),
                         Holiday.hijri("b", 12, 10),
                         Holiday.hebrew("c", HebrewMonth.ADAR_I, 14),
-                        Holiday.fixed("d", Month.FEBRUARY, 29).validBetween(Year.of(2000), Year.of(2100)))
+                        Holiday.fixed("d", Month.FEBRUARY, 29).validBetween(Year.of(2000), Year.of(2100)),
+                        Holiday.on("e", LocalDate.of(2011, 4, 29)))
                 .build();
         var reparsed = JSON.parse(JSON.write(List.of(layer))).get(0);
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 5; i++) {
             assertEquals(layer.additions().get(i), reparsed.additions().get(i));
         }
+    }
+
+    @Test
+    void readsAndWritesADateRule() {
+        var text = "{\"layers\": [{\"id\": \"UK\", \"holidays\": [{\"name\": \"Royal Wedding\", \"rule\": {\"date\": \"2011-04-29\"}}]}]}";
+        var holiday = JSON.parse(text).get(0).additions().get(0);
+
+        assertEquals(HolidayRule.on(LocalDate.of(2011, 4, 29)), holiday.rule());
+        assertTrue(JSON.write(JSON.parse(text)).contains("\"date\": \"2011-04-29\""));
     }
 
     @Test
@@ -223,6 +233,8 @@ class HolidayFormatJsonTest {
         "{\"layers\": [{\"id\": \"ES\", \"holidays\": [{\"name\": \"x\", \"rule\": {\"fixed\": \"01-01\", \"easter\": 1}}]}]} | 1 | 61 | exactly one of",
         "{\"layers\": [{\"id\": \"ES\", \"holidays\": [{\"name\": \"x\", \"rule\": {\"fixed\": \"13-01\"}}]}]} | 1 | 71 | Invalid value for MonthOfYear",
         "{\"layers\": [{\"id\": \"ES\", \"holidays\": [{\"name\": \"x\", \"rule\": {\"fixed\": \"1-1\"}}]}]} | 1 | 71 | expected a day as \"MM-DD\"",
+        "{\"layers\": [{\"id\": \"ES\", \"holidays\": [{\"name\": \"x\", \"rule\": {\"date\": \"2011-4-29\"}}]}]} | 1 | 70 | expected a date as \"YYYY-MM-DD\"",
+        "{\"layers\": [{\"id\": \"ES\", \"holidays\": [{\"name\": \"x\", \"rule\": {\"date\": \"2011-02-30\"}}]}]} | 1 | 70 | Invalid date",
         "{\"layers\": [{\"id\": \"ES\", \"holidays\": [{\"name\": \"x\", \"rule\": {\"nth\": 4, \"weekday\": \"THURSDAY\"}}]}]} | 1 | 61 | missing required member \"month\"",
         "{\"layers\": [{\"id\": \"ES\", \"holidays\": [{\"name\": \"x\", \"rule\": {\"fixed\": \"01-01\", \"base\": \"01-01\"}}]}]} | 1 | 88 | unknown member \"base\"",
         "{\"layers\": [{\"id\": \"ES\", \"holidays\": [{\"name\": \"x\", \"rule\": {\"hebrew\": \"ADAR-14-1\"}}]}]} | 1 | 72 | expected a Hebrew day",
