@@ -2,6 +2,7 @@ package io.github.sfesantos.holidays.internal.json;
 
 import java.time.DateTimeException;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Month;
 import java.time.MonthDay;
@@ -31,7 +32,7 @@ import io.github.sfesantos.holidays.internal.json.JsonValue.JsonObject;
 final class LayerJsonReader {
 
     private static final List<String> RULE_KINDS =
-            List.of("fixed", "easter", "nth", "weekdayAfter", "weekdayBefore", "hijri", "hebrew");
+            List.of("fixed", "date", "easter", "nth", "weekdayAfter", "weekdayBefore", "hijri", "hebrew");
 
     private LayerJsonReader() {}
 
@@ -116,6 +117,7 @@ final class LayerJsonReader {
 
         return switch (kinds.get(0)) {
             case "fixed" -> only(rule, "fixed").andThen(() -> HolidayRule.fixed(monthDay(rule.require("fixed"))));
+            case "date" -> only(rule, "date").andThen(() -> HolidayRule.on(date(rule.require("date"))));
             case "easter" -> only(rule, "easter").andThen(() -> HolidayRule.easterRelative(rule.require("easter").asInt()));
             case "nth" -> only(rule, "nth", "weekday", "month").andThen(() -> HolidayRule.nthWeekdayOfMonth(
                     rule.require("nth").asInt(), enumValue(rule.require("weekday"), DayOfWeek.class),
@@ -159,6 +161,16 @@ final class LayerJsonReader {
         }
 
         return guarded(value, () -> MonthDay.of(Integer.parseInt(text.substring(0, 2)), Integer.parseInt(text.substring(3))));
+    }
+
+    private static LocalDate date(JsonValue value) {
+        var text = value.asString();
+
+        if (!text.matches("\\d{4}-\\d{2}-\\d{2}")) {
+            throw value.error("expected a date as \"YYYY-MM-DD\" but found \"" + text + "\"");
+        }
+
+        return guarded(value, () -> LocalDate.parse(text));
     }
 
     private static HolidayRule hijri(JsonValue value) {

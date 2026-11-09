@@ -43,9 +43,10 @@
     },
     "rule": {
       "type": "object",
-      "description": "Exactly one kind: fixed, easter, nth (with weekday and month), weekdayAfter or weekdayBefore (with base), hijri, hebrew.",
+      "description": "Exactly one kind: fixed, date, easter, nth (with weekday and month), weekdayAfter or weekdayBefore (with base), hijri, hebrew.",
       "oneOf": [
         { "additionalProperties": false, "required": ["fixed"], "properties": { "fixed": { "$ref": "#/$defs/monthDay" } } },
+        { "additionalProperties": false, "required": ["date"], "properties": { "date": { "type": "string", "pattern": "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$", "description": "One date, YYYY-MM-DD; the holiday occurs in that year only." } } },
         { "additionalProperties": false, "required": ["easter"], "properties": { "easter": { "type": "integer", "minimum": -366, "maximum": 366, "description": "Days from Easter Sunday; negative before." } } },
         { "additionalProperties": false, "required": ["nth", "weekday", "month"], "properties": {
             "nth": { "type": "integer", "minimum": -5, "maximum": 5, "not": { "const": 0 }, "description": "1 to 5 from the start of the month, -1 to -5 from the end." },

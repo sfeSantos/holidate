@@ -71,6 +71,15 @@ class HolidayTest {
     }
 
     @Test
+    void onIsTheDateInItsYearOnly() {
+        var royalWedding = Holiday.on("Royal Wedding", LocalDate.of(2011, 4, 29));
+
+        assertEquals(Optional.of(LocalDate.of(2011, 4, 29)), royalWedding.dateIn(Year.of(2011), EASTER));
+        assertTrue(royalWedding.dateIn(Year.of(2012), EASTER).isEmpty());
+        assertEquals(YearRange.always(), royalWedding.validity());
+    }
+
+    @Test
     void customRuleHonoursValidity() {
         var electionDay = Holiday.custom("Election Day", year -> Optional.of(year.atMonth(Month.NOVEMBER).atDay(1)))
                 .validFrom(Year.of(1845));

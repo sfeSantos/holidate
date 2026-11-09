@@ -51,6 +51,7 @@ public sealed interface HolidayRule {
     private Optional<LocalDate> single(Year year, EasterAlgorithm easter) {
         return switch (this) {
             case FixedDate r -> fixedDate(r, year);
+            case OnDate r -> r.date().getYear() == year.getValue() ? Optional.of(r.date()) : Optional.empty();
             case EasterRelative r -> Optional.of(easter.easterSunday(year.getValue()).plusDays(r.offsetDays()));
             case NthWeekdayOfMonth r -> nthWeekdayOfMonth(r, year);
             case WeekdayAfter r -> Optional.of(r.base().atYear(year.getValue()).with(TemporalAdjusters.next(r.dayOfWeek())));
@@ -67,6 +68,11 @@ public sealed interface HolidayRule {
 
     static FixedDate fixed(Month month, int dayOfMonth) {
         return new FixedDate(MonthDay.of(month, dayOfMonth));
+    }
+
+    /** A date that happens once; see {@link OnDate}. */
+    static OnDate on(LocalDate date) {
+        return new OnDate(date);
     }
 
     static EasterRelative easterRelative(int offsetDays) {
@@ -175,6 +181,14 @@ public sealed interface HolidayRule {
 
         public FixedDate {
             Objects.requireNonNull(monthDay, "monthDay must not be null");
+        }
+    }
+
+    /** One date in one year: a royal wedding, a coronation, a one-off closure. Empty in every other year. */
+    record OnDate(LocalDate date) implements HolidayRule {
+
+        public OnDate {
+            Objects.requireNonNull(date, "date must not be null");
         }
     }
 

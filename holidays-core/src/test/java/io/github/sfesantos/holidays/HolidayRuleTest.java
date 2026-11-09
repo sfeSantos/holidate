@@ -52,6 +52,24 @@ class HolidayRuleTest {
     }
 
     @Nested
+    class OnDate {
+
+        @Test
+        void occursOnlyInItsOwnYear() {
+            var royalWedding = HolidayRule.on(LocalDate.of(2011, 4, 29));
+
+            assertEquals(Optional.of(LocalDate.of(2011, 4, 29)), resolve(royalWedding, 2011));
+            assertTrue(resolve(royalWedding, 2010).isEmpty());
+            assertTrue(resolve(royalWedding, 2012).isEmpty());
+        }
+
+        @Test
+        void rejectsNull() {
+            assertThrows(NullPointerException.class, () -> HolidayRule.on(null));
+        }
+    }
+
+    @Nested
     class EasterRelative {
 
         @Test
