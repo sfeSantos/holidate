@@ -118,6 +118,11 @@ calendar.nextBusinessDay(LocalDate.of(2026, 12, 24)); // 2026-12-28
 calendar.addBusinessDays(LocalDate.of(2026, 12, 24), 3); // 2026-12-30
 calendar.businessDaysBetween(LocalDate.of(2026, 12, 21), LocalDate.of(2027, 1, 1)); // 8
 
+// Month terms: n counts business days from the start, or from the end when negative
+calendar.nthBusinessDayOfMonth(YearMonth.of(2026, 1), 5);   // Optional[2026-01-09]
+calendar.lastBusinessDayOfMonth(YearMonth.of(2026, 12));    // Optional[2026-12-31]
+calendar.businessDaysInMonth(YearMonth.of(2026, 12));       // 20
+
 // java.time integration: adjusters keep the time of day, queries work on any temporal
 LocalDateTime.of(2026, 12, 24, 18, 0).with(calendar.nextBusinessDayAdjuster()); // 2026-12-28T18:00
 LocalDate.of(2026, 12, 25).query(calendar.isHolidayQuery());                   // true
@@ -481,6 +486,14 @@ searches look at most one hundred years ahead or back and return empty beyond
 that; business day searches throw `IllegalStateException` when every day in
 that window is a weekend day or a holiday.
 
+**Months.** `firstBusinessDayOfMonth`, `lastBusinessDayOfMonth`,
+`nthBusinessDayOfMonth` and `businessDaysInMonth` take a `YearMonth`. `n` is
+1-based and a negative `n` counts from the end, so `-1` is the last business
+day; `0` is rejected. The three date queries return an empty `Optional` when
+the month has no such day, as with the 25th business day of any month. Their
+adjusters (`lastBusinessDayOfMonthAdjuster()` and so on) work on the month of
+the temporal they are given and throw `DateTimeException` in that case.
+
 **Weekend.** Any set of days: `weekend(DayOfWeek.FRIDAY, DayOfWeek.SATURDAY)`
 for the Gulf, a single day, or none. The builder's weekend is the fallback;
 the highest layer that declares one wins.
@@ -617,7 +630,9 @@ for (var occurrence : calendar.holidaysIn(Year.of(2026))) {
 [Málaga example](#example-málaga-spain).
 
 **`BusinessDayQueries`** holds everything about working days: `isBusinessDay`,
-`nextBusinessDay`, `addBusinessDays`, `businessDaysBetween`, `adjust` with a
+`nextBusinessDay`, `addBusinessDays`, `businessDaysBetween`, the month
+queries (`firstBusinessDayOfMonth`, `lastBusinessDayOfMonth`,
+`nthBusinessDayOfMonth`, `businessDaysInMonth`), `adjust` with a
 convention or a cut-off, `businessHoursOn`, `isOpen`, `isHalfDay`, the
 `TemporalAdjuster` factories and the `Clock` overloads. See
 [Payment dates](#payment-dates) and [Business hours](#business-hours-and-half-days).
@@ -849,6 +864,9 @@ second each. The targets are the ones the project set for itself at the start.
 | `nextBusinessDay(date)` | 6.6 ns | 24 B (the `LocalDate`) | |
 | `addBusinessDays(date, 2)` | 10.8 ns | 24 B | |
 | `businessDaysBetween` over 10 years | 63 ns | 176 B | < 5 µs |
+| `businessDaysInMonth(month)` | 3.1 ns | 0 B | |
+| `lastBusinessDayOfMonth(month)` | 4.9 ns | 40 B (the `LocalDate` and its `Optional`) | |
+| `nthBusinessDayOfMonth(month, 5)` | 10.1 ns | 40 B | |
 | `union` of two calendars, `isBusinessDay` | 1.3 ns | 0 B | |
 | First touch of a year (build the index) | 2.9 µs | 10.2 KB | < 50 µs |
 | `HolidayCalendar.builder().build()` | 0.3 µs | 5.4 KB | |

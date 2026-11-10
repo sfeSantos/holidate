@@ -1,9 +1,11 @@
 package io.github.sfesantos.holidays;
 
 import java.time.Clock;
+import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAdjuster;
@@ -94,6 +96,49 @@ public interface BusinessDayQueries {
         return temporal -> temporal.with(ChronoField.EPOCH_DAY, adjust(LocalDate.from(temporal), convention).toEpochDay());
     }
 
+    /** Business days in the month. */
+    default int businessDaysInMonth(YearMonth month) {
+        Objects.requireNonNull(month, "month must not be null");
+        var last = month.atEndOfMonth();
+
+        return (int) businessDaysBetween(month.atDay(1), last) + (isBusinessDay(last) ? 1 : 0);
+    }
+
+    /** Empty when the month has no business day. */
+    default Optional<LocalDate> firstBusinessDayOfMonth(YearMonth month) {
+        return nthBusinessDayOfMonth(month, 1);
+    }
+
+    /** Empty when the month has no business day. */
+    default Optional<LocalDate> lastBusinessDayOfMonth(YearMonth month) {
+        return nthBusinessDayOfMonth(month, -1);
+    }
+
+    /**
+     * The n-th business day of the month, 1-based; a negative {@code n}
+     * counts from the end, so -1 is the last. Empty when the month has fewer
+     * business days than that. Zero is rejected.
+     */
+    default Optional<LocalDate> nthBusinessDayOfMonth(YearMonth month, int n) {
+        Objects.requireNonNull(month, "month must not be null");
+
+        if (n == 0) {
+            throw new IllegalArgumentException("n must not be 0");
+        }
+
+        int count = businessDaysInMonth(month);
+        long position = n > 0 ? n : count + (long) n + 1;
+
+        if (position < 1 || position > count) {
+            return Optional.empty();
+        }
+
+        var first = month.atDay(1);
+        int steps = (int) position - (isBusinessDay(first) ? 1 : 0);
+
+        return Optional.of(addBusinessDays(first, steps));
+    }
+
     default boolean isBusinessDayToday(Clock clock) {
         return isBusinessDay(LocalDate.now(clock));
     }
@@ -111,6 +156,30 @@ public interface BusinessDayQueries {
     TemporalAdjuster previousBusinessDayAdjuster();
     TemporalAdjuster previousOrSameBusinessDayAdjuster();
     TemporalAdjuster addBusinessDaysAdjuster(int days);
+    /** Moves to the first business day of the temporal's month; fails with {@link DateTimeException} when it has none. */
+    default TemporalAdjuster firstBusinessDayOfMonthAdjuster() {
+        return nthBusinessDayOfMonthAdjuster(1);
+    }
+
+    default TemporalAdjuster lastBusinessDayOfMonthAdjuster() {
+        return nthBusinessDayOfMonthAdjuster(-1);
+    }
+
+    /** As {@link #nthBusinessDayOfMonth(YearMonth, int)}, failing with {@link DateTimeException} where that is empty. */
+    default TemporalAdjuster nthBusinessDayOfMonthAdjuster(int n) {
+        if (n == 0) {
+            throw new IllegalArgumentException("n must not be 0");
+        }
+
+        return temporal -> {
+            var month = YearMonth.from(LocalDate.from(temporal));
+            var day = nthBusinessDayOfMonth(month, n)
+                    .orElseThrow(() -> new DateTimeException(month + " has no business day at position " + n));
+
+            return temporal.with(ChronoField.EPOCH_DAY, day.toEpochDay());
+        };
+    }
+
     /** A query answering {@link #isBusinessDay(LocalDate)} for any temporal that holds a date. */
     TemporalQuery<Boolean> isBusinessDayQuery();
 }

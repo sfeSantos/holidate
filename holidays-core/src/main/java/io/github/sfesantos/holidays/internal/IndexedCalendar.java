@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Year;
+import java.time.YearMonth;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjuster;
@@ -37,6 +38,8 @@ public abstract class IndexedCalendar implements HolidayCalendar {
     private final TemporalAdjuster nextOrSameBusinessDay = adjuster(this::nextOrSameBusinessDay);
     private final TemporalAdjuster previousBusinessDay = adjuster(this::previousBusinessDay);
     private final TemporalAdjuster previousOrSameBusinessDay = adjuster(this::previousOrSameBusinessDay);
+    private final TemporalAdjuster firstBusinessDayOfMonth = nthBusinessDayOfMonthAdjuster(1);
+    private final TemporalAdjuster lastBusinessDayOfMonth = nthBusinessDayOfMonthAdjuster(-1);
     private final TemporalQuery<Boolean> isHoliday = temporal -> isHoliday(LocalDate.from(temporal));
     private final TemporalQuery<Boolean> isBusinessDay = temporal -> isBusinessDay(LocalDate.from(temporal));
     private final TemporalQuery<Optional<HolidayOccurrence>> holidayOn = temporal -> holidayOn(LocalDate.from(temporal));
@@ -320,6 +323,78 @@ public abstract class IndexedCalendar implements HolidayCalendar {
         }
 
         return count + index(toYear).businessDaysBefore(to.getDayOfYear());
+    }
+
+    @Override
+    public int businessDaysInMonth(YearMonth month) {
+        Objects.requireNonNull(month, "month must not be null");
+        var index = index(month.getYear());
+        int start = firstDayOfYear(month);
+
+        return index.businessDaysBefore(start + month.lengthOfMonth()) - index.businessDaysBefore(start);
+    }
+
+    @Override
+    public Optional<LocalDate> firstBusinessDayOfMonth(YearMonth month) {
+        Objects.requireNonNull(month, "month must not be null");
+        int start = firstDayOfYear(month);
+        int found = index(month.getYear()).businessDayAtOrAfter(start);
+
+        if (found < 0 || found >= start + month.lengthOfMonth()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(month.atDay(found - start + 1));
+    }
+
+    @Override
+    public Optional<LocalDate> lastBusinessDayOfMonth(YearMonth month) {
+        Objects.requireNonNull(month, "month must not be null");
+        int start = firstDayOfYear(month);
+        int found = index(month.getYear()).businessDayAtOrBefore(start + month.lengthOfMonth() - 1);
+
+        if (found < start) {
+            return Optional.empty();
+        }
+
+        return Optional.of(month.atDay(found - start + 1));
+    }
+
+    @Override
+    public Optional<LocalDate> nthBusinessDayOfMonth(YearMonth month, int n) {
+        Objects.requireNonNull(month, "month must not be null");
+
+        if (n == 0) {
+            throw new IllegalArgumentException("n must not be 0");
+        }
+
+        var index = index(month.getYear());
+        int start = firstDayOfYear(month);
+        int before = index.businessDaysBefore(start);
+        int count = index.businessDaysBefore(start + month.lengthOfMonth()) - before;
+        long position = n > 0 ? n : count + (long) n + 1;
+
+        if (position < 1 || position > count) {
+            return Optional.empty();
+        }
+
+        int found = index.nthBusinessDay(before + (int) position);
+
+        return Optional.of(month.atDay(found - start + 1));
+    }
+
+    private static int firstDayOfYear(YearMonth month) {
+        return month.getMonth().firstDayOfYear(month.isLeapYear());
+    }
+
+    @Override
+    public TemporalAdjuster firstBusinessDayOfMonthAdjuster() {
+        return firstBusinessDayOfMonth;
+    }
+
+    @Override
+    public TemporalAdjuster lastBusinessDayOfMonthAdjuster() {
+        return lastBusinessDayOfMonth;
     }
 
     @Override
