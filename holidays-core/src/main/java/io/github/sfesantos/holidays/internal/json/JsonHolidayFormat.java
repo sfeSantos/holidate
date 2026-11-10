@@ -3,6 +3,7 @@ package io.github.sfesantos.holidays.internal.json;
 import java.util.List;
 import java.util.Objects;
 
+import io.github.sfesantos.holidays.HolidayRule;
 import io.github.sfesantos.holidays.Layer;
 import io.github.sfesantos.holidays.format.HolidayFormat;
 
@@ -17,6 +18,13 @@ public final class JsonHolidayFormat implements HolidayFormat {
         Objects.requireNonNull(text, "text must not be null");
 
         return LayerJsonReader.read(JsonReader.parse(text));
+    }
+
+    @Override
+    public HolidayRule parseRule(String text) {
+        Objects.requireNonNull(text, "text must not be null");
+
+        return LayerJsonReader.readRule(JsonReader.parse(text).asObject());
     }
 
     @Override

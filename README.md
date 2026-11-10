@@ -55,6 +55,17 @@ The country packs are a separate, optional artifact:
 </dependency>
 ```
 
+So is the provider that reads layers from database tables. It needs
+`java.sql` and nothing else, and ships from the release after 1.0.0:
+
+```xml
+<dependency>
+    <groupId>io.github.sfesantos</groupId>
+    <artifactId>holidays-jdbc</artifactId>
+    <version>${holidays.version}</version>
+</dependency>
+```
+
 ## Example: Málaga, Spain
 
 Spain has national holidays, each autonomous community adds its own and
@@ -361,7 +372,8 @@ of days from -366 to 366 added to its date: the day after Thanksgiving is
 Optional members on a holiday:
 `type`, `from`, `until`, `observance` and `closesAt`. Observance names are
 `NONE`, `SUNDAY_TO_MONDAY`, `WEEKEND_TO_MONDAY`,
-`SATURDAY_TO_FRIDAY_SUNDAY_TO_MONDAY` and `NEAREST_WEEKDAY`. `custom` rules
+`SATURDAY_TO_FRIDAY_SUNDAY_TO_MONDAY` and `NEAREST_WEEKDAY`;
+`ObservanceRule.named(name)` gives the rule for a name. `custom` rules
 and observances exist only in Java and cannot be written. The JSON Schema
 ships in the jar at `META-INF/holidays/holidays.schema.json`, so files can be
 validated with any tool before loading.
@@ -408,8 +420,10 @@ var germany = Layer.named("DE")
 **Your own data.** Providers are asked in the order given and the first that
 knows an id wins, so a provider placed ahead of the shipped pack overrides it.
 `DirectoryDataProvider` reads every `.json` file in a directory,
-`ClasspathDataProvider` reads named resources, and `HolidayDataProvider` is
-two methods to implement over a database or a vendor feed:
+`ClasspathDataProvider` reads named resources, `JdbcDataProvider` in the
+optional `holidays-jdbc` module reads [database tables](#database-iogithubsfesantosholidaysjdbc-artifact-holidays-jdbc),
+and `HolidayDataProvider` is two methods to implement over a vendor feed or
+anything else:
 
 ```java
 var mine = DirectoryDataProvider.of(Path.of("/etc/holidays"));   // my ES.json replaces the shipped one
@@ -695,6 +709,8 @@ HebrewCalendar.toLocalDate(5786, HebrewMonth.NISAN.numberIn(5786).orElseThrow(),
 **`HolidayFormat`** reads and writes layers as data. `HolidayFormat.json()`
 is the only format today; `parse(String | Reader | Path)` returns
 `List<Layer>` and `write(layers)` or `write(layers, Path)` goes the other way.
+`parseRule(text)` reads one rule object on its own, for sources that keep
+holidays as rows.
 **`HolidayFormatException`** carries the `line()` and `column()` of the first
 problem. See [Data files](#data-files).
 
@@ -721,28 +737,9 @@ wraps layers already in memory. Register your own class in
 (or `provides ... with` in `module-info.java`) and `CalendarRegistry.load()`
 picks it up.
 
-```java
-public final class JdbcHolidayProvider implements HolidayDataProvider {
-
-    private final Map<String, Layer> layers;
-
-    public JdbcHolidayProvider(DataSource dataSource) {
-        layers = loadLayers(dataSource);   // one SELECT at startup, rows mapped onto Layer.named(...).add(...)
-    }
-
-    @Override
-    public Set<String> layerIds() {
-        return layers.keySet();
-    }
-
-    @Override
-    public Optional<Layer> layer(String id) {
-        return Optional.ofNullable(layers.get(id));
-    }
-}
-
-var registry = CalendarRegistry.load(new JdbcHolidayProvider(dataSource));   // database first, shipped packs after
-```
+`JdbcDataProvider` in `holidays-jdbc` is a complete one to read or copy:
+it loads every row once at construction and maps them onto
+`Layer.named(...).add(...)`.
 
 **`DirectoryDataProvider.of(path)`** reads every `.json` file directly in a
 directory; **`ClasspathDataProvider.of(anchor, resources...)`** reads named
@@ -764,6 +761,56 @@ calendars, and **`Holidays`** holds the definitions most countries share
 (`NEW_YEAR`, `GOOD_FRIDAY`, `EASTER_MONDAY`, `ASCENSION`, `WHIT_MONDAY`,
 `CORPUS_CHRISTI`, `LABOUR_DAY`, `ASSUMPTION`, `ALL_SAINTS`, `CHRISTMAS`,
 `BOXING_DAY` and more). See [Country packs](#country-packs-and-the-registry).
+
+### Database (`io.github.sfesantos.holidays.jdbc`, artifact `holidays-jdbc`)
+
+**`JdbcDataProvider.of(dataSource)`** reads layers from two tables through
+plain JDBC, with one query per table when the provider is created; the
+connection is closed before `of` returns and the database is never touched
+again. This is the default schema:
+
+```sql
+CREATE TABLE holiday_layer (
+    id          VARCHAR(64) PRIMARY KEY,
+    parent_id   VARCHAR(64),     -- the layer this one extends
+    weekend     VARCHAR(64),     -- 'SATURDAY,SUNDAY'; NULL leaves it to the layers below
+    observance  VARCHAR(40)      -- 'SUNDAY_TO_MONDAY'
+);
+
+CREATE TABLE holiday (
+    layer_id    VARCHAR(64)  NOT NULL,
+    name        VARCHAR(200) NOT NULL,
+    action      VARCHAR(8),      -- ADD (default when NULL), OVERRIDE or REMOVE
+    rule        VARCHAR(400),    -- '{"fixed": "01-01"}'
+    type        VARCHAR(16),
+    valid_from  INTEGER,
+    valid_until INTEGER,
+    observance  VARCHAR(40),
+    closes_at   VARCHAR(5),      -- '13:00'
+    PRIMARY KEY (layer_id, name)
+);
+```
+
+A row reads like a holiday in a [data file](#data-files): `rule` holds the
+same rule object, `shift` included, and `type`, `observance` and `closes_at`
+take the same values. `action` says whether the row adds a holiday, overrides
+one from a layer below or removes it; a `REMOVE` row needs only the layer and
+the name. A duplicate layer id, a holiday whose layer is missing or a value
+that does not parse fails in `of` with an `IllegalArgumentException` naming
+the table, the layer and the holiday. An `SQLException` comes out wrapped in
+an `IllegalStateException`.
+
+**`JdbcSchema`** names the tables and columns when yours differ.
+`JdbcSchema.defaults().withTables("ref.cal_layer", "ref.cal_holiday")`
+renames only the tables; the nested `LayerTable` and `HolidayTable` records
+name every column. The names go into the SQL text, so they must be plain
+identifiers, optionally prefixed by a schema.
+
+```java
+var database = JdbcDataProvider.of(dataSource);
+var registry = CalendarRegistry.load(database);   // database first, shipped packs after
+var malaga = registry.calendar("ES-AN-MA");
+```
 
 ## Spring
 
@@ -933,8 +980,8 @@ without a reason:
 ## Versioning
 
 From 1.0.0 the project follows semantic versioning over its public API, which
-is every type in the packages `module-info.java` exports from `holidays-core`
-and `holidays-data`; `internal` packages are not API and may change in any
+is every type in the packages `module-info.java` exports from `holidays-core`,
+`holidays-data` and `holidays-jdbc`; `internal` packages are not API and may change in any
 release.
 
 - **Patch** (1.0.x): bug fixes and country data updates, including a new

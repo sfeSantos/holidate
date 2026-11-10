@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
+import io.github.sfesantos.holidays.HolidayRule;
 import io.github.sfesantos.holidays.Layer;
 import io.github.sfesantos.holidays.internal.json.JsonHolidayFormat;
 
@@ -56,6 +57,13 @@ public interface HolidayFormat {
             throw new UncheckedIOException(e);
         }
     }
+
+    /**
+     * One rule on its own, written as it appears under {@code "rule"} in a
+     * file, for example {@code {"fixed": "01-01"}}. For sources that keep
+     * holidays as rows instead of documents.
+     */
+    HolidayRule parseRule(String text);
 
     String write(List<Layer> layers);
 

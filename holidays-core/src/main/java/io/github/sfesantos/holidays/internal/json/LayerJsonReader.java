@@ -109,7 +109,7 @@ final class LayerJsonReader {
         return holiday;
     }
 
-    private static HolidayRule readRule(JsonObject rule) {
+    static HolidayRule readRule(JsonObject rule) {
         var kinds = rule.members().keySet().stream().filter(RULE_KINDS::contains).toList();
 
         if (kinds.size() != 1) {

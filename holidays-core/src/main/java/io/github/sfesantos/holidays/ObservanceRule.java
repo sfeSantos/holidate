@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.function.UnaryOperator;
 
+import io.github.sfesantos.holidays.internal.ObservanceNames;
+
 /**
  * Moves a holiday off a day on which it is not observed. A rule performs one
  * step; the calendar repeats it until the date stops moving, at most seven
@@ -41,6 +43,15 @@ public interface ObservanceRule {
     /** Closest day that is neither weekend nor another holiday; on a tie the earlier day wins. */
     static ObservanceRule nearestWeekday() {
         return Observances.NEAREST_WEEKDAY;
+    }
+
+    /** The built-in rule with that data name, such as {@code SUNDAY_TO_MONDAY}; the names are the ones data files use. */
+    static ObservanceRule named(String name) {
+        Objects.requireNonNull(name, "name must not be null");
+
+        return ObservanceNames.parse(name)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "unknown observance \"" + name + "\"; expected one of " + ObservanceNames.names()));
     }
 
     static ObservanceRule custom(UnaryOperator<LocalDate> adjuster) {
