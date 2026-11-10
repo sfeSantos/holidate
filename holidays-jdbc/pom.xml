@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.github.sfesantos</groupId>
+        <artifactId>holidays-parent</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>holidays-jdbc</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Holidays JDBC</name>
+    <description>A HolidayDataProvider that reads layers from two database tables through plain JDBC.</description>
+
+    <properties>
+        <h2.version>2.4.240</h2.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.github.sfesantos</groupId>
+            <artifactId>holidays-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- the tests need a database; nothing but java.sql is needed at run time -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
