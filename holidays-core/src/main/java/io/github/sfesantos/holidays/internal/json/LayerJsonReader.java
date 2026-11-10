@@ -8,6 +8,7 @@ import java.time.Month;
 import java.time.MonthDay;
 import java.time.Year;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -115,7 +116,7 @@ final class LayerJsonReader {
             throw rule.error("a rule needs exactly one of " + RULE_KINDS + " but has " + kinds);
         }
 
-        return switch (kinds.get(0)) {
+        var base = switch (kinds.get(0)) {
             case "fixed" -> only(rule, "fixed").andThen(() -> HolidayRule.fixed(monthDay(rule.require("fixed"))));
             case "date" -> only(rule, "date").andThen(() -> HolidayRule.on(date(rule.require("date"))));
             case "easter" -> only(rule, "easter").andThen(() -> HolidayRule.easterRelative(rule.require("easter").asInt()));
@@ -130,6 +131,13 @@ final class LayerJsonReader {
             case "hebrew" -> only(rule, "hebrew").andThen(() -> hebrew(rule.require("hebrew")));
             default -> throw rule.error("unknown rule kind");
         };
+        var shift = rule.get("shift");
+
+        if (shift.isEmpty() || shift.get().asInt() == 0) {
+            return base;
+        }
+
+        return guarded(shift.get(), () -> base.plusDays(shift.get().asInt()));
     }
 
     private static Weekend readWeekend(JsonValue weekend) {
@@ -221,8 +229,11 @@ final class LayerJsonReader {
         }
     }
 
+    /** Every rule kind also takes the optional {@code shift}. */
     private static Guard only(JsonObject rule, String... members) {
-        rule.allowOnly(members);
+        var allowed = Arrays.copyOf(members, members.length + 1);
+        allowed[members.length] = "shift";
+        rule.allowOnly(allowed);
 
         return new Guard(rule);
     }

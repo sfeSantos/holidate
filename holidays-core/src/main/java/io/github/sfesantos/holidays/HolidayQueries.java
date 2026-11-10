@@ -25,7 +25,7 @@ public interface HolidayQueries {
 
     boolean isHoliday(LocalDate date);
     Optional<HolidayOccurrence> holidayOn(LocalDate date);
-    /** Holidays whose original date falls in the year, ordered by original date. */
+    /** Holidays whose rules yield a date for the year, ordered by original date; a shifted rule may put that date in a neighbouring year. */
     List<HolidayOccurrence> holidaysIn(Year year);
     /** Holidays observed from {@code from} inclusive to {@code to} exclusive, ordered by observed date. */
     List<HolidayOccurrence> holidaysBetween(LocalDate from, LocalDate to);

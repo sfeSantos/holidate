@@ -43,21 +43,23 @@
     },
     "rule": {
       "type": "object",
-      "description": "Exactly one kind: fixed, date, easter, nth (with weekday and month), weekdayAfter or weekdayBefore (with base), hijri, hebrew.",
+      "description": "Exactly one kind: fixed, date, easter, nth (with weekday and month), weekdayAfter or weekdayBefore (with base), hijri, hebrew. Any kind may add shift.",
       "oneOf": [
-        { "additionalProperties": false, "required": ["fixed"], "properties": { "fixed": { "$ref": "#/$defs/monthDay" } } },
-        { "additionalProperties": false, "required": ["date"], "properties": { "date": { "type": "string", "pattern": "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$", "description": "One date, YYYY-MM-DD; the holiday occurs in that year only." } } },
-        { "additionalProperties": false, "required": ["easter"], "properties": { "easter": { "type": "integer", "minimum": -366, "maximum": 366, "description": "Days from Easter Sunday; negative before." } } },
+        { "additionalProperties": false, "required": ["fixed"], "properties": { "fixed": { "$ref": "#/$defs/monthDay" }, "shift": { "$ref": "#/$defs/shift" } } },
+        { "additionalProperties": false, "required": ["date"], "properties": { "date": { "type": "string", "pattern": "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$", "description": "One date, YYYY-MM-DD; the holiday occurs in that year only." }, "shift": { "$ref": "#/$defs/shift" } } },
+        { "additionalProperties": false, "required": ["easter"], "properties": { "easter": { "type": "integer", "minimum": -366, "maximum": 366, "description": "Days from Easter Sunday; negative before." }, "shift": { "$ref": "#/$defs/shift" } } },
         { "additionalProperties": false, "required": ["nth", "weekday", "month"], "properties": {
             "nth": { "type": "integer", "minimum": -5, "maximum": 5, "not": { "const": 0 }, "description": "1 to 5 from the start of the month, -1 to -5 from the end." },
             "weekday": { "$ref": "#/$defs/dayOfWeek" },
-            "month": { "$ref": "#/$defs/month" } } },
-        { "additionalProperties": false, "required": ["weekdayAfter", "base"], "properties": { "weekdayAfter": { "$ref": "#/$defs/dayOfWeek" }, "base": { "$ref": "#/$defs/monthDay" } } },
-        { "additionalProperties": false, "required": ["weekdayBefore", "base"], "properties": { "weekdayBefore": { "$ref": "#/$defs/dayOfWeek" }, "base": { "$ref": "#/$defs/monthDay" } } },
-        { "additionalProperties": false, "required": ["hijri"], "properties": { "hijri": { "type": "string", "pattern": "^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|30)$", "description": "Islamic month and day, MM-DD, Umm al-Qura tables." } } },
-        { "additionalProperties": false, "required": ["hebrew"], "properties": { "hebrew": { "type": "string", "pattern": "^(NISAN|IYYAR|SIVAN|TAMMUZ|AV|ELUL|TISHRI|HESHVAN|KISLEV|TEVET|SHEVAT|ADAR_I|ADAR)-([1-9]|[12][0-9]|30)$", "description": "Hebrew month name and day, for example NISAN-15. ADAR is Adar II in a leap year; ADAR_I exists only in leap years." } } }
+            "month": { "$ref": "#/$defs/month" },
+            "shift": { "$ref": "#/$defs/shift" } } },
+        { "additionalProperties": false, "required": ["weekdayAfter", "base"], "properties": { "weekdayAfter": { "$ref": "#/$defs/dayOfWeek" }, "base": { "$ref": "#/$defs/monthDay" }, "shift": { "$ref": "#/$defs/shift" } } },
+        { "additionalProperties": false, "required": ["weekdayBefore", "base"], "properties": { "weekdayBefore": { "$ref": "#/$defs/dayOfWeek" }, "base": { "$ref": "#/$defs/monthDay" }, "shift": { "$ref": "#/$defs/shift" } } },
+        { "additionalProperties": false, "required": ["hijri"], "properties": { "hijri": { "type": "string", "pattern": "^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|30)$", "description": "Islamic month and day, MM-DD, Umm al-Qura tables." }, "shift": { "$ref": "#/$defs/shift" } } },
+        { "additionalProperties": false, "required": ["hebrew"], "properties": { "hebrew": { "type": "string", "pattern": "^(NISAN|IYYAR|SIVAN|TAMMUZ|AV|ELUL|TISHRI|HESHVAN|KISLEV|TEVET|SHEVAT|ADAR_I|ADAR)-([1-9]|[12][0-9]|30)$", "description": "Hebrew month name and day, for example NISAN-15. ADAR is Adar II in a leap year; ADAR_I exists only in leap years." }, "shift": { "$ref": "#/$defs/shift" } } }
       ]
     },
+    "shift": { "type": "integer", "minimum": -366, "maximum": 366, "description": "Days added to the date the rule yields; negative is earlier. The date stays attributed to the year of the rule, also when the shift carries it into a neighbouring year." },
     "monthDay": { "type": "string", "pattern": "^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$", "description": "MM-DD" },
     "dayOfWeek": { "type": "string", "enum": ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"] },
     "month": { "type": "string", "enum": ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"] },

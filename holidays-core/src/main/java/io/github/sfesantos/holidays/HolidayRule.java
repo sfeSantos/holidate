@@ -42,6 +42,10 @@ public sealed interface HolidayRule {
             case WeekdayAfter r -> List.of(r.base().atYear(year.getValue()).with(TemporalAdjusters.next(r.dayOfWeek())));
             case WeekdayBefore r -> List.of(r.base().atYear(year.getValue()).with(TemporalAdjusters.previous(r.dayOfWeek())));
             case Custom r -> list(custom(r, year));
+            case Shifted r -> r.base().datesIn(year, easter)
+                    .stream()
+                    .map(date -> date.plusDays(r.days()))
+                    .toList();
             case Hijri r -> hijri(r, year);
             case Hebrew r -> hebrew(r, year);
         };
@@ -52,6 +56,11 @@ public sealed interface HolidayRule {
         var dates = datesIn(year, easter);
 
         return dates.isEmpty() ? Optional.empty() : Optional.of(dates.get(0));
+    }
+
+    /** This rule moved by a number of days; see {@link Shifted}. */
+    default Shifted plusDays(int days) {
+        return new Shifted(this, days);
     }
 
     static FixedDate fixed(MonthDay monthDay) {
@@ -85,6 +94,11 @@ public sealed interface HolidayRule {
 
     static Custom custom(Function<Year, Optional<LocalDate>> function) {
         return new Custom(function);
+    }
+
+    /** Another rule moved by a number of days; see {@link Shifted}. */
+    static Shifted shifted(HolidayRule base, int days) {
+        return new Shifted(base, days);
     }
 
     /**
@@ -235,6 +249,29 @@ public sealed interface HolidayRule {
 
         public Custom {
             Objects.requireNonNull(function, "function must not be null");
+        }
+    }
+
+    /**
+     * Every date of {@code base} moved by {@code days}, negative for earlier. A date that leaves the year
+     * still belongs to the year of the base, and one that lands more than a year away from it is missing
+     * from the year index. Shifting a shifted rule nests it; the limit applies to the sum.
+     */
+    record Shifted(HolidayRule base, int days) implements HolidayRule {
+
+        private static final int MAX_SHIFT = 366;
+
+        public Shifted {
+            Objects.requireNonNull(base, "base must not be null");
+            long total = days;
+
+            for (var rule = base; rule instanceof Shifted shifted; rule = shifted.base()) {
+                total += shifted.days();
+            }
+
+            if (Math.abs(total) > MAX_SHIFT) {
+                throw new IllegalArgumentException("the total shift must be within +/-" + MAX_SHIFT + " days: " + total);
+            }
         }
     }
 
