@@ -2,6 +2,7 @@ package io.github.sfesantos.holidays.benchmarks;
 
 import java.time.LocalDate;
 import java.time.Year;
+import java.time.YearMonth;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -41,6 +42,7 @@ public class QueryBenchmark {
     LocalDate holiday;
     LocalDate start;
     LocalDate tenYearsLater;
+    YearMonth january;
 
     @Setup
     public void setUp() {
@@ -57,6 +59,7 @@ public class QueryBenchmark {
         holiday = LocalDate.of(2026, 12, 25);
         start = LocalDate.of(2026, 1, 1);
         tenYearsLater = LocalDate.of(2036, 1, 1);
+        january = YearMonth.of(2026, 1);
     }
 
     @Benchmark
@@ -97,6 +100,21 @@ public class QueryBenchmark {
     @Benchmark
     public long businessDaysBetweenTenYears() {
         return malaga.businessDaysBetween(start, tenYearsLater);
+    }
+
+    @Benchmark
+    public Optional<LocalDate> fifthBusinessDayOfMonth() {
+        return malaga.nthBusinessDayOfMonth(january, 5);
+    }
+
+    @Benchmark
+    public Optional<LocalDate> lastBusinessDayOfMonth() {
+        return malaga.lastBusinessDayOfMonth(january);
+    }
+
+    @Benchmark
+    public int businessDaysInMonth() {
+        return malaga.businessDaysInMonth(january);
     }
 
     @Benchmark

@@ -9,7 +9,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.Year;
+import java.time.YearMonth;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -104,6 +106,18 @@ class MalagaExampleTest {
         assertEquals(LocalDateTime.of(2026, 12, 28, 18, 0),
                 christmasEve.atTime(18, 0).with(MALAGA_CALENDAR.nextBusinessDayAdjuster()));
         assertTrue(LocalDate.of(2026, 12, 25).query(MALAGA_CALENDAR.isHolidayQuery()));
+    }
+
+    @Test
+    void monthFiguresQuotedInTheReadme() {
+        var january = YearMonth.of(2026, 1);
+        var december = YearMonth.of(2026, 12);
+
+        assertEquals(Optional.of(LocalDate.of(2026, 1, 9)), MALAGA_CALENDAR.nthBusinessDayOfMonth(january, 5));
+        assertEquals(Optional.of(LocalDate.of(2026, 12, 31)), MALAGA_CALENDAR.lastBusinessDayOfMonth(december));
+        assertEquals(20, MALAGA_CALENDAR.businessDaysInMonth(december));
+        assertEquals(LocalDateTime.of(2026, 12, 31, 18, 0),
+                LocalDateTime.of(2026, 12, 24, 18, 0).with(MALAGA_CALENDAR.lastBusinessDayOfMonthAdjuster()));
     }
 
     @Test
