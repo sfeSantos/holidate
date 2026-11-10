@@ -1,7 +1,9 @@
 package io.github.sfesantos.holidays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -105,6 +107,25 @@ class ObservanceRuleTest {
         var runaway = ObservanceRule.custom(date -> date.plusDays(1));
 
         assertThrows(IllegalStateException.class, () -> observe(runaway, SATURDAY, Context.standard()));
+    }
+
+    @Test
+    void namedGivesTheBuiltInRules() {
+        assertSame(ObservanceRule.none(), ObservanceRule.named("NONE"));
+        assertSame(ObservanceRule.sundayToMonday(), ObservanceRule.named("SUNDAY_TO_MONDAY"));
+        assertSame(ObservanceRule.weekendToMonday(), ObservanceRule.named("WEEKEND_TO_MONDAY"));
+        assertSame(ObservanceRule.saturdayToFridaySundayToMonday(), ObservanceRule.named("SATURDAY_TO_FRIDAY_SUNDAY_TO_MONDAY"));
+        assertSame(ObservanceRule.nearestWeekday(), ObservanceRule.named("NEAREST_WEEKDAY"));
+        assertSame(ObservanceRule.inherit(), ObservanceRule.named("INHERIT"));
+    }
+
+    @Test
+    void namedRejectsUnknownNames() {
+        var error = assertThrows(IllegalArgumentException.class, () -> ObservanceRule.named("sunday"));
+
+        assertTrue(error.getMessage().contains("\"sunday\""));
+        assertTrue(error.getMessage().contains("SUNDAY_TO_MONDAY"));
+        assertThrows(NullPointerException.class, () -> ObservanceRule.named(null));
     }
 
     @Test

@@ -239,6 +239,25 @@ class HolidayFormatJsonTest {
     }
 
     @Test
+    void parsesARuleOnItsOwn() {
+        assertEquals(HolidayRule.fixed(Month.JANUARY, 1), JSON.parseRule("{\"fixed\": \"01-01\"}"));
+        assertEquals(HolidayRule.nthWeekdayOfMonth(4, DayOfWeek.THURSDAY, Month.NOVEMBER).plusDays(1),
+                JSON.parseRule("{\"nth\": 4, \"weekday\": \"THURSDAY\", \"month\": \"NOVEMBER\", \"shift\": 1}"));
+    }
+
+    @Test
+    void aBadRuleOnItsOwnReportsItsPosition() {
+        var unknownKind = assertThrows(HolidayFormatException.class, () -> JSON.parseRule("{\"fixd\": \"01-01\"}"));
+        var badDay = assertThrows(HolidayFormatException.class, () -> JSON.parseRule("{\"fixed\": \"1 January\"}"));
+
+        assertTrue(unknownKind.getMessage().contains("exactly one of"));
+        assertEquals(1, badDay.line());
+        assertEquals(11, badDay.column());
+        assertThrows(HolidayFormatException.class, () -> JSON.parseRule("\"01-01\""));
+        assertThrows(NullPointerException.class, () -> JSON.parseRule(null));
+    }
+
+    @Test
     void customRulesAndObservancesCannotBeWritten() {
         var customRule = Layer.named("x").add(Holiday.custom("Odd", year -> Optional.empty())).build();
         var customObservance = Layer.named("y").observance(ObservanceRule.custom(date -> date)).build();

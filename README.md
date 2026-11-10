@@ -361,7 +361,8 @@ of days from -366 to 366 added to its date: the day after Thanksgiving is
 Optional members on a holiday:
 `type`, `from`, `until`, `observance` and `closesAt`. Observance names are
 `NONE`, `SUNDAY_TO_MONDAY`, `WEEKEND_TO_MONDAY`,
-`SATURDAY_TO_FRIDAY_SUNDAY_TO_MONDAY` and `NEAREST_WEEKDAY`. `custom` rules
+`SATURDAY_TO_FRIDAY_SUNDAY_TO_MONDAY` and `NEAREST_WEEKDAY`;
+`ObservanceRule.named(name)` gives the rule for a name. `custom` rules
 and observances exist only in Java and cannot be written. The JSON Schema
 ships in the jar at `META-INF/holidays/holidays.schema.json`, so files can be
 validated with any tool before loading.
@@ -695,6 +696,8 @@ HebrewCalendar.toLocalDate(5786, HebrewMonth.NISAN.numberIn(5786).orElseThrow(),
 **`HolidayFormat`** reads and writes layers as data. `HolidayFormat.json()`
 is the only format today; `parse(String | Reader | Path)` returns
 `List<Layer>` and `write(layers)` or `write(layers, Path)` goes the other way.
+`parseRule(text)` reads one rule object on its own, for sources that keep
+holidays as rows.
 **`HolidayFormatException`** carries the `line()` and `column()` of the first
 problem. See [Data files](#data-files).
 
