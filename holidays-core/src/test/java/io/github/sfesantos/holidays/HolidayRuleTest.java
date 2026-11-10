@@ -167,6 +167,74 @@ class HolidayRuleTest {
     }
 
     @Nested
+    class Shifted {
+
+        private static final HolidayRule THANKSGIVING = HolidayRule.nthWeekdayOfMonth(4, DayOfWeek.THURSDAY, Month.NOVEMBER);
+
+        @Test
+        void dayAfterThanksgiving() {
+            assertEquals(Optional.of(LocalDate.of(2026, 11, 27)), resolve(THANKSGIVING.plusDays(1), 2026));
+        }
+
+        @Test
+        void negativeShiftIsEarlier() {
+            assertEquals(Optional.of(LocalDate.of(2026, 11, 25)), resolve(THANKSGIVING.plusDays(-1), 2026));
+        }
+
+        @Test
+        void aDateThatLeavesTheYearIsStillYielded() {
+            assertEquals(Optional.of(LocalDate.of(2027, 1, 1)), resolve(HolidayRule.fixed(Month.DECEMBER, 31).plusDays(1), 2026));
+            assertEquals(Optional.of(LocalDate.of(2025, 12, 31)), resolve(HolidayRule.fixed(Month.JANUARY, 1).plusDays(-1), 2026));
+        }
+
+        @Test
+        void shiftsBothDatesOfALunarRule() {
+            var dayAfterNewYear = HolidayRule.hijri(1, 1).plusDays(1);
+
+            assertEquals(List.of(LocalDate.of(2008, 1, 11), LocalDate.of(2008, 12, 30)), dayAfterNewYear.datesIn(Year.of(2008), EASTER));
+        }
+
+        @Test
+        void emptyBaseStaysEmpty() {
+            assertTrue(resolve(HolidayRule.fixed(MonthDay.of(2, 29)).plusDays(1), 2027).isEmpty());
+        }
+
+        @Test
+        void shiftsNestAndAddUp() {
+            var nested = THANKSGIVING.plusDays(1).plusDays(3);
+
+            assertEquals(THANKSGIVING.plusDays(1), nested.base());
+            assertEquals(Optional.of(LocalDate.of(2026, 11, 30)), resolve(nested, 2026));
+        }
+
+        @Test
+        void plusDaysIsTheSameAsShifted() {
+            assertEquals(HolidayRule.shifted(THANKSGIVING, 1), THANKSGIVING.plusDays(1));
+        }
+
+        @Test
+        void zeroIsAccepted() {
+            assertEquals(resolve(THANKSGIVING, 2026), resolve(THANKSGIVING.plusDays(0), 2026));
+        }
+
+        @Test
+        void rejectsNull() {
+            assertThrows(NullPointerException.class, () -> HolidayRule.shifted(null, 1));
+        }
+
+        @Test
+        void totalShiftIsLimited() {
+            assertEquals(366, THANKSGIVING.plusDays(366).days());
+            assertEquals(-366, THANKSGIVING.plusDays(-366).days());
+            assertEquals(-732, THANKSGIVING.plusDays(366).plusDays(-732).days());
+            assertThrows(IllegalArgumentException.class, () -> THANKSGIVING.plusDays(367));
+            assertThrows(IllegalArgumentException.class, () -> THANKSGIVING.plusDays(-367));
+            assertThrows(IllegalArgumentException.class, () -> THANKSGIVING.plusDays(300).plusDays(67));
+            assertThrows(IllegalArgumentException.class, () -> THANKSGIVING.plusDays(-1).plusDays(Integer.MIN_VALUE));
+        }
+    }
+
+    @Nested
     class Hijri {
 
         @Test

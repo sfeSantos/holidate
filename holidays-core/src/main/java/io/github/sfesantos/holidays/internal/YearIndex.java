@@ -194,7 +194,7 @@ public final class YearIndex {
         return i < observedDays.length && observedDays[i] == dayOfYear ? byObserved[i] : null;
     }
 
-    /** Holidays whose original date falls in this year, by original date. */
+    /** Holidays whose rules yield a date for this year, by original date; a shifted rule may put that date in a neighbouring year. */
     public List<HolidayOccurrence> occurrences() {
         return occurrences;
     }

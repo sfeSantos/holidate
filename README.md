@@ -350,7 +350,10 @@ HolidayFormat.json().write(List.of(spain, andalucia), Path.of("export.json")); /
 Rule kinds: `fixed` (`"MM-DD"`), `date` (`"YYYY-MM-DD"`, a holiday that
 happens once, in that year only), `easter` (offset in days), `nth` with
 `weekday` and `month`, `weekdayAfter` or `weekdayBefore` with `base`, `hijri`
-(`"MM-DD"`) and `hebrew` (`"NISAN-15"`). Optional members on a holiday:
+(`"MM-DD"`) and `hebrew` (`"NISAN-15"`). Any rule may add `shift`, a number
+of days from -366 to 366 added to its date: the day after Thanksgiving is
+`{ "nth": 4, "weekday": "THURSDAY", "month": "NOVEMBER", "shift": 1 }`.
+Optional members on a holiday:
 `type`, `from`, `until`, `observance` and `closesAt`. Observance names are
 `NONE`, `SUNDAY_TO_MONDAY`, `WEEKEND_TO_MONDAY`,
 `SATURDAY_TO_FRIDAY_SUNDAY_TO_MONDAY` and `NEAREST_WEEKDAY`. `custom` rules
@@ -434,7 +437,11 @@ var branch = registry.builder("ES-AN-MA")        // the chain, ready for more la
 `weekdayBefore` and `custom(Function<Year, Optional<LocalDate>>)`
 give at most one date a year; `hijri` and `hebrew` follow the Islamic and
 Hebrew calendars, whose shorter years can put the same holiday twice in one
-Gregorian year.
+Gregorian year. `rule.plusDays(n)`, or `HolidayRule.shifted(rule, n)`, moves
+every date of another rule by `n` days, earlier when `n` is negative. A date
+shifted across the year end still belongs to the year of the rule it came
+from: 31 December plus one is listed by `holidaysIn(Year.of(2026))` with
+the date 1 January 2027.
 A `Holiday` is a rule plus a name, a `HolidayType` and a validity range
 (`validFrom`, `validUntil`).
 
@@ -534,11 +541,14 @@ Factories cover the common rules; `validFrom`, `validUntil`, `validBetween`,
 
 **`HolidayRule`** is the sealed family of rules behind a holiday: `FixedDate`,
 `OnDate`, `EasterRelative`, `NthWeekdayOfMonth`, `WeekdayAfter`,
-`WeekdayBefore`, `Custom`, `Hijri` and `Hebrew`. Use it directly when
-`Holiday` has no shortcut for the rule you need, or to ask a rule for its dates.
+`WeekdayBefore`, `Custom`, `Shifted`, `Hijri` and `Hebrew`. Use it directly
+when `Holiday` has no shortcut for the rule you need, or to ask a rule for its
+dates.
 
 ```java
 var thanksgiving = Holiday.of("Thanksgiving", HolidayRule.nthWeekdayOfMonth(4, DayOfWeek.THURSDAY, Month.NOVEMBER));
+var dayAfterThanksgiving = Holiday.of("Day after Thanksgiving",
+        HolidayRule.nthWeekdayOfMonth(4, DayOfWeek.THURSDAY, Month.NOVEMBER).plusDays(1));
 var memorialDay = Holiday.of("Memorial Day", HolidayRule.nthWeekdayOfMonth(-1, DayOfWeek.MONDAY, Month.MAY));
 var electionDay = Holiday.of("Election Day", HolidayRule.weekdayAfter(DayOfWeek.TUESDAY, MonthDay.of(11, 1)))
         .ofType(HolidayType.OBSERVANCE)
@@ -548,6 +558,7 @@ var royalWedding = Holiday.on("Royal Wedding", LocalDate.of(2011, 4, 29));
 var leapDay = Holiday.custom("Leap Day", year -> year.isLeap() ? Optional.of(year.atDay(60)) : Optional.empty());
 
 thanksgiving.dateIn(Year.of(2026), EasterAlgorithm.gregorian());   // Optional[2026-11-26]
+dayAfterThanksgiving.dateIn(Year.of(2026), EasterAlgorithm.gregorian()); // Optional[2026-11-27]
 HolidayRule.easterRelative(-2).datesIn(Year.of(2026), EasterAlgorithm.gregorian()); // [2026-04-03]
 ```
 

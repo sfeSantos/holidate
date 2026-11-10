@@ -33,6 +33,7 @@ import io.github.sfesantos.holidays.HolidayType;
 import io.github.sfesantos.holidays.Layer;
 import io.github.sfesantos.holidays.ObservanceRule;
 import io.github.sfesantos.holidays.Weekend;
+import io.github.sfesantos.holidays.easter.EasterAlgorithm;
 import io.github.sfesantos.holidays.hebrew.HebrewMonth;
 
 class HolidayFormatJsonTest {
@@ -186,11 +187,12 @@ class HolidayFormatJsonTest {
                         Holiday.hijri("b", 12, 10),
                         Holiday.hebrew("c", HebrewMonth.ADAR_I, 14),
                         Holiday.fixed("d", Month.FEBRUARY, 29).validBetween(Year.of(2000), Year.of(2100)),
-                        Holiday.on("e", LocalDate.of(2011, 4, 29)))
+                        Holiday.on("e", LocalDate.of(2011, 4, 29)),
+                        Holiday.of("f", HolidayRule.easterRelative(-2).plusDays(-7)))
                 .build();
         var reparsed = JSON.parse(JSON.write(List.of(layer))).get(0);
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 6; i++) {
             assertEquals(layer.additions().get(i), reparsed.additions().get(i));
         }
     }
@@ -205,6 +207,38 @@ class HolidayFormatJsonTest {
     }
 
     @Test
+    void readsAndWritesAShiftedRule() {
+        var text = "{\"layers\": [{\"id\": \"US\", \"holidays\": [{\"name\": \"Day after Thanksgiving\", "
+                + "\"rule\": {\"nth\": 4, \"weekday\": \"THURSDAY\", \"month\": \"NOVEMBER\", \"shift\": 1}}]}]}";
+        var holiday = JSON.parse(text).get(0).additions().get(0);
+
+        assertEquals(HolidayRule.nthWeekdayOfMonth(4, DayOfWeek.THURSDAY, Month.NOVEMBER).plusDays(1), holiday.rule());
+        assertEquals(Optional.of(LocalDate.of(2026, 11, 27)), holiday.dateIn(Year.of(2026), EasterAlgorithm.gregorian()));
+        assertTrue(JSON.write(JSON.parse(text)).contains("\"month\": \"NOVEMBER\",\n            \"shift\": 1\n"));
+    }
+
+    @Test
+    void aShiftOfZeroReadsAsThePlainRule() {
+        var text = "{\"layers\": [{\"id\": \"x\", \"holidays\": [{\"name\": \"h\", \"rule\": {\"fixed\": \"12-25\", \"shift\": 0}}]}]}";
+
+        assertEquals(HolidayRule.fixed(Month.DECEMBER, 25), JSON.parse(text).get(0).additions().get(0).rule());
+    }
+
+    @Test
+    void nestedShiftsAreWrittenAsOne() {
+        var christmas = HolidayRule.fixed(Month.DECEMBER, 25);
+        var layer = Layer.named("x")
+                .add(Holiday.of("nested", christmas.plusDays(1).plusDays(2)), Holiday.of("cancelled", christmas.plusDays(2).plusDays(-2)))
+                .build();
+        var written = JSON.write(List.of(layer));
+        var reparsed = JSON.parse(written).get(0);
+
+        assertEquals(christmas.plusDays(3), reparsed.additions().get(0).rule());
+        assertEquals(christmas, reparsed.additions().get(1).rule());
+        assertEquals(1, written.split("\"shift\"", -1).length - 1);
+    }
+
+    @Test
     void customRulesAndObservancesCannotBeWritten() {
         var customRule = Layer.named("x").add(Holiday.custom("Odd", year -> Optional.empty())).build();
         var customObservance = Layer.named("y").observance(ObservanceRule.custom(date -> date)).build();
@@ -212,7 +246,10 @@ class HolidayFormatJsonTest {
                 .add(Holiday.fixed("May", Month.MAY, 1).withObservance(ObservanceRule.custom(date -> date)))
                 .build();
 
+        var shiftedCustomRule = Layer.named("w").add(Holiday.of("Odd", HolidayRule.custom(year -> Optional.empty()).plusDays(1))).build();
+
         assertTrue(assertThrows(HolidayFormatException.class, () -> JSON.write(List.of(customRule))).getMessage().contains("'Odd' uses a custom rule"));
+        assertTrue(assertThrows(HolidayFormatException.class, () -> JSON.write(List.of(shiftedCustomRule))).getMessage().contains("'Odd' uses a custom rule"));
         assertTrue(assertThrows(HolidayFormatException.class, () -> JSON.write(List.of(customObservance))).getMessage().contains("layer y"));
         assertTrue(assertThrows(HolidayFormatException.class, () -> JSON.write(List.of(customHolidayObservance))).getMessage().contains("'May'"));
     }
@@ -237,6 +274,10 @@ class HolidayFormatJsonTest {
         "{\"layers\": [{\"id\": \"ES\", \"holidays\": [{\"name\": \"x\", \"rule\": {\"date\": \"2011-02-30\"}}]}]} | 1 | 70 | Invalid date",
         "{\"layers\": [{\"id\": \"ES\", \"holidays\": [{\"name\": \"x\", \"rule\": {\"nth\": 4, \"weekday\": \"THURSDAY\"}}]}]} | 1 | 61 | missing required member \"month\"",
         "{\"layers\": [{\"id\": \"ES\", \"holidays\": [{\"name\": \"x\", \"rule\": {\"fixed\": \"01-01\", \"base\": \"01-01\"}}]}]} | 1 | 88 | unknown member \"base\"",
+        "{\"layers\": [{\"id\": \"ES\", \"holidays\": [{\"name\": \"x\", \"rule\": {\"shift\": 1}}]}]} | 1 | 61 | exactly one of",
+        "{\"layers\": [{\"id\": \"ES\", \"holidays\": [{\"name\": \"x\", \"rule\": {\"fixed\": \"01-01\", \"shift\": 1.5}}]}]} | 1 | 89 | expected an integer but found 1.5",
+        "{\"layers\": [{\"id\": \"ES\", \"holidays\": [{\"name\": \"x\", \"rule\": {\"fixed\": \"01-01\", \"shift\": \"1\"}}]}]} | 1 | 89 | expected an integer but found a string",
+        "{\"layers\": [{\"id\": \"ES\", \"holidays\": [{\"name\": \"x\", \"rule\": {\"fixed\": \"01-01\", \"shift\": 400}}]}]} | 1 | 89 | the total shift must be within +/-366 days: 400",
         "{\"layers\": [{\"id\": \"ES\", \"holidays\": [{\"name\": \"x\", \"rule\": {\"hebrew\": \"ADAR-14-1\"}}]}]} | 1 | 72 | expected a Hebrew day",
         "{\"layers\": [{\"id\": \"ES\", \"holidays\": [{\"name\": \"x\", \"rule\": {\"hebrew\": \"ADR-14\"}}]}]} | 1 | 72 | unknown HebrewMonth \"ADR\"",
         "{\"layers\": [{\"id\": \"ES\", \"holidays\": [{\"name\": \"x\", \"rule\": {\"fixed\": \"01-01\"}, \"type\": \"PUBLIC\", \"closesAt\": \"13:00\"}]}]} | 1 | 111 | closesAt needs type HALF_DAY",

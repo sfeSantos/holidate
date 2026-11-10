@@ -100,8 +100,21 @@ final class LayerJsonWriter {
 
     private static JsonValue writeRule(Holiday holiday) {
         var members = new LinkedHashMap<String, JsonValue>();
+        int shift = putRule(members, holiday.rule(), holiday.name());
 
-        switch (holiday.rule()) {
+        if (shift != 0) {
+            members.put("shift", number(shift));
+        }
+
+        return object(members);
+    }
+
+    /**
+     * Puts the members of the rule and returns its shift in days. Nested shifts are written as their sum,
+     * so they read back as one flat rule that yields the same dates but is not equal to the original.
+     */
+    private static int putRule(Map<String, JsonValue> members, HolidayRule rule, String holiday) {
+        switch (rule) {
             case HolidayRule.FixedDate r -> members.put("fixed", monthDay(r.monthDay()));
             case HolidayRule.OnDate r -> members.put("date", string(r.date().toString()));
             case HolidayRule.EasterRelative r -> members.put("easter", number(r.offsetDays()));
@@ -121,10 +134,13 @@ final class LayerJsonWriter {
             case HolidayRule.Hijri r -> members.put("hijri", string(String.format("%02d-%02d", r.month(), r.dayOfMonth())));
             case HolidayRule.Hebrew r -> members.put("hebrew", string(r.month().name() + "-" + String.format("%02d", r.dayOfMonth())));
             case HolidayRule.Custom r -> throw new HolidayFormatException(
-                    "holiday '" + holiday.name() + "' uses a custom rule, which has no data form");
+                    "holiday '" + holiday + "' uses a custom rule, which has no data form");
+            case HolidayRule.Shifted r -> {
+                return r.days() + putRule(members, r.base(), holiday);
+            }
         }
 
-        return object(members);
+        return 0;
     }
 
     private static JsonValue writeObservance(ObservanceRule rule, String owner) {

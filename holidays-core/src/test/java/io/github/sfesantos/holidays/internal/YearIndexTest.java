@@ -16,6 +16,7 @@ import io.github.sfesantos.holidays.Holiday;
 import io.github.sfesantos.holidays.HolidayCalendar;
 import io.github.sfesantos.holidays.HolidayCalendarBuilder;
 import io.github.sfesantos.holidays.HolidayOccurrence;
+import io.github.sfesantos.holidays.HolidayRule;
 import io.github.sfesantos.holidays.HolidayType;
 import io.github.sfesantos.holidays.Layer;
 import io.github.sfesantos.holidays.ObservanceRule;
@@ -88,6 +89,19 @@ class YearIndexTest {
         assertEquals(LocalDate.of(2022, 1, 1), previous.holidayOn(365).original());
         assertFalse(current.isHoliday(1));
         assertEquals(LocalDate.of(2021, 12, 31), current.occurrences().get(0).observed());
+    }
+
+    @Test
+    void shiftIntoTheNextYearBelongsToTheYearOfTheRule() {
+        var dayAfterNewYearsEve = Holiday.of("Day after New Year's Eve", HolidayRule.fixed(Month.DECEMBER, 31).plusDays(1));
+        var calendar = calendarWith(ObservanceRule.none(), dayAfterNewYearsEve);
+        var occurrences = calendar.index(2026).occurrences();
+
+        assertEquals(1, occurrences.size());
+        assertEquals(LocalDate.of(2027, 1, 1), occurrences.get(0).original());
+        assertTrue(calendar.index(2027).isHoliday(1));
+        assertEquals(LocalDate.of(2027, 1, 1), calendar.index(2027).holidayOn(1).original());
+        assertEquals(List.of(LocalDate.of(2028, 1, 1)), calendar.index(2027).occurrences().stream().map(HolidayOccurrence::original).toList());
     }
 
     @Test
