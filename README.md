@@ -937,19 +937,19 @@ second each. The targets are the ones the project set for itself at the start.
 | `nextHoliday(date)` | 4.7 ns | 16 B (the `Optional`) | < 100 ns, one allocation |
 | `nextBusinessDay(date)` | 6.6 ns | 24 B (the `LocalDate`) | |
 | `addBusinessDays(date, 2)` | 10.8 ns | 24 B | |
-| `businessDaysBetween` over 10 years | 63 ns | 176 B | < 5 µs |
+| `businessDaysBetween` over 10 years | 48 ns | 0 B | < 5 µs |
 | `businessDaysInMonth(month)` | 3.1 ns | 0 B | |
 | `lastBusinessDayOfMonth(month)` | 4.9 ns | 40 B (the `LocalDate` and its `Optional`) | |
 | `nthBusinessDayOfMonth(month, 5)` | 10.1 ns | 40 B | |
 | `addBusinessHours` over 1 business day | 20 ns | 48 B (the `LocalDateTime` and its `LocalDate`) | |
 | `addBusinessHours` over 10 business days | 54 ns | 48 B | |
-| `addBusinessHours` over 1000 business days | 6.1 µs | 128 B | |
+| `addBusinessHours` over 1000 business days | 6.1 µs | 48 B | |
 | `businessDurationBetween` over 10 business days | 47 ns | 24 B (the `Duration`) | |
-| `businessDurationBetween` over 1000 business days | 5.8 µs | 104 B | |
+| `businessDurationBetween` over 1000 business days | 5.8 µs | 24 B | |
 | `union` of two calendars, `isBusinessDay` | 1.3 ns | 0 B | |
-| First touch of a year (build the index) | 2.9 µs | 10.2 KB | < 50 µs |
-| `HolidayCalendar.builder().build()` | 0.3 µs | 5.4 KB | |
-| Heap for 100 indexed years | 197 KB | 2.0 KB per year | < 500 KB |
+| First touch of a year (build the index) | 3.1 µs | 10.8 KB | < 50 µs |
+| `HolidayCalendar.builder().build()` | 0.3 µs | 5.5 KB | |
+| Heap for 100 indexed years | 164 KB | 1.6 KB per year | < 500 KB |
 
 A year's index is three bit sets of six 64-bit words (any holiday,
 non-working holiday, business day), the holidays observed in the year sorted
@@ -961,11 +961,16 @@ bit test; `businessDaysBetween` is two lookups in that running count plus two
 the year's handful of holidays. Nothing is stored per day.
 
 `addBusinessHours` and `businessDurationBetween` walk the business days in
-between, about 6 ns for each one crossed, and allocate only what they return.
-The bytes beyond that on the long runs are 16 B for each year boundary
-crossed, the boxed key of the year cache, which is also where the 176 B of
-`businessDaysBetween` over 10 years come from
-([#41](https://github.com/sfeSantos/holidate/issues/41)).
+between, about 6 ns for each one crossed, and allocate only what they return:
+a `LocalDateTime` with its `LocalDate`, plus a 24 B `LocalTime` when the
+result is not on the hour, or a `Duration`.
+
+Crossing a year costs no allocation either. The indexes sit in a small
+open-addressed table keyed by the year as an `int`, read without a lock, so a
+query that spans years never boxes a key. Up to 1.0.0 they sat in a
+`ConcurrentHashMap<Integer, YearIndex>`, which cost 16 B for each year
+boundary crossed (176 B for `businessDaysBetween` over 10 years) and about
+330 B more of heap per indexed year.
 
 That last point is recent. Up to 0.3.0 the index also kept two arrays with
 one slot per day of the year, a `HolidayOccurrence[367]` behind `holidayOn`
