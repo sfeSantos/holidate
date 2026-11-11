@@ -256,6 +256,32 @@ calendar.isOpen(LocalDateTime.of(2026, 12, 24, 13, 0));  // false
 calendar.isOpen(Instant.parse("2026-12-23T08:30:00Z"), ZoneId.of("Europe/Madrid")); // true, 09:30 local
 ```
 
+SLAs are written in business hours. `addBusinessHours` spends a duration
+inside opening hours only and `businessDurationBetween` measures the open time
+between two moments. Both follow half days, and a negative duration moves
+backwards.
+
+```java
+var raised = LocalDateTime.of(2026, 12, 23, 16, 0);
+
+calendar.addBusinessHours(raised, Duration.ofHours(4));     // 2026-12-24T11:30, 1.5 h on the 23rd and 2.5 h into the half day
+calendar.addBusinessHours(raised, Duration.ofHours(8));     // 2026-12-28T11:30, past the half day, Christmas and the weekend
+calendar.addBusinessHours(raised, Duration.ofMinutes(90));  // 2026-12-23T17:30, due at closing time, not the next morning
+calendar.addBusinessHours(LocalDateTime.of(2026, 12, 26, 10, 0), Duration.ofHours(1));   // 2026-12-28T10:00, a Saturday counts from Monday's opening
+calendar.addBusinessHours(LocalDateTime.of(2026, 12, 28, 11, 30), Duration.ofHours(-8)); // 2026-12-23T16:00
+
+calendar.businessDurationBetween(raised, LocalDateTime.of(2026, 12, 28, 11, 30));        // PT8H
+calendar.businessDurationBetween(LocalDateTime.of(2026, 12, 28, 11, 30), raised);        // PT-8H
+```
+
+A start outside opening hours counts from the next opening, or from the
+previous close when moving backwards, and a zero duration returns the start
+untouched. A calendar that declares no hours is open all day, so each of its
+business days counts as 24 hours and a half day runs from midnight to its
+closing time. Both methods work in the calendar's local time; convert an
+`Instant` with `LocalDateTime.ofInstant` first. When a hundred years hold no
+open time, `addBusinessHours` throws `IllegalStateException`.
+
 ## Combining calendars
 
 Settlement between two markets needs both to be open. `union` composes
@@ -647,7 +673,8 @@ for (var occurrence : calendar.holidaysIn(Year.of(2026))) {
 `nextBusinessDay`, `addBusinessDays`, `businessDaysBetween`, the month
 queries (`firstBusinessDayOfMonth`, `lastBusinessDayOfMonth`,
 `nthBusinessDayOfMonth`, `businessDaysInMonth`), `adjust` with a
-convention or a cut-off, `businessHoursOn`, `isOpen`, `isHalfDay`, the
+convention or a cut-off, `businessHoursOn`, `isOpen`, `isHalfDay`,
+`addBusinessHours`, `businessDurationBetween`, the
 `TemporalAdjuster` factories and the `Clock` overloads. See
 [Payment dates](#payment-dates) and [Business hours](#business-hours-and-half-days).
 
@@ -914,6 +941,11 @@ second each. The targets are the ones the project set for itself at the start.
 | `businessDaysInMonth(month)` | 3.1 ns | 0 B | |
 | `lastBusinessDayOfMonth(month)` | 4.9 ns | 40 B (the `LocalDate` and its `Optional`) | |
 | `nthBusinessDayOfMonth(month, 5)` | 10.1 ns | 40 B | |
+| `addBusinessHours` over 1 business day | 20 ns | 48 B (the `LocalDateTime` and its `LocalDate`) | |
+| `addBusinessHours` over 10 business days | 54 ns | 48 B | |
+| `addBusinessHours` over 1000 business days | 6.1 µs | 128 B | |
+| `businessDurationBetween` over 10 business days | 47 ns | 24 B (the `Duration`) | |
+| `businessDurationBetween` over 1000 business days | 5.8 µs | 104 B | |
 | `union` of two calendars, `isBusinessDay` | 1.3 ns | 0 B | |
 | First touch of a year (build the index) | 2.9 µs | 10.2 KB | < 50 µs |
 | `HolidayCalendar.builder().build()` | 0.3 µs | 5.4 KB | |
@@ -927,6 +959,13 @@ business days at each word boundary. `isHoliday` and `isBusinessDay` are one
 bit test; `businessDaysBetween` is two lookups in that running count plus two
 `Long.bitCount` calls; `holidayOn` and `nextHoliday` are a binary search over
 the year's handful of holidays. Nothing is stored per day.
+
+`addBusinessHours` and `businessDurationBetween` walk the business days in
+between, about 6 ns for each one crossed, and allocate only what they return.
+The bytes beyond that on the long runs are 16 B for each year boundary
+crossed, the boxed key of the year cache, which is also where the 176 B of
+`businessDaysBetween` over 10 years come from
+([#41](https://github.com/sfeSantos/holidate/issues/41)).
 
 That last point is recent. Up to 0.3.0 the index also kept two arrays with
 one slot per day of the year, a `HolidayOccurrence[367]` behind `holidayOn`

@@ -1,5 +1,6 @@
 package io.github.sfesantos.holidays.internal;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -31,6 +32,7 @@ import io.github.sfesantos.holidays.Weekend;
 public abstract class IndexedCalendar implements HolidayCalendar {
 
     static final int SEARCH_HORIZON_YEARS = 100;
+    private static final long NANOS_PER_DAY = 86_400_000_000_000L;
 
     private final Weekend weekend;
     private final CalendarCache cache = new CalendarCache(this::buildIndex);
@@ -258,6 +260,188 @@ public abstract class IndexedCalendar implements HolidayCalendar {
         }
 
         return earliest;
+    }
+
+    @Override
+    public LocalDateTime addBusinessHours(LocalDateTime start, Duration duration) {
+        Objects.requireNonNull(start, "start must not be null");
+        Objects.requireNonNull(duration, "duration must not be null");
+        long nanos = duration.toNanos();
+
+        if (nanos == 0) {
+            return start;
+        }
+
+        return nanos > 0 ? forwardHours(start, nanos) : backwardHours(start, Math.negateExact(nanos));
+    }
+
+    @Override
+    public Duration businessDurationBetween(LocalDateTime from, LocalDateTime to) {
+        Objects.requireNonNull(from, "from must not be null");
+        Objects.requireNonNull(to, "to must not be null");
+
+        return Duration.ofNanos(from.isAfter(to) ? -openNanosBetween(to, from) : openNanosBetween(from, to));
+    }
+
+    /** Walks business days in the index with times as nanoseconds of the day, so only the result is allocated. */
+    private LocalDateTime forwardHours(LocalDateTime start, long nanos) {
+        var hours = businessHours();
+        long dayOpen = hours.open().toNanoOfDay();
+        int year = start.getYear();
+        int day = start.getDayOfYear();
+        int lastYear = horizonAfter(year);
+        long from = start.toLocalTime().toNanoOfDay();
+        long remaining = nanos;
+        var index = index(year);
+
+        while (true) {
+            int found = index.businessDayAtOrAfter(day);
+
+            if (found < 0) {
+                if (year >= lastYear) {
+                    throw noOpenTime(year);
+                }
+
+                index = index(++year);
+                day = 1;
+                from = 0;
+                continue;
+            }
+
+            long open = found == day ? Math.max(from, dayOpen) : dayOpen;
+            long available = endOfDay(earliestClose(index, found, hours.close())) - open;
+
+            if (available > 0) {
+                if (remaining <= available) {
+                    return dateTime(year, found, open + remaining);
+                }
+
+                remaining -= available;
+                lastYear = horizonAfter(year);
+            }
+
+            day = found + 1;
+            from = 0;
+        }
+    }
+
+    private LocalDateTime backwardHours(LocalDateTime start, long nanos) {
+        var hours = businessHours();
+        long dayOpen = hours.open().toNanoOfDay();
+        int year = start.getYear();
+        int day = start.getDayOfYear();
+        int firstYear = horizonBefore(year);
+        long until = start.toLocalTime().toNanoOfDay();
+        long remaining = nanos;
+        var index = index(year);
+
+        while (true) {
+            int found = index.businessDayAtOrBefore(day);
+
+            if (found < 0) {
+                if (year <= firstYear) {
+                    throw noOpenTime(year);
+                }
+
+                index = index(--year);
+                day = index.length();
+                until = NANOS_PER_DAY;
+                continue;
+            }
+
+            long dayClose = endOfDay(earliestClose(index, found, hours.close()));
+            long close = found == day ? Math.min(until, dayClose) : dayClose;
+            long available = close - dayOpen;
+
+            if (available > 0) {
+                if (remaining <= available) {
+                    return dateTime(year, found, close - remaining);
+                }
+
+                remaining -= available;
+                firstYear = horizonBefore(year);
+            }
+
+            day = found - 1;
+            until = NANOS_PER_DAY;
+        }
+    }
+
+    /** Open time from {@code from} to {@code to}, which must not be before it. */
+    private long openNanosBetween(LocalDateTime from, LocalDateTime to) {
+        var hours = businessHours();
+        long dayOpen = hours.open().toNanoOfDay();
+        int firstYear = from.getYear();
+        int firstDay = from.getDayOfYear();
+        int lastYear = to.getYear();
+        int lastDay = to.getDayOfYear();
+        int year = firstYear;
+        int day = firstDay;
+        long total = 0;
+        var index = index(year);
+
+        while (true) {
+            int found = index.businessDayAtOrAfter(day);
+
+            if (found < 0) {
+                if (year == lastYear) {
+                    return total;
+                }
+
+                index = index(++year);
+                day = 1;
+                continue;
+            }
+
+            if (year == lastYear && found > lastDay) {
+                return total;
+            }
+
+            long open = dayOpen;
+            long close = endOfDay(earliestClose(index, found, hours.close()));
+
+            if (year == firstYear && found == firstDay) {
+                open = Math.max(open, from.toLocalTime().toNanoOfDay());
+            }
+
+            if (year == lastYear && found == lastDay) {
+                close = Math.min(close, to.toLocalTime().toNanoOfDay());
+            }
+
+            if (close > open) {
+                total = Math.addExact(total, close - open);
+            }
+
+            day = found + 1;
+        }
+    }
+
+    private static int horizonAfter(int year) {
+        return Math.min(year + SEARCH_HORIZON_YEARS, Year.MAX_VALUE);
+    }
+
+    private static int horizonBefore(int year) {
+        return Math.max(year - SEARCH_HORIZON_YEARS, Year.MIN_VALUE);
+    }
+
+    /** A close of {@link LocalTime#MAX} is the end of the day, so an all-day business day is 24 hours. */
+    private static long endOfDay(LocalTime close) {
+        return close.equals(LocalTime.MAX) ? NANOS_PER_DAY : close.toNanoOfDay();
+    }
+
+    private static LocalDateTime dateTime(int year, int dayOfYear, long nanoOfDay) {
+        var date = LocalDate.ofYearDay(year, dayOfYear);
+
+        if (nanoOfDay == NANOS_PER_DAY) {
+            return date.plusDays(1).atStartOfDay();
+        }
+
+        return LocalDateTime.of(date, LocalTime.ofNanoOfDay(nanoOfDay));
+    }
+
+    private static IllegalStateException noOpenTime(int year) {
+        return new IllegalStateException("no open business hours found within " + SEARCH_HORIZON_YEARS
+                + " years around " + year + "; business is never open");
     }
 
     @Override

@@ -5,8 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Month;
 import java.time.Year;
 import java.time.YearMonth;
@@ -118,6 +120,25 @@ class MalagaExampleTest {
         assertEquals(20, MALAGA_CALENDAR.businessDaysInMonth(december));
         assertEquals(LocalDateTime.of(2026, 12, 31, 18, 0),
                 LocalDateTime.of(2026, 12, 24, 18, 0).with(MALAGA_CALENDAR.lastBusinessDayOfMonthAdjuster()));
+    }
+
+    @Test
+    void businessHoursFiguresQuotedInTheReadme() {
+        var office = HolidayCalendar.builder()
+                .businessHours(LocalTime.of(9, 0), LocalTime.of(17, 30))
+                .layers(SPAIN, ANDALUCIA, MALAGA,
+                        Layer.named("office")
+                                .add(Holiday.fixed("Nochebuena", Month.DECEMBER, 24).closingAt(LocalTime.of(13, 0)))
+                                .build())
+                .build();
+        var raised = LocalDateTime.of(2026, 12, 23, 16, 0);
+
+        assertEquals(LocalDateTime.of(2026, 12, 24, 11, 30), office.addBusinessHours(raised, Duration.ofHours(4)));
+        assertEquals(LocalDateTime.of(2026, 12, 28, 11, 30), office.addBusinessHours(raised, Duration.ofHours(8)));
+        assertEquals(LocalDateTime.of(2026, 12, 23, 17, 30), office.addBusinessHours(raised, Duration.ofMinutes(90)));
+        assertEquals(raised, office.addBusinessHours(LocalDateTime.of(2026, 12, 28, 11, 30), Duration.ofHours(-8)));
+        assertEquals(Duration.ofHours(8), office.businessDurationBetween(raised, LocalDateTime.of(2026, 12, 28, 11, 30)));
+        assertEquals(Duration.ofHours(-8), office.businessDurationBetween(LocalDateTime.of(2026, 12, 28, 11, 30), raised));
     }
 
     @Test
