@@ -2,6 +2,7 @@ package io.github.sfesantos.holidays;
 
 import java.time.Clock;
 import java.time.DateTimeException;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -44,6 +45,37 @@ public interface BusinessDayQueries {
 
         return isOpen(LocalDateTime.ofInstant(instant, zone));
     }
+    /**
+     * The date and time reached by spending {@code duration} inside opening
+     * hours only, half days included. A start outside opening hours counts
+     * from the next open instant. A duration that runs out exactly at closing
+     * time ends there, not at the next opening. Negative durations move
+     * backwards the same way, from the previous closing time when the start
+     * is outside opening hours. Zero returns the start unchanged.
+     *
+     * <p>Under {@link BusinessHours#allDay()} a business day counts as 24
+     * hours and its closing time is the following midnight.
+     *
+     * @throws IllegalStateException when a hundred years hold no open time
+     * @throws ArithmeticException when the duration does not fit in a {@code long} of nanoseconds, about 292 years
+     */
+    default LocalDateTime addBusinessHours(LocalDateTime start, Duration duration) {
+        return BusinessHoursArithmetic.add(this, start, duration);
+    }
+
+    /**
+     * The open time from {@code from} to {@code to}, negative when
+     * {@code from} is after {@code to}. Adding it to {@code from} with
+     * {@link #addBusinessHours(LocalDateTime, Duration)} lands on {@code to}
+     * when {@code to} is inside opening hours. The one exception is a
+     * {@code to} that is an opening time after {@code from}: the sum stops at
+     * the previous close, or stays at {@code from} when nothing is open in
+     * between.
+     */
+    default Duration businessDurationBetween(LocalDateTime from, LocalDateTime to) {
+        return BusinessHoursArithmetic.between(this, from, to);
+    }
+
     /** The first business day strictly after the date. */
     LocalDate nextBusinessDay(LocalDate date);
     /** The date itself when it is a business day, otherwise the first business day after it. */
