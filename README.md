@@ -449,6 +449,38 @@ var germany = Layer.named("DE")
         .build();
 ```
 
+**Contributing a pack.** `Validate` in `holidays-data` checks a pack file and
+prints what one of its layers observes, so a pack can be reviewed without
+writing Java. It takes the file, a layer id and a period; parents the file
+does not define come from the shipped packs.
+
+```sh
+java -cp holidays-core-1.0.0.jar:holidays-data-1.0.0.jar \
+    io.github.sfesantos.holidays.data.Validate ES.json ES-AN-MA 2026-11..2027-01
+```
+
+```
+ES-AN-MA, 2026-11..2027-01: 6 holidays
+
+Observed    Day  Name                    Type    Layer  Original
+2026-11-02  Mon  Todos los Santos        PUBLIC  ES     2026-11-01
+2026-12-07  Mon  Día de la Constitución  PUBLIC  ES     2026-12-06
+2026-12-08  Tue  Inmaculada Concepción   PUBLIC  ES
+2026-12-25  Fri  Navidad                 PUBLIC  ES
+2027-01-01  Fri  Año Nuevo               PUBLIC  ES
+2027-01-06  Wed  Epifanía del Señor      PUBLIC  ES
+```
+
+The period is a year (`2027`), a month (`2027-03`) or a range of either with
+both ends included (`2026..2028`, `2026-11..2027-02`). Holidays are listed by
+observed date, and `Original` is filled in only when the holiday was moved. A
+file that does not parse, an unknown id or a missing parent prints the problem,
+with line and column when it is in the file, and exits with 1:
+
+```
+ES.json: line 24, column 47: a rule needs exactly one of [fixed, date, easter, nth, weekdayAfter, weekdayBefore, hijri, hebrew] but has []
+```
+
 **Your own data.** Providers are asked in the order given and the first that
 knows an id wins, so a provider placed ahead of the shipped pack overrides it.
 `DirectoryDataProvider` reads every `.json` file in a directory,
@@ -803,7 +835,9 @@ from the jar. You rarely name it: `CalendarRegistry.load()` finds it.
 calendars, and **`Holidays`** holds the definitions most countries share
 (`NEW_YEAR`, `GOOD_FRIDAY`, `EASTER_MONDAY`, `ASCENSION`, `WHIT_MONDAY`,
 `CORPUS_CHRISTI`, `LABOUR_DAY`, `ASSUMPTION`, `ALL_SAINTS`, `CHRISTMAS`,
-`BOXING_DAY` and more). See [Country packs](#country-packs-and-the-registry).
+`BOXING_DAY` and more). **`Validate`** is a `main` that checks a pack file and
+prints a layer's holidays for a year, a month or a range. See
+[Country packs](#country-packs-and-the-registry).
 
 ### Database (`io.github.sfesantos.holidays.jdbc`, artifact `holidays-jdbc`)
 
