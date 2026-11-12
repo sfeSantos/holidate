@@ -3,8 +3,10 @@ package io.github.sfesantos.holidays;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.Year;
+import java.time.YearMonth;
 import java.time.temporal.TemporalQuery;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalLong;
 
@@ -20,6 +22,11 @@ import java.util.OptionalLong;
  *
  * <p>The {@link Clock} overloads answer for "today" as that clock sees it,
  * zone included. The library never calls {@code LocalDate.now()} on its own.
+ *
+ * <p>{@code holidaysInMonth}, {@code holidaysInNextMonths} and
+ * {@code holidaysInNextYears} are {@code holidaysBetween} with the range
+ * worked out, so they go by observed date. {@code holidaysIn(Year)} is the
+ * one listing that goes by the year of the rule and the original date.
  */
 public interface HolidayQueries {
 
@@ -39,6 +46,40 @@ public interface HolidayQueries {
     Optional<HolidayOccurrence> previousHolidayInclusive(LocalDate date);
     /** Days from the date to the next holiday observed strictly after it; empty when there is none. */
     OptionalLong daysUntilNextHoliday(LocalDate date);
+    /** Holidays observed in the month, ordered by observed date. */
+    default List<HolidayOccurrence> holidaysInMonth(YearMonth month) {
+        Objects.requireNonNull(month, "month must not be null");
+        var first = month.atDay(1);
+
+        return holidaysBetween(first, first.plusMonths(1));
+    }
+
+    /**
+     * Holidays observed from the date inclusive until the same day
+     * {@code months} months later, exclusive, ordered by observed date. Zero
+     * months is an empty list; a negative count is rejected.
+     */
+    default List<HolidayOccurrence> holidaysInNextMonths(LocalDate from, int months) {
+        Objects.requireNonNull(from, "from must not be null");
+
+        if (months < 0) {
+            throw new IllegalArgumentException("months must not be negative");
+        }
+
+        return holidaysBetween(from, from.plusMonths(months));
+    }
+
+    /** As {@link #holidaysInNextMonths(LocalDate, int)}, counting years. */
+    default List<HolidayOccurrence> holidaysInNextYears(LocalDate from, int years) {
+        Objects.requireNonNull(from, "from must not be null");
+
+        if (years < 0) {
+            throw new IllegalArgumentException("years must not be negative");
+        }
+
+        return holidaysBetween(from, from.plusYears(years));
+    }
+
     default boolean isHolidayToday(Clock clock) {
         return isHoliday(LocalDate.now(clock));
     }
@@ -53,6 +94,14 @@ public interface HolidayQueries {
 
     default OptionalLong daysUntilNextHoliday(Clock clock) {
         return daysUntilNextHoliday(LocalDate.now(clock));
+    }
+
+    default List<HolidayOccurrence> holidaysInNextMonths(Clock clock, int months) {
+        return holidaysInNextMonths(LocalDate.now(clock), months);
+    }
+
+    default List<HolidayOccurrence> holidaysInNextYears(Clock clock, int years) {
+        return holidaysInNextYears(LocalDate.now(clock), years);
     }
 
     /** A query answering {@link #isHoliday(LocalDate)} for any temporal that holds a date. */
