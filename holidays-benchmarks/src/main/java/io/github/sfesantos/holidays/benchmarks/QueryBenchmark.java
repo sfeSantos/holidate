@@ -3,6 +3,7 @@ package io.github.sfesantos.holidays.benchmarks;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.YearMonth;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -115,6 +116,21 @@ public class QueryBenchmark {
     @Benchmark
     public int businessDaysInMonth() {
         return malaga.businessDaysInMonth(january);
+    }
+
+    @Benchmark
+    public List<HolidayOccurrence> holidaysInMonth() {
+        return malaga.holidaysInMonth(january);
+    }
+
+    @Benchmark
+    public List<HolidayOccurrence> holidaysInNextThreeMonths() {
+        return malaga.holidaysInNextMonths(workday, 3);
+    }
+
+    @Benchmark
+    public List<HolidayOccurrence> holidaysInNextTwoYears() {
+        return malaga.holidaysInNextYears(workday, 2);
     }
 
     @Benchmark

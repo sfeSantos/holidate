@@ -123,6 +123,15 @@ class MalagaExampleTest {
     }
 
     @Test
+    void periodFiguresQuotedInTheReadme() {
+        var nov12 = LocalDate.of(2026, 11, 12);
+
+        assertEquals(3, MALAGA_CALENDAR.holidaysInMonth(YearMonth.of(2026, 12)).size());
+        assertEquals(5, MALAGA_CALENDAR.holidaysInNextMonths(nov12, 3).size());
+        assertEquals(28, MALAGA_CALENDAR.holidaysInNextYears(nov12, 2).size());
+    }
+
+    @Test
     void businessHoursFiguresQuotedInTheReadme() {
         var office = HolidayCalendar.builder()
                 .businessHours(LocalTime.of(9, 0), LocalTime.of(17, 30))

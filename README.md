@@ -121,6 +121,12 @@ calendar.holidayOn(LocalDate.of(2026, 11, 2));
 
 calendar.holidaysIn(Year.of(2026));                  // 14 occurrences, by date
 
+// A month, or a window that starts on a date: both go by observed date
+var nov12 = LocalDate.of(2026, 11, 12);
+calendar.holidaysInMonth(YearMonth.of(2026, 12));    // 3: 7, 8 and 25 December
+calendar.holidaysInNextMonths(nov12, 3);             // 5, up to Epifanía on 2027-01-06
+calendar.holidaysInNextYears(nov12, 2);              // 28, until 2028-11-12 exclusive
+
 // Navigation. "Next" and "previous" are exclusive; there are *Inclusive variants
 var dec9 = LocalDate.of(2026, 12, 9);
 calendar.nextHoliday(dec9);                          // Navidad, 2026-12-25
@@ -526,6 +532,15 @@ searches look at most one hundred years ahead or back and return empty beyond
 that; business day searches throw `IllegalStateException` when every day in
 that window is a weekend day or a holiday.
 
+**Periods.** `holidaysInMonth(YearMonth)`, `holidaysInNextMonths(from, n)`
+and `holidaysInNextYears(from, n)` are `holidaysBetween` with the range worked
+out, so they list holidays by observed date: a holiday on Sunday 31 May that
+is observed on Monday belongs to June. The window starts on `from`, inclusive,
+and ends on the same day `n` months or years later, exclusive; `0` gives an
+empty list and a negative `n` is rejected. Both take a `Clock` in place of the
+date to start today. `holidaysIn(Year)` is the one listing that goes by the
+year of the rule and the original date.
+
 **Months.** `firstBusinessDayOfMonth`, `lastBusinessDayOfMonth`,
 `nthBusinessDayOfMonth` and `businessDaysInMonth` take a `YearMonth`. `n` is
 1-based and a negative `n` counts from the end, so `-1` is the last business
@@ -664,7 +679,8 @@ for (var occurrence : calendar.holidaysIn(Year.of(2026))) {
 ### Asking questions (`io.github.sfesantos.holidays`)
 
 **`HolidayQueries`** holds everything about holidays: `isHoliday`,
-`holidayOn`, `holidaysIn`, `holidaysBetween`, `nextHoliday`,
+`holidayOn`, `holidaysIn`, `holidaysBetween`, `holidaysInMonth`,
+`holidaysInNextMonths`, `holidaysInNextYears`, `nextHoliday`,
 `previousHoliday`, `daysUntilNextHoliday`, their `Inclusive` variants, the
 `Clock` overloads for today and the `TemporalQuery` factories. See the
 [Málaga example](#example-málaga-spain).
@@ -938,6 +954,9 @@ second each. The targets are the ones the project set for itself at the start.
 | `nextBusinessDay(date)` | 6.6 ns | 24 B (the `LocalDate`) | |
 | `addBusinessDays(date, 2)` | 10.8 ns | 24 B | |
 | `businessDaysBetween` over 10 years | 48 ns | 0 B | < 5 µs |
+| `holidaysInMonth(month)` | 18 ns | 104 B for a list of 2 | |
+| `holidaysInNextMonths(date, 3)` | 34 ns | 144 B for a list of 3 | |
+| `holidaysInNextYears(date, 2)` | 106 ns | 672 B for a list of 28 | |
 | `businessDaysInMonth(month)` | 3.1 ns | 0 B | |
 | `lastBusinessDayOfMonth(month)` | 4.9 ns | 40 B (the `LocalDate` and its `Optional`) | |
 | `nthBusinessDayOfMonth(month, 5)` | 10.1 ns | 40 B | |
