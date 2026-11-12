@@ -1018,6 +1018,13 @@ between, about 6 ns for each one crossed, and allocate only what they return:
 a `LocalDateTime` with its `LocalDate`, plus a 24 B `LocalTime` when the
 result is not on the hour, or a `Duration`.
 
+Building a year's index resolves the rules of that year and of the one on
+each side, because observance can carry a holiday across a year end. A
+calendar with a rule moved by about a year, an Easter offset and shifts that
+add up to more than 351 days, resolves two years on each side instead, so a
+date like 31 December plus 366 days is indexed too. Other calendars pay
+nothing for that.
+
 Crossing a year costs no allocation either. The indexes sit in a small
 open-addressed table keyed by the year as an `int`, read without a lock, so a
 query that spans years never boxes a key. Up to 1.0.0 they sat in a
