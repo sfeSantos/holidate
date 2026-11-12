@@ -22,7 +22,7 @@ public final class CompiledCalendar extends IndexedCalendar {
     private final ObservanceRule observance;
     private final EasterAlgorithm easter;
     private final Set<HolidayType> nonWorkingTypes;
-    private final YearIndexBuilder indexBuilder = new YearIndexBuilder(this);
+    private final YearIndexBuilder indexBuilder;
 
     public CompiledCalendar(Weekend weekend, BusinessHours businessHours, List<ResolvedHoliday> holidays,
             ObservanceRule observance, EasterAlgorithm easter, Set<HolidayType> nonWorkingTypes) {
@@ -32,6 +32,7 @@ public final class CompiledCalendar extends IndexedCalendar {
         this.observance = observance;
         this.easter = easter;
         this.nonWorkingTypes = Set.copyOf(nonWorkingTypes);
+        this.indexBuilder = new YearIndexBuilder(this);
     }
 
     @Override

@@ -59,7 +59,7 @@
         { "additionalProperties": false, "required": ["hebrew"], "properties": { "hebrew": { "type": "string", "pattern": "^(NISAN|IYYAR|SIVAN|TAMMUZ|AV|ELUL|TISHRI|HESHVAN|KISLEV|TEVET|SHEVAT|ADAR_I|ADAR)-([1-9]|[12][0-9]|30)$", "description": "Hebrew month name and day, for example NISAN-15. ADAR is Adar II in a leap year; ADAR_I exists only in leap years." }, "shift": { "$ref": "#/$defs/shift" } } }
       ]
     },
-    "shift": { "type": "integer", "minimum": -366, "maximum": 366, "description": "Days added to the date the rule yields; negative is earlier. The date stays attributed to the year of the rule, also when the shift carries it into a neighbouring year." },
+    "shift": { "type": "integer", "minimum": -366, "maximum": 366, "description": "Days added to the date the rule yields; negative is earlier. The date stays attributed to the year of the rule, also when the shift carries it into another year." },
     "monthDay": { "type": "string", "pattern": "^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$", "description": "MM-DD" },
     "dayOfWeek": { "type": "string", "enum": ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"] },
     "month": { "type": "string", "enum": ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"] },

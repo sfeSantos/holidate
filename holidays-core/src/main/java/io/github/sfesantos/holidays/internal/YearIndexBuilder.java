@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import io.github.sfesantos.holidays.HolidayOccurrence;
+import io.github.sfesantos.holidays.HolidayRule;
 import io.github.sfesantos.holidays.ObservanceContext;
 import io.github.sfesantos.holidays.Weekend;
 import io.github.sfesantos.holidays.internal.LayerResolver.ResolvedHoliday;
@@ -17,28 +18,56 @@ import io.github.sfesantos.holidays.internal.LayerResolver.ResolvedHoliday;
  * Builds a {@link YearIndex}. Observance can push a holiday into the
  * neighbouring year (1 January on a Saturday observed on 31 December), so
  * the previous and next years are placed too and their spillovers kept.
+ * A calendar with a rule whose Easter offset and shifts add up to about a
+ * year can land a date two years away, and places two years on each side.
  */
 final class YearIndexBuilder {
 
     private static final Comparator<HolidayOccurrence> BY_OBSERVED = Comparator.comparing(HolidayOccurrence::observed);
     private static final Comparator<HolidayOccurrence> BY_ORIGINAL = Comparator.comparing(HolidayOccurrence::original);
 
+    /** A date moved by more days than this may leave the neighbouring year once observance has moved it too. */
+    private static final int NEAR_DAYS = 365 - 14;
+
     private final CompiledCalendar calendar;
+    private final int reach;
 
     YearIndexBuilder(CompiledCalendar calendar) {
         this.calendar = calendar;
+        this.reach = reachOf(calendar.holidays());
     }
 
     YearIndex build(int year) {
         var own = place(year);
         var observedHere = new ArrayList<HolidayOccurrence>();
-        collectObservedIn(year, place(year - 1), observedHere);
-        collectObservedIn(year, own, observedHere);
-        collectObservedIn(year, place(year + 1), observedHere);
+
+        for (int placed = year - reach; placed <= year + reach; placed++) {
+            collectObservedIn(year, placed == year ? own : place(placed), observedHere);
+        }
+
         observedHere.sort(BY_OBSERVED);
         own.sort(BY_ORIGINAL);
 
         return assemble(year, observedHere, own);
+    }
+
+    /** How many years on each side of a year can hold a date observed in it. */
+    private static int reachOf(List<ResolvedHoliday> holidays) {
+        for (var resolved : holidays) {
+            if (Math.abs(daysMoved(resolved.holiday().rule())) > NEAR_DAYS) {
+                return 2;
+            }
+        }
+
+        return 1;
+    }
+
+    private static long daysMoved(HolidayRule rule) {
+        return switch (rule) {
+            case HolidayRule.Shifted shifted -> shifted.days() + daysMoved(shifted.base());
+            case HolidayRule.EasterRelative easter -> easter.offsetDays();
+            default -> 0;
+        };
     }
 
     private YearIndex assemble(int year, List<HolidayOccurrence> observedHere, List<HolidayOccurrence> own) {

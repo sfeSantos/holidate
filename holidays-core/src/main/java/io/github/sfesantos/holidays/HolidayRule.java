@@ -254,8 +254,7 @@ public sealed interface HolidayRule {
 
     /**
      * Every date of {@code base} moved by {@code days}, negative for earlier. A date that leaves the year
-     * still belongs to the year of the base, and one that lands more than a year away from it is missing
-     * from the year index. Shifting a shifted rule nests it; the limit applies to the sum.
+     * still belongs to the year of the base. Shifting a shifted rule nests it; the limit applies to the sum.
      */
     record Shifted(HolidayRule base, int days) implements HolidayRule {
 
