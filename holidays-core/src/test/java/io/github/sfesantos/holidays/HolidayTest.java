@@ -89,6 +89,16 @@ class HolidayTest {
     }
 
     @Test
+    void customRuleOutsideItsYearFailsNamingTheHolidayAndTheDate() {
+        var far = Holiday.custom("Far", year -> Optional.of(LocalDate.of(year.getValue() + 3, 6, 1)));
+
+        var thrown = assertThrows(IllegalStateException.class, () -> far.datesIn(Year.of(2026), EASTER));
+
+        assertTrue(thrown.getMessage().contains("'Far'"), thrown.getMessage());
+        assertTrue(thrown.getMessage().contains("2029-06-01"), thrown.getMessage());
+    }
+
+    @Test
     void observanceIsInheritedUnlessOverridden() {
         var christmas = Holiday.fixed("Christmas", Month.DECEMBER, 25);
         var pinned = christmas.withObservance(ObservanceRule.none());

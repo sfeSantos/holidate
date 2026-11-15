@@ -2,12 +2,14 @@ package io.github.sfesantos.holidays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.Year;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -83,6 +85,26 @@ class FarRuleDatesTest {
         assertTrue(union.isHoliday(LocalDate.of(2028, 1, 1)));
         assertFalse(union.isBusinessDay(LocalDate.of(2028, 1, 1)));
         assertEquals(2, union.holidaysBetween(LocalDate.of(2028, 1, 1), LocalDate.of(2028, 5, 2)).size());
+    }
+
+    @Test
+    void aCustomRuleThreeYearsAheadIsRejectedInsteadOfListedUnindexed() {
+        var calendar = calendarOf(HolidayRule.custom(year -> Optional.of(LocalDate.of(year.getValue() + 3, 6, 1))));
+
+        var thrown = assertThrows(IllegalStateException.class, () -> calendar.holidaysIn(Year.of(2026)));
+
+        assertTrue(thrown.getMessage().contains("'Far'"), thrown.getMessage());
+        assertTrue(thrown.getMessage().contains("2029-06-01"), thrown.getMessage());
+        assertThrows(IllegalStateException.class, () -> calendar.isHoliday(LocalDate.of(2029, 6, 1)));
+    }
+
+    @Test
+    void aShiftedCustomRuleIsIndexedAcrossTheYearEnd() {
+        var calendar = calendarOf(HolidayRule.custom(year -> Optional.of(year.atDay(year.length()))).plusDays(1));
+
+        assertEquals(List.of(LocalDate.of(2027, 1, 1)), observedIn(calendar, 2026));
+        assertTrue(calendar.isHoliday(LocalDate.of(2027, 1, 1)));
+        assertEveryOccurrenceIsIndexed(calendar);
     }
 
     private static HolidayCalendar calendarOf(HolidayRule rule) {
