@@ -140,6 +140,10 @@ calendar.nthBusinessDayOfMonth(YearMonth.of(2026, 1), 5);   // Optional[2026-01-
 calendar.lastBusinessDayOfMonth(YearMonth.of(2026, 12));    // Optional[2026-12-31]
 calendar.businessDaysInMonth(YearMonth.of(2026, 12));       // 20
 
+// Bridge days: business days wedged between holidays and weekends
+calendar.bridgeDays(Year.of(2026));      // [2026-01-02, 2026-01-05, 2026-09-07]
+calendar.bridgeDays(Year.of(2026), 2);   // also 17, 18, 20 and 21 August, around the Wednesday holiday
+
 // java.time integration: adjusters keep the time of day, queries work on any temporal
 LocalDateTime.of(2026, 12, 24, 18, 0).with(calendar.nextBusinessDayAdjuster()); // 2026-12-28T18:00
 LocalDate.of(2026, 12, 25).query(calendar.isHolidayQuery());                   // true
@@ -723,7 +727,9 @@ for (var occurrence : calendar.holidaysIn(Year.of(2026))) {
 **`BusinessDayQueries`** holds everything about working days: `isBusinessDay`,
 `nextBusinessDay`, `addBusinessDays`, `businessDaysBetween`, the month
 queries (`firstBusinessDayOfMonth`, `lastBusinessDayOfMonth`,
-`nthBusinessDayOfMonth`, `businessDaysInMonth`), `adjust` with a
+`nthBusinessDayOfMonth`, `businessDaysInMonth`), `bridgeDays` (the business
+days wedged between holidays and weekends, alone or in runs up to a length
+you choose), `adjust` with a
 convention or a cut-off, `businessHoursOn`, `isOpen`, `isHalfDay`,
 `addBusinessHours`, `businessDurationBetween`, the
 `TemporalAdjuster` factories and the `Clock` overloads. See
@@ -997,6 +1003,8 @@ second each. The targets are the ones the project set for itself at the start.
 | `businessDaysInMonth(month)` | 3.1 ns | 0 B | |
 | `lastBusinessDayOfMonth(month)` | 4.9 ns | 40 B (the `LocalDate` and its `Optional`) | |
 | `nthBusinessDayOfMonth(month, 5)` | 10.1 ns | 40 B | |
+| `bridgeDays(year)` | 212 ns | 176 B for a list of 3 | |
+| `bridgeDays(year, 2)` | 225 ns | 272 B for a list of 7 | |
 | `addBusinessHours` over 1 business day | 20 ns | 48 B (the `LocalDateTime` and its `LocalDate`) | |
 | `addBusinessHours` over 10 business days | 54 ns | 48 B | |
 | `addBusinessHours` over 1000 business days | 6.1 µs | 48 B | |

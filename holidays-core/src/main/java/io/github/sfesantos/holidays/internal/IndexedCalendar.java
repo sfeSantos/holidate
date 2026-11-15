@@ -11,6 +11,7 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalQuery;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -565,6 +566,87 @@ public abstract class IndexedCalendar implements HolidayCalendar {
         int found = index.nthBusinessDay(before + (int) position);
 
         return Optional.of(month.atDay(found - start + 1));
+    }
+
+    @Override
+    public List<LocalDate> bridgeDays(Year year, int maxLength) {
+        Objects.requireNonNull(year, "year must not be null");
+
+        if (maxLength < 1) {
+            throw new IllegalArgumentException("maxLength must be at least 1: " + maxLength);
+        }
+
+        var yearValue = year.getValue();
+        var index = index(yearValue);
+        var bridges = new ArrayList<LocalDate>();
+        var start = index.businessDayAtOrAfter(1);
+
+        while (start > 0) {
+            var after = index.nonBusinessDayAtOrAfter(start);
+            var end = after > 0 ? after - 1 : index.length();
+            var run = end - start + 1L;
+
+            if (run <= maxLength && start == 1) {
+                run += businessDaysEnding(yearValue - 1, maxLength);
+            }
+
+            if (run <= maxLength && after < 0) {
+                run += businessDaysStarting(yearValue + 1, maxLength);
+            }
+
+            if (run <= maxLength) {
+                for (var day = start; day <= end; day++) {
+                    bridges.add(LocalDate.ofYearDay(yearValue, day));
+                }
+            }
+
+            start = after > 0 ? index.businessDayAtOrAfter(after) : -1;
+        }
+
+        return Collections.unmodifiableList(bridges);
+    }
+
+    /**
+     * Business days in a row up to 31 December of the year, counted up to {@code limit}; more than
+     * {@code limit} when the search horizon holds no day off, so an endless run is never a bridge.
+     */
+    private long businessDaysEnding(int year, int limit) {
+        var firstYear = Math.max(year - SEARCH_HORIZON_YEARS + 1, Year.MIN_VALUE);
+        var count = 0;
+
+        for (var current = year; current >= firstYear; current--) {
+            var index = index(current);
+
+            for (var day = index.length(); day >= 1; day--) {
+                if (count == limit || !index.isBusinessDay(day)) {
+                    return count;
+                }
+
+                count++;
+            }
+        }
+
+        return limit + 1L;
+    }
+
+    /** As {@link #businessDaysEnding(int, int)}, forward from 1 January of the year. */
+    private long businessDaysStarting(int year, int limit) {
+        var lastYear = Math.min(year + SEARCH_HORIZON_YEARS - 1, Year.MAX_VALUE);
+        var count = 0;
+
+        for (var current = year; current <= lastYear; current++) {
+            var index = index(current);
+
+            for (var day = 1; day <= index.length(); day++) {
+                if (count == limit || !index.isBusinessDay(day)) {
+                    return count;
+                }
+
+                count++;
+            }
+        }
+
+        return limit + 1L;
     }
 
     private static int firstDayOfYear(YearMonth month) {

@@ -44,6 +44,7 @@ public class QueryBenchmark {
     LocalDate start;
     LocalDate tenYearsLater;
     YearMonth january;
+    Year year;
 
     @Setup
     public void setUp() {
@@ -61,6 +62,7 @@ public class QueryBenchmark {
         start = LocalDate.of(2026, 1, 1);
         tenYearsLater = LocalDate.of(2036, 1, 1);
         january = YearMonth.of(2026, 1);
+        year = Year.of(2026);
     }
 
     @Benchmark
@@ -116,6 +118,16 @@ public class QueryBenchmark {
     @Benchmark
     public int businessDaysInMonth() {
         return malaga.businessDaysInMonth(january);
+    }
+
+    @Benchmark
+    public List<LocalDate> bridgeDays() {
+        return malaga.bridgeDays(year);
+    }
+
+    @Benchmark
+    public List<LocalDate> bridgeDaysUpToTwo() {
+        return malaga.bridgeDays(year, 2);
     }
 
     @Benchmark
