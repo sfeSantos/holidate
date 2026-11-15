@@ -1003,6 +1003,8 @@ second each. The targets are the ones the project set for itself at the start.
 | `businessDaysInMonth(month)` | 3.1 ns | 0 B | |
 | `lastBusinessDayOfMonth(month)` | 4.9 ns | 40 B (the `LocalDate` and its `Optional`) | |
 | `nthBusinessDayOfMonth(month, 5)` | 10.1 ns | 40 B | |
+| `bridgeDays(year)` | 212 ns | 176 B for a list of 3 | |
+| `bridgeDays(year, 2)` | 225 ns | 272 B for a list of 7 | |
 | `addBusinessHours` over 1 business day | 20 ns | 48 B (the `LocalDateTime` and its `LocalDate`) | |
 | `addBusinessHours` over 10 business days | 54 ns | 48 B | |
 | `addBusinessHours` over 1000 business days | 6.1 µs | 48 B | |
