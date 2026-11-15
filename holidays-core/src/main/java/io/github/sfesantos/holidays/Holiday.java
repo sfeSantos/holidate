@@ -58,6 +58,7 @@ public record Holiday(String name, HolidayType type, HolidayRule rule, YearRange
         return of(name, HolidayRule.easterRelative(offsetDays));
     }
 
+    /** See {@link HolidayRule.Custom} for what the function may return. */
     public static Holiday custom(String name, Function<Year, Optional<LocalDate>> function) {
         return of(name, HolidayRule.custom(function));
     }
@@ -109,7 +110,11 @@ public record Holiday(String name, HolidayType type, HolidayRule rule, YearRange
             return List.of();
         }
 
-        return rule.datesIn(year, easter);
+        try {
+            return rule.datesIn(year, easter);
+        } catch (IllegalStateException e) {
+            throw new IllegalStateException("holiday '" + name + "': " + e.getMessage(), e);
+        }
     }
 
     /** The first date in the year; see {@link HolidayRule#dateIn}. */

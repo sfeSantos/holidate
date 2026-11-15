@@ -524,7 +524,10 @@ Gregorian year. `rule.plusDays(n)`, or `HolidayRule.shifted(rule, n)`, moves
 every date of another rule by `n` days, earlier when `n` is negative. A date
 shifted across the year end still belongs to the year of the rule it came
 from: 31 December plus one is listed by `holidaysIn(Year.of(2026))` with
-the date 1 January 2027.
+the date 1 January 2027. A `custom` function must answer with a date in the
+year it is asked about, or empty; a date in any other year fails with an
+`IllegalStateException` that names the holiday. Wrap it in `plusDays` when
+the date has to cross the year end.
 A `Holiday` is a rule plus a name, a `HolidayType` and a validity range
 (`validFrom`, `validUntil`).
 

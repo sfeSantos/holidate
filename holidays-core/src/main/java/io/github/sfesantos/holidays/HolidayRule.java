@@ -92,6 +92,7 @@ public sealed interface HolidayRule {
         return new WeekdayBefore(dayOfWeek, base);
     }
 
+    /** A rule computed by a function; see {@link Custom} for what the function may return. */
     static Custom custom(Function<Year, Optional<LocalDate>> function) {
         return new Custom(function);
     }
@@ -141,7 +142,14 @@ public sealed interface HolidayRule {
     }
 
     private static Optional<LocalDate> custom(Custom rule, Year year) {
-        return Objects.requireNonNull(rule.function().apply(year), "custom rule returned null");
+        var result = Objects.requireNonNull(rule.function().apply(year), "custom rule returned null");
+
+        if (result.isPresent() && result.get().getYear() != year.getValue()) {
+            throw new IllegalStateException("custom rule returned " + result.get() + " for " + year
+                    + "; it must return a date in the year it is asked about");
+        }
+
+        return result;
     }
 
     private static List<LocalDate> hebrew(Hebrew rule, Year year) {
@@ -245,6 +253,10 @@ public sealed interface HolidayRule {
         }
     }
 
+    /**
+     * The function must answer with a date in the year it is asked about, or empty; any other year fails with
+     * an {@link IllegalStateException} when the rule is resolved. Use {@link #plusDays} to cross the year end.
+     */
     record Custom(Function<Year, Optional<LocalDate>> function) implements HolidayRule {
 
         public Custom {

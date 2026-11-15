@@ -164,6 +164,25 @@ class HolidayRuleTest {
 
             assertThrows(NullPointerException.class, () -> resolve(rule, 2026));
         }
+
+        @Test
+        void rejectsADateInAnotherYear() {
+            var ahead = HolidayRule.custom(year -> Optional.of(LocalDate.of(year.getValue() + 3, 6, 1)));
+            var behind = HolidayRule.custom(year -> Optional.of(year.atDay(1).minusDays(1)));
+
+            var thrown = assertThrows(IllegalStateException.class, () -> resolve(ahead, 2026));
+
+            assertTrue(thrown.getMessage().contains("2029-06-01"), thrown.getMessage());
+            assertTrue(thrown.getMessage().contains("for 2026"), thrown.getMessage());
+            assertThrows(IllegalStateException.class, () -> resolve(behind, 2026));
+        }
+
+        @Test
+        void aShiftMayCarryItsDateOutOfTheYear() {
+            var rule = HolidayRule.custom(year -> Optional.of(year.atDay(year.length()))).plusDays(1);
+
+            assertEquals(Optional.of(LocalDate.of(2027, 1, 1)), resolve(rule, 2026));
+        }
     }
 
     @Nested
