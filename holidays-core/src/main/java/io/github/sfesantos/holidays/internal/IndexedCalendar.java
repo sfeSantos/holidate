@@ -576,27 +576,27 @@ public abstract class IndexedCalendar implements HolidayCalendar {
             throw new IllegalArgumentException("maxLength must be at least 1: " + maxLength);
         }
 
-        int y = year.getValue();
-        var index = index(y);
+        var yearValue = year.getValue();
+        var index = index(yearValue);
         var bridges = new ArrayList<LocalDate>();
-        int start = index.businessDayAtOrAfter(1);
+        var start = index.businessDayAtOrAfter(1);
 
         while (start > 0) {
-            int after = index.nonBusinessDayAtOrAfter(start);
-            int end = after > 0 ? after - 1 : index.length();
-            long run = end - start + 1;
+            var after = index.nonBusinessDayAtOrAfter(start);
+            var end = after > 0 ? after - 1 : index.length();
+            var run = end - start + 1L;
 
             if (run <= maxLength && start == 1) {
-                run += businessDaysEnding(y - 1, maxLength);
+                run += businessDaysEnding(yearValue - 1, maxLength);
             }
 
             if (run <= maxLength && after < 0) {
-                run += businessDaysStarting(y + 1, maxLength);
+                run += businessDaysStarting(yearValue + 1, maxLength);
             }
 
             if (run <= maxLength) {
-                for (int day = start; day <= end; day++) {
-                    bridges.add(LocalDate.ofYearDay(y, day));
+                for (var day = start; day <= end; day++) {
+                    bridges.add(LocalDate.ofYearDay(yearValue, day));
                 }
             }
 
@@ -611,13 +611,13 @@ public abstract class IndexedCalendar implements HolidayCalendar {
      * {@code limit} when the search horizon holds no day off, so an endless run is never a bridge.
      */
     private long businessDaysEnding(int year, int limit) {
-        int firstYear = Math.max(year - SEARCH_HORIZON_YEARS + 1, Year.MIN_VALUE);
-        int count = 0;
+        var firstYear = Math.max(year - SEARCH_HORIZON_YEARS + 1, Year.MIN_VALUE);
+        var count = 0;
 
-        for (int y = year; y >= firstYear; y--) {
-            var index = index(y);
+        for (var current = year; current >= firstYear; current--) {
+            var index = index(current);
 
-            for (int day = index.length(); day >= 1; day--) {
+            for (var day = index.length(); day >= 1; day--) {
                 if (count == limit || !index.isBusinessDay(day)) {
                     return count;
                 }
@@ -631,13 +631,13 @@ public abstract class IndexedCalendar implements HolidayCalendar {
 
     /** As {@link #businessDaysEnding(int, int)}, forward from 1 January of the year. */
     private long businessDaysStarting(int year, int limit) {
-        int lastYear = Math.min(year + SEARCH_HORIZON_YEARS - 1, Year.MAX_VALUE);
-        int count = 0;
+        var lastYear = Math.min(year + SEARCH_HORIZON_YEARS - 1, Year.MAX_VALUE);
+        var count = 0;
 
-        for (int y = year; y <= lastYear; y++) {
-            var index = index(y);
+        for (var current = year; current <= lastYear; current++) {
+            var index = index(current);
 
-            for (int day = 1; day <= index.length(); day++) {
+            for (var day = 1; day <= index.length(); day++) {
                 if (count == limit || !index.isBusinessDay(day)) {
                     return count;
                 }

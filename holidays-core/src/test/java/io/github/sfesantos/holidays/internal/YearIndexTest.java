@@ -135,13 +135,13 @@ class YearIndexTest {
 
     @Test
     void nonBusinessDayAtOrAfterMatchesADayByDayScan() {
-        for (int year : new int[] {2026, 2028}) {
+        for (var year : new int[] {2026, 2028}) {
             var index = calendarWith(ObservanceRule.none(), NEW_YEAR, CHRISTMAS, BOXING_DAY).index(year);
 
-            for (int from = 1; from <= index.length() + 1; from++) {
-                int expected = -1;
+            for (var from = 1; from <= index.length() + 1; from++) {
+                var expected = -1;
 
-                for (int day = from; day <= index.length() && expected < 0; day++) {
+                for (var day = from; day <= index.length() && expected < 0; day++) {
                     expected = index.isBusinessDay(day) ? -1 : day;
                 }
 

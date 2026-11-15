@@ -24,9 +24,9 @@ final class BridgeDays {
             throw new IllegalArgumentException("maxLength must be at least 1: " + maxLength);
         }
 
-        int length = year.length();
+        var length = year.length();
         var bridges = new ArrayList<LocalDate>();
-        int day = 1;
+        var day = 1;
 
         while (day <= length) {
             if (!calendar.isBusinessDay(year.atDay(day))) {
@@ -34,13 +34,13 @@ final class BridgeDays {
                 continue;
             }
 
-            int start = day;
+            var start = day;
 
             while (day <= length && calendar.isBusinessDay(year.atDay(day))) {
                 day++;
             }
 
-            long run = day - start;
+            var run = (long) (day - start);
 
             if (run <= maxLength && start == 1) {
                 run += adjacent(calendar, year.atDay(1), -1, maxLength);
@@ -51,8 +51,8 @@ final class BridgeDays {
             }
 
             if (run <= maxLength) {
-                for (int d = start; d < day; d++) {
-                    bridges.add(year.atDay(d));
+                for (var bridgeDay = start; bridgeDay < day; bridgeDay++) {
+                    bridges.add(year.atDay(bridgeDay));
                 }
             }
         }
@@ -68,7 +68,7 @@ final class BridgeDays {
     private static long adjacent(BusinessDayQueries calendar, LocalDate from, int step, int limit) {
         var edge = step < 0 ? LocalDate.MIN : LocalDate.MAX;
         var day = from;
-        int count = 0;
+        var count = 0;
 
         while (count < limit && !day.equals(edge)) {
             day = day.plusDays(step);

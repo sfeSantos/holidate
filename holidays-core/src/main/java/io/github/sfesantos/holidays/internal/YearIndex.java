@@ -83,8 +83,8 @@ public final class YearIndex {
             return -1;
         }
 
-        int word = dayOfYear >>> 6;
-        long bits = ~businessDays[word] & (-1L << (dayOfYear & 63));
+        var word = dayOfYear >>> 6;
+        var bits = ~businessDays[word] & (-1L << (dayOfYear & 63));
 
         while (bits == 0) {
             word++;
@@ -96,7 +96,7 @@ public final class YearIndex {
             bits = ~businessDays[word];
         }
 
-        int found = (word << 6) + Long.numberOfTrailingZeros(bits);
+        var found = (word << 6) + Long.numberOfTrailingZeros(bits);
 
         return found <= length ? found : -1;
     }

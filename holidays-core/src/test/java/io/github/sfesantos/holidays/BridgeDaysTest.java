@@ -144,8 +144,8 @@ class BridgeDaysTest {
         for (var calendar : List.of(SPAIN, NEVER, ALWAYS, yearEnd)) {
             var foreign = withDefaultMethods(calendar);
 
-            for (int year = 2020; year <= 2035; year++) {
-                for (int maxLength = 1; maxLength <= 6; maxLength++) {
+            for (var year = 2020; year <= 2035; year++) {
+                for (var maxLength = 1; maxLength <= 6; maxLength++) {
                     assertEquals(foreign.bridgeDays(Year.of(year), maxLength), calendar.bridgeDays(Year.of(year), maxLength),
                             year + " up to " + maxLength);
                 }
@@ -155,8 +155,8 @@ class BridgeDaysTest {
 
     @Test
     void everyBridgeDayIsABusinessDayInABoundedRunOfTheAllowedLength() {
-        for (int year = 2020; year <= 2035; year++) {
-            for (int maxLength = 1; maxLength <= 4; maxLength++) {
+        for (var year = 2020; year <= 2035; year++) {
+            for (var maxLength = 1; maxLength <= 4; maxLength++) {
                 var bridges = SPAIN.bridgeDays(Year.of(year), maxLength);
 
                 assertEquals(bridges.stream().sorted().distinct().toList(), bridges);

@@ -24,15 +24,15 @@ class BridgeDaysTest {
         for (var id : Observed.REGISTRY.layerIds()) {
             var calendar = Observed.calendar(id);
 
-            for (int year = 2024; year <= 2030; year++) {
+            for (var year = 2024; year <= 2030; year++) {
                 var single = calendar.bridgeDays(Year.of(year), 1);
                 var upToTwo = calendar.bridgeDays(Year.of(year), 2);
 
                 assertTrue(upToTwo.containsAll(single), id + " " + year);
 
                 for (var day : upToTwo) {
-                    boolean before = calendar.isBusinessDay(day.minusDays(1));
-                    boolean after = calendar.isBusinessDay(day.plusDays(1));
+                    var before = calendar.isBusinessDay(day.minusDays(1));
+                    var after = calendar.isBusinessDay(day.plusDays(1));
 
                     assertTrue(calendar.isBusinessDay(day), id + " " + day);
                     assertFalse(before && after, id + " " + day);
