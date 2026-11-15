@@ -123,6 +123,22 @@ class MalagaExampleTest {
     }
 
     @Test
+    void bridgeDaysQuotedInTheReadme() {
+        var bridges = MALAGA_CALENDAR.bridgeDays(Year.of(2026));
+
+        assertEquals(List.of(LocalDate.of(2026, 1, 2), LocalDate.of(2026, 1, 5), LocalDate.of(2026, 9, 7)), bridges);
+        assertFalse(bridges.contains(LocalDate.of(2026, 12, 24)));
+        assertEquals(List.of(
+                LocalDate.of(2026, 1, 2),
+                LocalDate.of(2026, 1, 5),
+                LocalDate.of(2026, 8, 17),
+                LocalDate.of(2026, 8, 18),
+                LocalDate.of(2026, 8, 20),
+                LocalDate.of(2026, 8, 21),
+                LocalDate.of(2026, 9, 7)), MALAGA_CALENDAR.bridgeDays(Year.of(2026), 2));
+    }
+
+    @Test
     void periodFiguresQuotedInTheReadme() {
         var nov12 = LocalDate.of(2026, 11, 12);
 

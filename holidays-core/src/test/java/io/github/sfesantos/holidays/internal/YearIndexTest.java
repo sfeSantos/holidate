@@ -20,6 +20,7 @@ import io.github.sfesantos.holidays.HolidayRule;
 import io.github.sfesantos.holidays.HolidayType;
 import io.github.sfesantos.holidays.Layer;
 import io.github.sfesantos.holidays.ObservanceRule;
+import io.github.sfesantos.holidays.Weekend;
 
 class YearIndexTest {
 
@@ -130,6 +131,31 @@ class YearIndexTest {
 
         assertEquals(seen, index.businessDaysBefore(index.length() + 1));
         assertEquals(seen, index.businessDaysInYear());
+    }
+
+    @Test
+    void nonBusinessDayAtOrAfterMatchesADayByDayScan() {
+        for (int year : new int[] {2026, 2028}) {
+            var index = calendarWith(ObservanceRule.none(), NEW_YEAR, CHRISTMAS, BOXING_DAY).index(year);
+
+            for (int from = 1; from <= index.length() + 1; from++) {
+                int expected = -1;
+
+                for (int day = from; day <= index.length() && expected < 0; day++) {
+                    expected = index.isBusinessDay(day) ? -1 : day;
+                }
+
+                assertEquals(expected, index.nonBusinessDayAtOrAfter(from), year + " from " + from);
+            }
+        }
+    }
+
+    @Test
+    void nonBusinessDayAtOrAfterIsAbsentWhenEveryDayIsABusinessDay() {
+        var index = compile(HolidayCalendar.builder().weekend(Weekend.none())).index(2028);
+
+        assertEquals(-1, index.nonBusinessDayAtOrAfter(1));
+        assertEquals(-1, index.nonBusinessDayAtOrAfter(366));
     }
 
     @Test

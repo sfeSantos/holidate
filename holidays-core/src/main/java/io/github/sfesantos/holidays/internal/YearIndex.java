@@ -77,6 +77,30 @@ public final class YearIndex {
         return (word << 6) + Long.numberOfTrailingZeros(bits);
     }
 
+    /** The first day at or after the given day of year that is not a business day, or -1 when the rest of the year is. */
+    public int nonBusinessDayAtOrAfter(int dayOfYear) {
+        if (dayOfYear > length) {
+            return -1;
+        }
+
+        int word = dayOfYear >>> 6;
+        long bits = ~businessDays[word] & (-1L << (dayOfYear & 63));
+
+        while (bits == 0) {
+            word++;
+
+            if (word == WORDS) {
+                return -1;
+            }
+
+            bits = ~businessDays[word];
+        }
+
+        int found = (word << 6) + Long.numberOfTrailingZeros(bits);
+
+        return found <= length ? found : -1;
+    }
+
     /** The last business day at or before the given day of year, or -1 when the year has none before it. */
     public int businessDayAtOrBefore(int dayOfYear) {
         if (dayOfYear < 1) {

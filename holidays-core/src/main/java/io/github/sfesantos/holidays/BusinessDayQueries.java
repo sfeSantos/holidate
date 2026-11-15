@@ -6,11 +6,13 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Year;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalQuery;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -169,6 +171,28 @@ public interface BusinessDayQueries {
         int steps = (int) position - (isBusinessDay(first) ? 1 : 0);
 
         return Optional.of(addBusinessDays(first, steps));
+    }
+
+    /** The single business days of the year wedged between two non-working days; {@code bridgeDays(year, 1)}. */
+    default List<LocalDate> bridgeDays(Year year) {
+        return bridgeDays(year, 1);
+    }
+
+    /**
+     * The business days of the year that belong to a bridge: a run of at most
+     * {@code maxLength} business days in a row with a weekend day or a
+     * non-working holiday right before and right after it. With 2, a
+     * Wednesday holiday makes a bridge of the Thursday and Friday after it,
+     * and both are returned. A run that crosses the year end is measured
+     * whole and each year lists its own days. Sorted and unmodifiable.
+     *
+     * <p>A length that reaches the ordinary working week (5 with a Saturday
+     * and Sunday weekend) returns every business day.
+     *
+     * @throws IllegalArgumentException when {@code maxLength} is less than 1
+     */
+    default List<LocalDate> bridgeDays(Year year, int maxLength) {
+        return BridgeDays.in(this, year, maxLength);
     }
 
     default boolean isBusinessDayToday(Clock clock) {

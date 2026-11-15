@@ -140,6 +140,10 @@ calendar.nthBusinessDayOfMonth(YearMonth.of(2026, 1), 5);   // Optional[2026-01-
 calendar.lastBusinessDayOfMonth(YearMonth.of(2026, 12));    // Optional[2026-12-31]
 calendar.businessDaysInMonth(YearMonth.of(2026, 12));       // 20
 
+// Bridge days: business days wedged between holidays and weekends
+calendar.bridgeDays(Year.of(2026));      // [2026-01-02, 2026-01-05, 2026-09-07]
+calendar.bridgeDays(Year.of(2026), 2);   // also 17, 18, 20 and 21 August, around the Wednesday holiday
+
 // java.time integration: adjusters keep the time of day, queries work on any temporal
 LocalDateTime.of(2026, 12, 24, 18, 0).with(calendar.nextBusinessDayAdjuster()); // 2026-12-28T18:00
 LocalDate.of(2026, 12, 25).query(calendar.isHolidayQuery());                   // true
@@ -723,7 +727,9 @@ for (var occurrence : calendar.holidaysIn(Year.of(2026))) {
 **`BusinessDayQueries`** holds everything about working days: `isBusinessDay`,
 `nextBusinessDay`, `addBusinessDays`, `businessDaysBetween`, the month
 queries (`firstBusinessDayOfMonth`, `lastBusinessDayOfMonth`,
-`nthBusinessDayOfMonth`, `businessDaysInMonth`), `adjust` with a
+`nthBusinessDayOfMonth`, `businessDaysInMonth`), `bridgeDays` (the business
+days wedged between holidays and weekends, alone or in runs up to a length
+you choose), `adjust` with a
 convention or a cut-off, `businessHoursOn`, `isOpen`, `isHalfDay`,
 `addBusinessHours`, `businessDurationBetween`, the
 `TemporalAdjuster` factories and the `Clock` overloads. See
