@@ -29,9 +29,9 @@ Version 1.0.0 is on Maven Central. It covers rules, layers, observance, the
 queries, navigation (`nextHoliday`, `addBusinessDays`, `businessDaysBetween`),
 `TemporalAdjuster` and `TemporalQuery` integration, `Clock` overloads, `union`
 of calendars, payment date conventions and cut-off times, business hours and
-half days, Islamic and Hebrew calendar rules, the JSON data format, a calendar
-registry with a provider SPI and the `holidays-data` module with Spain and
-Brazil. The public API is stable from this version on; see
+half days, Islamic and Hebrew calendar rules, the JSON data format, iCalendar
+(`.ics`) export, a calendar registry with a provider SPI and the
+`holidays-data` module with Spain and Brazil. The public API is stable from this version on; see
 [Versioning](#versioning). The roadmap is the
 [issue list](https://github.com/sfeSantos/holidate/issues).
 
@@ -413,6 +413,21 @@ Optional members on a holiday:
 and observances exist only in Java and cannot be written. The JSON Schema
 ships in the jar at `META-INF/holidays/holidays.schema.json`, so files can be
 validated with any tool before loading.
+
+To see the holidays in Outlook, Google Calendar or a phone, export the
+calendar as iCalendar. `ICalendar.write` produces one all-day event per
+holiday on its observed date, for every year from the first to the last
+given, both inclusive:
+
+```java
+ICalendar.write(calendar, "ES-AN-MA", Year.of(2026), Year.of(2027), Clock.systemUTC(), Path.of("malaga.ics"));
+```
+
+A calendar has no name of its own, so you pass one. It names the calendar in
+the client and is part of each event's `UID`, together with the layer, the
+holiday name and the date. Export again with the same name and the client
+updates the events it already has instead of adding them twice. The clock
+only stamps `DTSTAMP`. This is export only: the library does not read `.ics`.
 
 ## Country packs and the registry
 
@@ -804,6 +819,20 @@ try {
 } catch (HolidayFormatException e) {
     log.error("ES.json line {} column {}: {}", e.line(), e.column(), e.getMessage());
 }
+```
+
+**`ICalendar`** writes a calendar's holidays as iCalendar (RFC 5545) text.
+`write(calendar, name, from, until, clock)` returns the text, and the same
+call with a `Writer` or a `Path` at the end sends it there, as UTF-8. Each
+occurrence is an all-day `VEVENT` with the name in `SUMMARY`, the
+`HolidayType` in `CATEGORIES` and the type, the layer and, for a moved
+holiday, the original date in `DESCRIPTION`. Lines are folded at 75 octets and
+text is escaped as the RFC asks. Years are listed with `holidaysIn(Year)`, so
+a moved or shifted date can fall in a neighbouring year.
+
+```java
+var ics = ICalendar.write(calendar, "ES-AN-MA", Year.of(2026), Year.of(2026), Clock.systemUTC());
+// BEGIN:VCALENDAR, VERSION:2.0, ... 14 VEVENTs ... END:VCALENDAR
 ```
 
 ### Registry (`io.github.sfesantos.holidays.registry`)
