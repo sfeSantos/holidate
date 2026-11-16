@@ -440,6 +440,7 @@ packs ship:
 | `BR` | Brazil | `BR`, `BR-RJ`, `BR-RJ-RIO` | Federal law, Rio de Janeiro state and city law |
 | `CZ` | Czechia | `CZ` | Zákon č. 245/2000 Sb. |
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
+| `HR` | Croatia | `HR` | Zakon o blagdanima, spomendanima i neradnim danima (NN 110/2019) |
 | `HU` | Hungary | `HU` | Labour Code (2012. évi I. törvény), § 102 |
 | `PL` | Poland | `PL` | Ustawa o dniach wolnych od pracy (1951) |
 | `SI` | Slovenia | `SI` | Zakon o praznikih in dela prostih dnevih (ZPDPD) |
