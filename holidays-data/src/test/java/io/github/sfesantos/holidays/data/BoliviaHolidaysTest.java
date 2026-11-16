@@ -18,36 +18,47 @@ import org.junit.jupiter.api.Test;
  * extra holidays are those of Decreto Supremo 5438 (7 August 2025), 5506 (26
  * December 2025), 5510 (2 January 2026) and 5521 (5 June and 7 August 2026).
  *
- * <p>22 January, Día de la Creación del Estado Plurinacional de Bolivia, is
- * not in the pack: Decreto Supremo 5521 moved it to Friday 23 January for
- * 2026 only, and no rule gives the three years. The lists below are the
- * national holidays without it.
+ * <p>22 January, Día de la Creación del Estado Plurinacional de Bolivia,
+ * stays on its date from 2027. Decreto Supremo 5521 moved it to Friday 23
+ * January for 2026 only, so 2025 and 2026 are dated one-offs.
  */
 class BoliviaHolidaysTest {
 
     @Test
     void national2025() {
         assertEquals(List.of(
-                d(2025, 1, 1), d(2025, 3, 3), d(2025, 3, 4), d(2025, 4, 18), d(2025, 5, 1), d(2025, 6, 19),
-                d(2025, 6, 21), d(2025, 8, 6), d(2025, 8, 7), d(2025, 11, 3), d(2025, 12, 25), d(2025, 12, 26)),
+                d(2025, 1, 1), d(2025, 1, 22), d(2025, 3, 3), d(2025, 3, 4), d(2025, 4, 18), d(2025, 5, 1),
+                d(2025, 6, 19), d(2025, 6, 21), d(2025, 8, 6), d(2025, 8, 7), d(2025, 11, 3), d(2025, 12, 25),
+                d(2025, 12, 26)),
                 Observed.datesIn("BO", 2025));
     }
 
     @Test
     void national2026() {
         assertEquals(List.of(
-                d(2026, 1, 1), d(2026, 1, 2), d(2026, 2, 16), d(2026, 2, 17), d(2026, 4, 3), d(2026, 5, 1),
-                d(2026, 6, 4), d(2026, 6, 5), d(2026, 6, 22), d(2026, 8, 6), d(2026, 8, 7), d(2026, 11, 2),
-                d(2026, 12, 25)),
+                d(2026, 1, 1), d(2026, 1, 2), d(2026, 1, 23), d(2026, 2, 16), d(2026, 2, 17), d(2026, 4, 3),
+                d(2026, 5, 1), d(2026, 6, 4), d(2026, 6, 5), d(2026, 6, 22), d(2026, 8, 6), d(2026, 8, 7),
+                d(2026, 11, 2), d(2026, 12, 25)),
                 Observed.datesIn("BO", 2026));
     }
 
     @Test
     void national2027() {
         assertEquals(List.of(
-                d(2027, 1, 1), d(2027, 2, 8), d(2027, 2, 9), d(2027, 3, 26), d(2027, 5, 1), d(2027, 5, 27),
-                d(2027, 6, 21), d(2027, 8, 6), d(2027, 11, 2), d(2027, 12, 25)),
+                d(2027, 1, 1), d(2027, 1, 22), d(2027, 2, 8), d(2027, 2, 9), d(2027, 3, 26), d(2027, 5, 1),
+                d(2027, 5, 27), d(2027, 6, 21), d(2027, 8, 6), d(2027, 11, 2), d(2027, 12, 25)),
                 Observed.datesIn("BO", 2027));
+    }
+
+    @Test
+    void plurinationalStateDayIsPinnedIn2026AndFixedFrom2027() {
+        var bolivia = Observed.calendar("BO");
+
+        assertFalse(bolivia.isBusinessDay(d(2025, 1, 22)));
+        assertTrue(bolivia.isBusinessDay(d(2026, 1, 22)));
+        assertFalse(bolivia.isBusinessDay(d(2026, 1, 23)));
+        assertFalse(bolivia.isBusinessDay(d(2027, 1, 22)));
+        assertFalse(bolivia.isHoliday(d(2027, 1, 23)));
     }
 
     @Test
