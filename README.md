@@ -428,17 +428,22 @@ var registry = CalendarRegistry.load();          // every provider on the module
 
 var malaga = registry.calendar("ES-AN-MA");      // ES, then ES-AN, then ES-AN-MA
 var rio = registry.calendar("BR-RJ-RIO");
-registry.layerIds();                             // [BR, BR-RJ, BR-RJ-RIO, ES, ES-AN, ES-AN-MA, ES-CT]
+registry.layerIds();                             // [BR, BR-RJ, BR-RJ-RIO, ES, ES-AN, ES-AN-MA, ES-CT, ...]
 ```
 
 Ids follow ISO 3166-1 and 3166-2 where one exists (`ES`, `ES-AN`, `ES-CT`,
-`BR`, `BR-RJ`) and are free text below that (`ES-AN-MA`, `BR-RJ-RIO`). The
-shipped packs cover Spain with Andalucía, Málaga and Catalunya, and Brazil
-with the state and the city of Rio de Janeiro. Each pack is pinned by one test
-per year and per official source (BOE, BOJA, DOGC, Brazilian federal and state
-law) for 2025, 2026 and 2027; updating a pack is editing the file and running
-the tests. The same layers are available as Java constants for calendars
-built in code, read from the pack rather than duplicated:
+`BR`, `BR-RJ`) and are free text below that (`ES-AN-MA`, `BR-RJ-RIO`). These
+packs ship:
+
+| Pack | Country | Layers | Source |
+|---|---|---|---|
+| `BR` | Brazil | `BR`, `BR-RJ`, `BR-RJ-RIO` | Federal law, Rio de Janeiro state and city law |
+| `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
+
+Each pack is pinned by one test per year and per official source for 2025,
+2026 and 2027; updating a pack is editing the file and running the tests. The
+same layers are available as Java constants for calendars built in code, read
+from the pack rather than duplicated:
 
 ```java
 import io.github.sfesantos.holidays.data.*;
@@ -838,10 +843,10 @@ var registry = CalendarRegistry.of(ops, bundled);
 
 ### Country packs (`io.github.sfesantos.holidays.data`, artifact `holidays-data`)
 
-**`BundledDataProvider`** is the service that exposes `ES.json` and `BR.json`
-from the jar. You rarely name it: `CalendarRegistry.load()` finds it.
-**`Spain`** and **`Brazil`** hold the same layers as constants for code-first
-calendars, and **`Holidays`** holds the definitions most countries share
+**`BundledDataProvider`** is the service that exposes every pack in the jar.
+You rarely name it: `CalendarRegistry.load()` finds it. One class per country
+(**`Spain`**, **`Brazil`** and so on) holds the same layers as constants for
+code-first calendars, and **`Holidays`** holds the definitions most countries share
 (`NEW_YEAR`, `GOOD_FRIDAY`, `EASTER_MONDAY`, `ASCENSION`, `WHIT_MONDAY`,
 `CORPUS_CHRISTI`, `LABOUR_DAY`, `ASSUMPTION`, `ALL_SAINTS`, `CHRISTMAS`,
 `BOXING_DAY` and more). **`Validate`** is a `main` that checks a pack file and

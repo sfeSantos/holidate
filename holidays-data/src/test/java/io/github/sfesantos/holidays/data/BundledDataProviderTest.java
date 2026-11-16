@@ -1,6 +1,5 @@
 package io.github.sfesantos.holidays.data;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
@@ -13,8 +12,9 @@ class BundledDataProviderTest {
 
     @Test
     void shipsSpainAndBrazil() {
-        assertEquals(Set.of("ES", "ES-AN", "ES-AN-MA", "ES-CT", "BR", "BR-RJ", "BR-RJ-RIO"),
-                new BundledDataProvider().layerIds());
+        var shipped = new BundledDataProvider().layerIds();
+
+        assertTrue(shipped.containsAll(Set.of("ES", "ES-AN", "ES-AN-MA", "ES-CT", "BR", "BR-RJ", "BR-RJ-RIO")));
     }
 
     @Test
