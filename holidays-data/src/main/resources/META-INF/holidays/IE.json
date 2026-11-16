@@ -1,0 +1,20 @@
+{
+  "layers": [
+    {
+      "id": "IE",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "New Year's Day",         "rule": { "fixed": "01-01" } },
+        { "name": "St. Brigid's Day",       "rule": { "nth": 1, "weekday": "MONDAY", "month": "FEBRUARY" }, "from": 2023 },
+        { "name": "St. Patrick's Day",      "rule": { "fixed": "03-17" } },
+        { "name": "Easter Monday",          "rule": { "easter": 1 } },
+        { "name": "First Monday in May",    "rule": { "nth": 1, "weekday": "MONDAY", "month": "MAY" } },
+        { "name": "First Monday in June",   "rule": { "nth": 1, "weekday": "MONDAY", "month": "JUNE" } },
+        { "name": "First Monday in August", "rule": { "nth": 1, "weekday": "MONDAY", "month": "AUGUST" } },
+        { "name": "Last Monday in October", "rule": { "nth": -1, "weekday": "MONDAY", "month": "OCTOBER" } },
+        { "name": "Christmas Day",          "rule": { "fixed": "12-25" } },
+        { "name": "St. Stephen's Day",      "rule": { "fixed": "12-26" } }
+      ]
+    }
+  ]
+}
