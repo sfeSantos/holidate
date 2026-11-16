@@ -19,7 +19,8 @@ public final class BundledDataProvider implements HolidayDataProvider {
             "/META-INF/holidays/BR.json",
             "/META-INF/holidays/CL.json",
             "/META-INF/holidays/ES.json",
-            "/META-INF/holidays/PE.json");
+            "/META-INF/holidays/PE.json",
+            "/META-INF/holidays/UY.json");
 
     public BundledDataProvider() {}
 
