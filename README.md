@@ -439,6 +439,7 @@ packs ship:
 |---|---|---|---|
 | `BR` | Brazil | `BR`, `BR-RJ`, `BR-RJ-RIO` | Federal law, Rio de Janeiro state and city law |
 | `BZ` | Belize | `BZ` | Government Press Office notices under the Holidays Act |
+| `CR` | Costa Rica | `CR` | Código de Trabajo art. 148, MTSS |
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
 | `GT` | Guatemala | `GT` | Código de Trabajo art. 127, Decreto 42-2010 |
 | `HN` | Honduras | `HN` | Código del Trabajo art. 339, Decreto 78-2015 |
