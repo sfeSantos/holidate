@@ -1,0 +1,27 @@
+{
+  "layers": [
+    {
+      "id": "CL",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Año Nuevo",                                               "rule": { "fixed": "01-01" }, "observance": "SUNDAY_TO_MONDAY" },
+        { "name": "Viernes Santo",                                           "rule": { "easter": -2 } },
+        { "name": "Sábado Santo",                                            "rule": { "easter": -1 } },
+        { "name": "Día Nacional del Trabajo",                                "rule": { "fixed": "05-01" } },
+        { "name": "Día de las Glorias Navales",                              "rule": { "fixed": "05-21" } },
+        { "name": "Día Nacional de los Pueblos Indígenas (2025)",            "rule": { "date": "2025-06-20" } },
+        { "name": "Día Nacional de los Pueblos Indígenas (2026)",            "rule": { "date": "2026-06-21" } },
+        { "name": "Día Nacional de los Pueblos Indígenas (2027)",            "rule": { "date": "2027-06-21" } },
+        { "name": "Día de la Virgen del Carmen",                             "rule": { "fixed": "07-16" }, "from": 2007 },
+        { "name": "Asunción de la Virgen",                                   "rule": { "fixed": "08-15" } },
+        { "name": "Fiestas Patrias (viernes 17 de septiembre de 2027)",      "rule": { "date": "2027-09-17" } },
+        { "name": "Independencia Nacional",                                  "rule": { "fixed": "09-18" } },
+        { "name": "Día de las Glorias del Ejército",                         "rule": { "fixed": "09-19" } },
+        { "name": "Día Nacional de las Iglesias Evangélicas y Protestantes", "rule": { "fixed": "10-31" }, "from": 2008 },
+        { "name": "Día de Todos los Santos",                                 "rule": { "fixed": "11-01" } },
+        { "name": "Inmaculada Concepción",                                   "rule": { "fixed": "12-08" } },
+        { "name": "Navidad",                                                 "rule": { "fixed": "12-25" } }
+      ]
+    }
+  ]
+}

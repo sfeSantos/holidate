@@ -439,6 +439,7 @@ packs ship:
 |---|---|---|---|
 | `AR` | Argentina | `AR` | Ley 27.399, yearly calendar of the Ministerio del Interior |
 | `BR` | Brazil | `BR`, `BR-RJ`, `BR-RJ-RIO` | Federal law, Rio de Janeiro state and city law |
+| `CL` | Chile | `CL` | Ley 2.977 and the laws that amend it (Biblioteca del Congreso Nacional) |
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
 
 Each pack is pinned by one test per year and per official source for 2025,
