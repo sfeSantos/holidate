@@ -442,6 +442,7 @@ packs ship:
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
 | `HU` | Hungary | `HU` | Labour Code (2012. évi I. törvény), § 102 |
 | `PL` | Poland | `PL` | Ustawa o dniach wolnych od pracy (1951) |
+| `SI` | Slovenia | `SI` | Zakon o praznikih in dela prostih dnevih (ZPDPD) |
 | `SK` | Slovakia | `SK` | Zákon č. 241/1993 Z. z. |
 
 Each pack is pinned by one test per year and per official source for 2025,
