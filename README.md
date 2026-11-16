@@ -438,6 +438,7 @@ packs ship:
 | Pack | Country | Layers | Source |
 |---|---|---|---|
 | `AT` | Austria | `AT` | Arbeitsruhegesetz § 7 |
+| `BE` | Belgium | `BE` | Royal decree of 18 April 1974, Royal Observatory |
 | `BR` | Brazil | `BR`, `BR-RJ`, `BR-RJ-RIO` | Federal law, Rio de Janeiro state and city law |
 | `CH` | Switzerland | `CH` (the days common to all cantons) | Federal Constitution, SECO table of cantonal holidays |
 | `DE` | Germany | `DE` and the 16 Länder (`DE-BW` to `DE-TH`) | Holiday law of each Land, Einigungsvertrag |
