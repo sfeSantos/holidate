@@ -1,0 +1,26 @@
+{
+  "layers": [
+    {
+      "id": "PE",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Año Nuevo",                            "rule": { "fixed": "01-01" } },
+        { "name": "Jueves Santo",                         "rule": { "easter": -3 } },
+        { "name": "Viernes Santo",                        "rule": { "easter": -2 } },
+        { "name": "Día del Trabajo",                      "rule": { "fixed": "05-01" } },
+        { "name": "Batalla de Arica y Día de la Bandera", "rule": { "fixed": "06-07" }, "from": 2024 },
+        { "name": "San Pedro y San Pablo",                "rule": { "fixed": "06-29" } },
+        { "name": "Día de la Fuerza Aérea del Perú",      "rule": { "fixed": "07-23" }, "from": 2023 },
+        { "name": "Fiestas Patrias (28 de julio)",        "rule": { "fixed": "07-28" } },
+        { "name": "Fiestas Patrias (29 de julio)",        "rule": { "fixed": "07-29" } },
+        { "name": "Batalla de Junín",                     "rule": { "fixed": "08-06" }, "from": 2022 },
+        { "name": "Santa Rosa de Lima",                   "rule": { "fixed": "08-30" } },
+        { "name": "Combate de Angamos",                   "rule": { "fixed": "10-08" } },
+        { "name": "Todos los Santos",                     "rule": { "fixed": "11-01" } },
+        { "name": "Inmaculada Concepción",                "rule": { "fixed": "12-08" } },
+        { "name": "Batalla de Ayacucho",                  "rule": { "fixed": "12-09" }, "from": 2022 },
+        { "name": "Navidad del Señor",                    "rule": { "fixed": "12-25" } }
+      ]
+    }
+  ]
+}
