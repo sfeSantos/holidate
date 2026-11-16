@@ -440,6 +440,7 @@ packs ship:
 | `BR` | Brazil | `BR`, `BR-RJ`, `BR-RJ-RIO` | Federal law, Rio de Janeiro state and city law |
 | `DK` | Denmark | `DK` | Lov nr. 214 of 2023, lukkeloven § 2 |
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
+| `FI` | Finland | `FI` | University of Helsinki Almanac Office, kirkkolaki |
 | `NO` | Norway | `NO` | Lov om helligdager og helligdagsfred, lov om 1 og 17 mai |
 | `SE` | Sweden | `SE` | Lag (1989:253) om allmänna helgdagar |
 
