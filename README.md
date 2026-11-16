@@ -439,6 +439,7 @@ packs ship:
 |---|---|---|---|
 | `BR` | Brazil | `BR`, `BR-RJ`, `BR-RJ-RIO` | Federal law, Rio de Janeiro state and city law |
 | `DK` | Denmark | `DK` | Lov nr. 214 of 2023, lukkeloven § 2 |
+| `EE` | Estonia | `EE` | Pühade ja tähtpäevade seadus |
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
 | `FI` | Finland | `FI` | University of Helsinki Almanac Office, kirkkolaki |
 | `IS` | Iceland | `IS` | Lög nr. 88/1971, lög nr. 32/1997 |
