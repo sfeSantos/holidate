@@ -1,0 +1,27 @@
+{
+  "layers": [
+    {
+      "id": "SE",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Nyårsdagen",             "rule": { "fixed": "01-01" } },
+        { "name": "Trettondedag jul",       "rule": { "fixed": "01-06" } },
+        { "name": "Långfredagen",           "rule": { "easter": -2 } },
+        { "name": "Påskdagen",              "rule": { "easter": 0 } },
+        { "name": "Annandag påsk",          "rule": { "easter": 1 } },
+        { "name": "Första maj",             "rule": { "fixed": "05-01" } },
+        { "name": "Kristi himmelsfärdsdag", "rule": { "easter": 39 } },
+        { "name": "Pingstdagen",            "rule": { "easter": 49 } },
+        { "name": "Annandag pingst",        "rule": { "easter": 50 }, "until": 2004 },
+        { "name": "Nationaldagen",          "rule": { "fixed": "06-06" }, "from": 2005 },
+        { "name": "Midsommarafton",         "rule": { "weekdayAfter": "FRIDAY", "base": "06-18" }, "type": "OBSERVANCE" },
+        { "name": "Midsommardagen",         "rule": { "weekdayAfter": "SATURDAY", "base": "06-19" } },
+        { "name": "Alla helgons dag",       "rule": { "weekdayAfter": "SATURDAY", "base": "10-30" } },
+        { "name": "Julafton",               "rule": { "fixed": "12-24" }, "type": "OBSERVANCE" },
+        { "name": "Juldagen",               "rule": { "fixed": "12-25" } },
+        { "name": "Annandag jul",           "rule": { "fixed": "12-26" } },
+        { "name": "Nyårsafton",             "rule": { "fixed": "12-31" }, "type": "OBSERVANCE" }
+      ]
+    }
+  ]
+}

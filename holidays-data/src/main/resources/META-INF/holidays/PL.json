@@ -1,0 +1,24 @@
+{
+  "layers": [
+    {
+      "id": "PL",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Nowy Rok",                               "rule": { "fixed": "01-01" } },
+        { "name": "Święto Trzech Króli",                    "rule": { "fixed": "01-06" }, "from": 2011 },
+        { "name": "Pierwszy dzień Wielkiej Nocy",           "rule": { "easter": 0 } },
+        { "name": "Drugi dzień Wielkiej Nocy",              "rule": { "easter": 1 } },
+        { "name": "Święto Państwowe",                       "rule": { "fixed": "05-01" } },
+        { "name": "Święto Narodowe Trzeciego Maja",         "rule": { "fixed": "05-03" } },
+        { "name": "Pierwszy dzień Zielonych Świątek",       "rule": { "easter": 49 } },
+        { "name": "Dzień Bożego Ciała",                     "rule": { "easter": 60 } },
+        { "name": "Wniebowzięcie Najświętszej Maryi Panny", "rule": { "fixed": "08-15" } },
+        { "name": "Wszystkich Świętych",                    "rule": { "fixed": "11-01" } },
+        { "name": "Narodowe Święto Niepodległości",         "rule": { "fixed": "11-11" } },
+        { "name": "Wigilia Bożego Narodzenia",              "rule": { "fixed": "12-24" }, "from": 2025 },
+        { "name": "Pierwszy dzień Bożego Narodzenia",       "rule": { "fixed": "12-25" } },
+        { "name": "Drugi dzień Bożego Narodzenia",          "rule": { "fixed": "12-26" } }
+      ]
+    }
+  ]
+}

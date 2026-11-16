@@ -1,0 +1,22 @@
+{
+  "layers": [
+    {
+      "id": "EE",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Uusaasta",                  "rule": { "fixed": "01-01" } },
+        { "name": "Iseseisvuspäev",            "rule": { "fixed": "02-24" } },
+        { "name": "Suur reede",                "rule": { "easter": -2 } },
+        { "name": "Ülestõusmispühade 1. püha", "rule": { "easter": 0 } },
+        { "name": "Kevadpüha",                 "rule": { "fixed": "05-01" } },
+        { "name": "Nelipühade 1. püha",        "rule": { "easter": 49 } },
+        { "name": "Võidupüha",                 "rule": { "fixed": "06-23" } },
+        { "name": "Jaanipäev",                 "rule": { "fixed": "06-24" } },
+        { "name": "Taasiseseisvumispäev",      "rule": { "fixed": "08-20" } },
+        { "name": "Jõululaupäev",              "rule": { "fixed": "12-24" } },
+        { "name": "Esimene jõulupüha",         "rule": { "fixed": "12-25" } },
+        { "name": "Teine jõulupüha",           "rule": { "fixed": "12-26" } }
+      ]
+    }
+  ]
+}

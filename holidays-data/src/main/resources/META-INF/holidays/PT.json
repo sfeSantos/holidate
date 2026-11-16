@@ -1,0 +1,38 @@
+{
+  "layers": [
+    {
+      "id": "PT",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Ano Novo",                     "rule": { "fixed": "01-01" } },
+        { "name": "Terça-feira de Carnaval",      "rule": { "easter": -47 }, "type": "OBSERVANCE" },
+        { "name": "Sexta-Feira Santa",            "rule": { "easter": -2 } },
+        { "name": "Domingo de Páscoa",            "rule": { "easter": 0 } },
+        { "name": "Dia da Liberdade",             "rule": { "fixed": "04-25" } },
+        { "name": "Dia do Trabalhador",           "rule": { "fixed": "05-01" } },
+        { "name": "Corpo de Deus",                "rule": { "easter": 60 } },
+        { "name": "Dia de Portugal",              "rule": { "fixed": "06-10" } },
+        { "name": "Assunção de Nossa Senhora",    "rule": { "fixed": "08-15" } },
+        { "name": "Implantação da República",     "rule": { "fixed": "10-05" } },
+        { "name": "Todos os Santos",              "rule": { "fixed": "11-01" } },
+        { "name": "Restauração da Independência", "rule": { "fixed": "12-01" } },
+        { "name": "Imaculada Conceição",          "rule": { "fixed": "12-08" } },
+        { "name": "Natal",                        "rule": { "fixed": "12-25" } }
+      ]
+    },
+    {
+      "id": "PT-11-LIS",
+      "extends": "PT",
+      "holidays": [
+        { "name": "Santo António", "rule": { "fixed": "06-13" } }
+      ]
+    },
+    {
+      "id": "PT-13-PRT",
+      "extends": "PT",
+      "holidays": [
+        { "name": "São João", "rule": { "fixed": "06-24" } }
+      ]
+    }
+  ]
+}

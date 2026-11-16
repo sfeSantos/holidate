@@ -1,0 +1,30 @@
+{
+  "layers": [
+    {
+      "id": "SK",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Deň vzniku Slovenskej republiky",                 "rule": { "fixed": "01-01" } },
+        { "name": "Zjavenie Pána",                                   "rule": { "fixed": "01-06" } },
+        { "name": "Veľký piatok",                                    "rule": { "easter": -2 } },
+        { "name": "Veľkonočný pondelok",                             "rule": { "easter": 1 } },
+        { "name": "Sviatok práce",                                   "rule": { "fixed": "05-01" } },
+        { "name": "Deň víťazstva nad fašizmom (do roku 2025)",       "rule": { "fixed": "05-08" }, "until": 2025 },
+        { "name": "Deň víťazstva nad fašizmom (rok 2026)",           "rule": { "date": "2026-05-08" }, "type": "OBSERVANCE" },
+        { "name": "Deň víťazstva nad fašizmom",                      "rule": { "fixed": "05-08" }, "from": 2027 },
+        { "name": "Sviatok svätého Cyrila a svätého Metoda",         "rule": { "fixed": "07-05" } },
+        { "name": "Výročie Slovenského národného povstania",         "rule": { "fixed": "08-29" } },
+        { "name": "Deň Ústavy Slovenskej republiky",                 "rule": { "fixed": "09-01" }, "type": "OBSERVANCE", "from": 2024 },
+        { "name": "Sedembolestná Panna Mária (do roku 2025)",        "rule": { "fixed": "09-15" }, "until": 2025 },
+        { "name": "Sedembolestná Panna Mária (rok 2026)",            "rule": { "date": "2026-09-15" }, "type": "OBSERVANCE" },
+        { "name": "Sedembolestná Panna Mária",                       "rule": { "fixed": "09-15" }, "from": 2027 },
+        { "name": "Deň vzniku samostatného česko-slovenského štátu", "rule": { "fixed": "10-28" }, "type": "OBSERVANCE", "from": 2021 },
+        { "name": "Sviatok Všetkých svätých",                        "rule": { "fixed": "11-01" } },
+        { "name": "Deň boja za slobodu a demokraciu",                "rule": { "fixed": "11-17" }, "type": "OBSERVANCE", "from": 2025 },
+        { "name": "Štedrý deň",                                      "rule": { "fixed": "12-24" } },
+        { "name": "Prvý sviatok vianočný",                           "rule": { "fixed": "12-25" } },
+        { "name": "Druhý sviatok vianočný",                          "rule": { "fixed": "12-26" } }
+      ]
+    }
+  ]
+}

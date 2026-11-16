@@ -1,0 +1,24 @@
+{
+  "layers": [
+    {
+      "id": "CZ",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Den obnovy samostatného českého státu",                          "rule": { "fixed": "01-01" } },
+        { "name": "Nový rok",                                                       "rule": { "fixed": "01-01" } },
+        { "name": "Velký pátek",                                                    "rule": { "easter": -2 }, "from": 2016 },
+        { "name": "Velikonoční pondělí",                                            "rule": { "easter": 1 } },
+        { "name": "Svátek práce",                                                   "rule": { "fixed": "05-01" } },
+        { "name": "Den vítězství",                                                  "rule": { "fixed": "05-08" } },
+        { "name": "Den slovanských věrozvěstů Cyrila a Metoděje",                   "rule": { "fixed": "07-05" } },
+        { "name": "Den upálení mistra Jana Husa",                                   "rule": { "fixed": "07-06" } },
+        { "name": "Den české státnosti",                                            "rule": { "fixed": "09-28" } },
+        { "name": "Den vzniku samostatného československého státu",                 "rule": { "fixed": "10-28" } },
+        { "name": "Den boje za svobodu a demokracii a Mezinárodní den studentstva", "rule": { "fixed": "11-17" } },
+        { "name": "Štědrý den",                                                     "rule": { "fixed": "12-24" } },
+        { "name": "1. svátek vánoční",                                              "rule": { "fixed": "12-25" } },
+        { "name": "2. svátek vánoční",                                              "rule": { "fixed": "12-26" } }
+      ]
+    }
+  ]
+}
