@@ -592,8 +592,9 @@ the temporal they are given and throw `DateTimeException` in that case.
 for the Gulf, a single day, or none. The builder's weekend is the fallback;
 the highest layer that declares one wins.
 
-**Easter.** Gregorian by default. Plug a different `EasterAlgorithm` into the
-builder for Julian or Orthodox dates.
+**Easter.** Gregorian by default. `EasterAlgorithm.orthodox()` and
+`EasterAlgorithm.julian()` ship too, and any other `EasterAlgorithm` plugs
+into the builder the same way.
 
 ## Classes
 
