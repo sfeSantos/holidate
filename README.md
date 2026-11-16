@@ -439,6 +439,7 @@ packs ship:
 |---|---|---|---|
 | `BR` | Brazil | `BR`, `BR-RJ`, `BR-RJ-RIO` | Federal law, Rio de Janeiro state and city law |
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
+| `NZ` | New Zealand | `NZ` | Holidays Act 2003, Te Kāhui o Matariki Public Holiday Act 2022 |
 
 Each pack is pinned by one test per year and per official source for 2025,
 2026 and 2027; updating a pack is editing the file and running the tests. The

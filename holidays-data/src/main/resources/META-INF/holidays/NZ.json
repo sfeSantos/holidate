@@ -1,0 +1,51 @@
+{
+  "layers": [
+    {
+      "id": "NZ",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "New Year's Day",           "rule": { "fixed": "01-01" }, "observance": "WEEKEND_TO_MONDAY" },
+        { "name": "Day after New Year's Day", "rule": { "fixed": "01-02" }, "observance": "WEEKEND_TO_MONDAY" },
+        { "name": "Waitangi Day",             "rule": { "fixed": "02-06" }, "observance": "WEEKEND_TO_MONDAY" },
+        { "name": "Good Friday",              "rule": { "easter": -2 } },
+        { "name": "ANZAC Day",                "rule": { "fixed": "04-25" }, "observance": "WEEKEND_TO_MONDAY" },
+        { "name": "Easter Monday",            "rule": { "easter": 1 } },
+        { "name": "King's Birthday",          "rule": { "nth": 1, "weekday": "MONDAY", "month": "JUNE" } },
+        { "name": "Matariki 2022",            "rule": { "date": "2022-06-24" } },
+        { "name": "Matariki 2023",            "rule": { "date": "2023-07-14" } },
+        { "name": "Matariki 2024",            "rule": { "date": "2024-06-28" } },
+        { "name": "Matariki 2025",            "rule": { "date": "2025-06-20" } },
+        { "name": "Matariki 2026",            "rule": { "date": "2026-07-10" } },
+        { "name": "Matariki 2027",            "rule": { "date": "2027-06-25" } },
+        { "name": "Matariki 2028",            "rule": { "date": "2028-07-14" } },
+        { "name": "Matariki 2029",            "rule": { "date": "2029-07-06" } },
+        { "name": "Matariki 2030",            "rule": { "date": "2030-06-21" } },
+        { "name": "Matariki 2031",            "rule": { "date": "2031-07-11" } },
+        { "name": "Matariki 2032",            "rule": { "date": "2032-07-02" } },
+        { "name": "Matariki 2033",            "rule": { "date": "2033-06-24" } },
+        { "name": "Matariki 2034",            "rule": { "date": "2034-07-07" } },
+        { "name": "Matariki 2035",            "rule": { "date": "2035-06-29" } },
+        { "name": "Matariki 2036",            "rule": { "date": "2036-07-18" } },
+        { "name": "Matariki 2037",            "rule": { "date": "2037-07-10" } },
+        { "name": "Matariki 2038",            "rule": { "date": "2038-06-25" } },
+        { "name": "Matariki 2039",            "rule": { "date": "2039-07-15" } },
+        { "name": "Matariki 2040",            "rule": { "date": "2040-07-06" } },
+        { "name": "Matariki 2041",            "rule": { "date": "2041-07-19" } },
+        { "name": "Matariki 2042",            "rule": { "date": "2042-07-11" } },
+        { "name": "Matariki 2043",            "rule": { "date": "2043-07-03" } },
+        { "name": "Matariki 2044",            "rule": { "date": "2044-06-24" } },
+        { "name": "Matariki 2045",            "rule": { "date": "2045-07-07" } },
+        { "name": "Matariki 2046",            "rule": { "date": "2046-06-29" } },
+        { "name": "Matariki 2047",            "rule": { "date": "2047-07-19" } },
+        { "name": "Matariki 2048",            "rule": { "date": "2048-07-03" } },
+        { "name": "Matariki 2049",            "rule": { "date": "2049-06-25" } },
+        { "name": "Matariki 2050",            "rule": { "date": "2050-07-15" } },
+        { "name": "Matariki 2051",            "rule": { "date": "2051-06-30" } },
+        { "name": "Matariki 2052",            "rule": { "date": "2052-06-21" } },
+        { "name": "Labour Day",               "rule": { "nth": 4, "weekday": "MONDAY", "month": "OCTOBER" } },
+        { "name": "Christmas Day",            "rule": { "fixed": "12-25" }, "observance": "WEEKEND_TO_MONDAY" },
+        { "name": "Boxing Day",               "rule": { "fixed": "12-26" }, "observance": "WEEKEND_TO_MONDAY" }
+      ]
+    }
+  ]
+}
