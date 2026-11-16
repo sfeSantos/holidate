@@ -442,6 +442,7 @@ packs ship:
 | `EC` | Ecuador | `EC` | Código del Trabajo art. 65, government calendar 2025 to 2030, executive decrees |
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
 | `GY` | Guyana | `GY` | Public Holidays Act Cap. 19:07, Ministry of Home Affairs notices |
+| `SR` | Suriname | `SR` | Besluit Vrije Dagen 1971 (S.B. 2021 no. 27), Binnenlandse Zaken notices |
 | `VE` | Venezuela | `VE` | LOTTT art. 184, Ley de Fiestas Nacionales |
 
 Each pack is pinned by one test per year and per official source for 2025,
