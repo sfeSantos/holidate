@@ -439,6 +439,7 @@ packs ship:
 |---|---|---|---|
 | `BR` | Brazil | `BR`, `BR-RJ`, `BR-RJ-RIO` | Federal law, Rio de Janeiro state and city law |
 | `CO` | Colombia | `CO` | Ley 51 de 1983, Ley 2578 de 2026 |
+| `EC` | Ecuador | `EC` | Código del Trabajo art. 65, government calendar 2025 to 2030, executive decrees |
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
 
 Each pack is pinned by one test per year and per official source for 2025,
