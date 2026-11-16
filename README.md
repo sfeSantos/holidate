@@ -440,6 +440,7 @@ packs ship:
 | `BR` | Brazil | `BR`, `BR-RJ`, `BR-RJ-RIO` | Federal law, Rio de Janeiro state and city law |
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
 | `GB` | United Kingdom | `GB` (the shared base, pick a nation), `GB-ENG`, `GB-NIR`, `GB-SCT`, `GB-WLS` | GOV.UK bank holidays |
+| `IE` | Ireland | `IE` | Organisation of Working Time Act 1997, Workplace Relations Commission |
 
 Each pack is pinned by one test per year and per official source for 2025,
 2026 and 2027; updating a pack is editing the file and running the tests. The
