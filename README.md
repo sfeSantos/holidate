@@ -441,6 +441,7 @@ packs ship:
 | `CO` | Colombia | `CO` | Ley 51 de 1983, Ley 2578 de 2026 |
 | `EC` | Ecuador | `EC` | Código del Trabajo art. 65, government calendar 2025 to 2030, executive decrees |
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
+| `VE` | Venezuela | `VE` | LOTTT art. 184, Ley de Fiestas Nacionales |
 
 Each pack is pinned by one test per year and per official source for 2025,
 2026 and 2027; updating a pack is editing the file and running the tests. The
