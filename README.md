@@ -438,6 +438,7 @@ packs ship:
 | Pack | Country | Layers | Source |
 |---|---|---|---|
 | `BR` | Brazil | `BR`, `BR-RJ`, `BR-RJ-RIO` | Federal law, Rio de Janeiro state and city law |
+| `BZ` | Belize | `BZ` | Government Press Office notices under the Holidays Act |
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
 | `GT` | Guatemala | `GT` | Código de Trabajo art. 127, Decreto 42-2010 |
 
