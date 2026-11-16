@@ -1,0 +1,24 @@
+{
+  "layers": [
+    {
+      "id": "MT",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "New Year's Day",                     "rule": { "fixed": "01-01" } },
+        { "name": "Feast of St. Paul's Shipwreck",      "rule": { "fixed": "02-10" } },
+        { "name": "Feast of St. Joseph",                "rule": { "fixed": "03-19" } },
+        { "name": "Jum il-Ħelsien",                     "rule": { "fixed": "03-31" } },
+        { "name": "Good Friday",                        "rule": { "easter": -2 } },
+        { "name": "Workers' Day",                       "rule": { "fixed": "05-01" } },
+        { "name": "Sette Giugno",                       "rule": { "fixed": "06-07" } },
+        { "name": "Feast of St. Peter and St. Paul",    "rule": { "fixed": "06-29" } },
+        { "name": "Feast of the Assumption",            "rule": { "fixed": "08-15" } },
+        { "name": "Jum il-Vittorja",                    "rule": { "fixed": "09-08" } },
+        { "name": "Jum l-Indipendenza",                 "rule": { "fixed": "09-21" } },
+        { "name": "Feast of the Immaculate Conception", "rule": { "fixed": "12-08" } },
+        { "name": "Jum ir-Repubblika",                  "rule": { "fixed": "12-13" } },
+        { "name": "Christmas Day",                      "rule": { "fixed": "12-25" } }
+      ]
+    }
+  ]
+}
