@@ -761,19 +761,33 @@ hours.isAllDay();                       // false
 ### Easter and other calendars
 
 **`EasterAlgorithm`** (`io.github.sfesantos.holidays.easter`) turns a year
-into Easter Sunday. `EasterAlgorithm.gregorian()` is the default; any
-implementation plugs into the builder, which is how Julian or Orthodox dates
-would come in. **`GregorianEaster.of(year)`** is the computation on its own.
+into Easter Sunday. `EasterAlgorithm.gregorian()` is the default.
+`EasterAlgorithm.orthodox()` is Easter as the Orthodox churches keep it
+(Greece, Cyprus, Romania, Bulgaria, Serbia): computed in the Julian calendar
+and observed on the Gregorian date of that day, 13 days later from 1900 to
+2099. `EasterAlgorithm.julian()` gives the same Sunday with the month and day
+the Julian calendar calls it. A calendar has one Easter, chosen on the
+builder, and every Easter-relative holiday follows it; any other
+implementation plugs in the same way. **`GregorianEaster.of(year)`**,
+**`OrthodoxEaster.of(year)`** and **`JulianEaster.of(year)`** are the
+computations on their own.
 
 ```java
 GregorianEaster.of(2026);                                 // 2026-04-05
+OrthodoxEaster.of(2026);                                  // 2026-04-12
+JulianEaster.of(2026);                                    // 03-30 in the Julian calendar
 
-EasterAlgorithm julianOnGregorian = year -> /* your Julian computation */ LocalDate.of(year, 4, 12);
-var orthodox = HolidayCalendar.builder()
-        .easter(julianOnGregorian)
+var greece = HolidayCalendar.builder()
+        .easter(EasterAlgorithm.orthodox())
         .layer(Layer.named("GR").add(Holiday.easterRelative("Μεγάλη Παρασκευή", -2)).build())
         .build();
+
+greece.holidayOn(LocalDate.of(2026, 4, 10));              // Μεγάλη Παρασκευή
 ```
+
+The JSON format has no member for the Easter algorithm yet, so a pack loaded
+through the registry uses the Gregorian one; an Orthodox calendar is built in
+code for now.
 
 **`HebrewCalendar`** and **`HebrewMonth`** (`io.github.sfesantos.holidays.hebrew`)
 are the arithmetic behind `Holiday.hebrew`, usable on their own:
