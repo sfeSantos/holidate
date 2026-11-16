@@ -442,6 +442,7 @@ packs ship:
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
 | `GT` | Guatemala | `GT` | Código de Trabajo art. 127, Decreto 42-2010 |
 | `HN` | Honduras | `HN` | Código del Trabajo art. 339, Decreto 78-2015 |
+| `NI` | Nicaragua | `NI` | Código del Trabajo art. 66 |
 | `SV` | El Salvador | `SV` | Código de Trabajo art. 190 |
 
 Each pack is pinned by one test per year and per official source for 2025,
