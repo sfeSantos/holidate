@@ -607,8 +607,9 @@ the temporal they are given and throw `DateTimeException` in that case.
 for the Gulf, a single day, or none. The builder's weekend is the fallback;
 the highest layer that declares one wins.
 
-**Easter.** Gregorian by default. Plug a different `EasterAlgorithm` into the
-builder for Julian or Orthodox dates.
+**Easter.** Gregorian by default. `EasterAlgorithm.orthodox()` and
+`EasterAlgorithm.julian()` ship too, and any other `EasterAlgorithm` plugs
+into the builder the same way.
 
 ## Classes
 
@@ -776,19 +777,34 @@ hours.isAllDay();                       // false
 ### Easter and other calendars
 
 **`EasterAlgorithm`** (`io.github.sfesantos.holidays.easter`) turns a year
-into Easter Sunday. `EasterAlgorithm.gregorian()` is the default; any
-implementation plugs into the builder, which is how Julian or Orthodox dates
-would come in. **`GregorianEaster.of(year)`** is the computation on its own.
+into Easter Sunday. `EasterAlgorithm.gregorian()` is the default.
+`EasterAlgorithm.orthodox()` is Easter as the Orthodox churches keep it
+(Greece, Cyprus, Romania, Bulgaria, Serbia): computed in the Julian calendar
+and observed on the Gregorian date of that day, 13 days later from 1900 to
+2099. `EasterAlgorithm.julian()` gives the same Sunday with the month and day
+the Julian calendar calls it. A calendar has one Easter, chosen on the
+builder, and every Easter-relative holiday follows it; any other
+implementation plugs in the same way. **`GregorianEaster.of(year)`**,
+**`OrthodoxEaster.of(year)`** and **`JulianEaster.of(year)`** are the
+computations on their own.
 
 ```java
 GregorianEaster.of(2026);                                 // 2026-04-05
+OrthodoxEaster.of(2026);                                  // 2026-04-12
+JulianEaster.of(2026);                                    // 03-30 in the Julian calendar
 
-EasterAlgorithm julianOnGregorian = year -> /* your Julian computation */ LocalDate.of(year, 4, 12);
-var orthodox = HolidayCalendar.builder()
-        .easter(julianOnGregorian)
+var greece = HolidayCalendar.builder()
+        .easter(EasterAlgorithm.orthodox())
         .layer(Layer.named("GR").add(Holiday.easterRelative("Μεγάλη Παρασκευή", -2)).build())
         .build();
+
+greece.holidayOn(LocalDate.of(2026, 4, 10));              // Μεγάλη Παρασκευή
 ```
+
+The JSON format has no member for the Easter algorithm, so
+`registry.calendar(id)` builds a pack with the Gregorian one. For an Orthodox
+country ask the registry for the builder and set it there:
+`registry.builder("GR").easter(EasterAlgorithm.orthodox()).build()`.
 
 **`HebrewCalendar`** and **`HebrewMonth`** (`io.github.sfesantos.holidays.hebrew`)
 are the arithmetic behind `Holiday.hebrew`, usable on their own:
@@ -1041,6 +1057,10 @@ second each. The targets are the ones the project set for itself at the start.
 | `businessDurationBetween` over 1000 business days | 5.8 µs | 24 B | |
 | `union` of two calendars, `isBusinessDay` | 1.3 ns | 0 B | |
 | First touch of a year (build the index) | 3.1 µs | 10.8 KB | < 50 µs |
+| First touch of a year, Orthodox calendar of 12 holidays | 2.7 µs | 9.0 KB | |
+| `GregorianEaster.of(year)` | 9.7 ns | 24 B (the `LocalDate`) | |
+| `OrthodoxEaster.of(year)` | 8.1 ns | 24 B | |
+| `JulianEaster.of(year)` | 6.4 ns | 24 B | |
 | `HolidayCalendar.builder().build()` | 0.3 µs | 5.5 KB | |
 | Heap for 100 indexed years | 164 KB | 1.6 KB per year | < 500 KB |
 
