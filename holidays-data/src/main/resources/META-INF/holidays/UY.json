@@ -16,9 +16,13 @@
         { "name": "Semana de Turismo (viernes)",                             "rule": { "easter": -2 }, "type": "OBSERVANCE" },
         { "name": "Desembarco de los Treinta y Tres Orientales",             "rule": { "fixed": "04-19" }, "type": "OBSERVANCE" },
         { "name": "Día de los Trabajadores",                                 "rule": { "fixed": "05-01" } },
+        { "name": "Batalla de las Piedras (2025)",                           "rule": { "date": "2025-05-18" }, "type": "OBSERVANCE" },
+        { "name": "Batalla de las Piedras",                                  "rule": { "weekdayAfter": "MONDAY", "base": "05-15" }, "from": 2026, "type": "OBSERVANCE" },
         { "name": "Natalicio de Artigas",                                    "rule": { "fixed": "06-19" }, "type": "OBSERVANCE" },
         { "name": "Jura de la Constitución",                                 "rule": { "fixed": "07-18" } },
         { "name": "Declaratoria de la Independencia",                        "rule": { "fixed": "08-25" } },
+        { "name": "Día de la Raza (2025)",                                   "rule": { "date": "2025-10-12" }, "type": "OBSERVANCE" },
+        { "name": "Día de la Raza",                                          "rule": { "weekdayAfter": "MONDAY", "base": "10-09" }, "from": 2026, "type": "OBSERVANCE" },
         { "name": "Día de los Difuntos",                                     "rule": { "fixed": "11-02" }, "type": "OBSERVANCE" },
         { "name": "Navidad",                                                 "rule": { "fixed": "12-25" } }
       ]
