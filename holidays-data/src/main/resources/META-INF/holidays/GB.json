@@ -1,0 +1,53 @@
+{
+  "layers": [
+    {
+      "id": "GB",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "observance": "WEEKEND_TO_MONDAY",
+      "holidays": [
+        { "name": "New Year's Day",         "rule": { "fixed": "01-01" } },
+        { "name": "Good Friday",            "rule": { "easter": -2 } },
+        { "name": "Early May bank holiday", "rule": { "nth": 1, "weekday": "MONDAY", "month": "MAY" } },
+        { "name": "Spring bank holiday",    "rule": { "nth": -1, "weekday": "MONDAY", "month": "MAY" } },
+        { "name": "Christmas Day",          "rule": { "fixed": "12-25" } },
+        { "name": "Boxing Day",             "rule": { "fixed": "12-26" } }
+      ]
+    },
+    {
+      "id": "GB-ENG",
+      "extends": "GB",
+      "holidays": [
+        { "name": "Easter Monday",       "rule": { "easter": 1 } },
+        { "name": "Summer bank holiday", "rule": { "nth": -1, "weekday": "MONDAY", "month": "AUGUST" } }
+      ]
+    },
+    {
+      "id": "GB-NIR",
+      "extends": "GB",
+      "holidays": [
+        { "name": "St Patrick's Day",                      "rule": { "fixed": "03-17" } },
+        { "name": "Easter Monday",                         "rule": { "easter": 1 } },
+        { "name": "Battle of the Boyne (Orangemen's Day)", "rule": { "fixed": "07-12" } },
+        { "name": "Summer bank holiday",                   "rule": { "nth": -1, "weekday": "MONDAY", "month": "AUGUST" } }
+      ]
+    },
+    {
+      "id": "GB-SCT",
+      "extends": "GB",
+      "holidays": [
+        { "name": "2nd January",            "rule": { "fixed": "01-02" } },
+        { "name": "World Cup bank holiday", "rule": { "date": "2026-06-15" } },
+        { "name": "Summer bank holiday",    "rule": { "nth": 1, "weekday": "MONDAY", "month": "AUGUST" } },
+        { "name": "St Andrew's Day",        "rule": { "fixed": "11-30" }, "from": 2007 }
+      ]
+    },
+    {
+      "id": "GB-WLS",
+      "extends": "GB",
+      "holidays": [
+        { "name": "Easter Monday",       "rule": { "easter": 1 } },
+        { "name": "Summer bank holiday", "rule": { "nth": -1, "weekday": "MONDAY", "month": "AUGUST" } }
+      ]
+    }
+  ]
+}
