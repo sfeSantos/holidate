@@ -443,6 +443,7 @@ packs ship:
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
 | `FI` | Finland | `FI` | University of Helsinki Almanac Office, kirkkolaki |
 | `IS` | Iceland | `IS` | Lög nr. 88/1971, lög nr. 32/1997 |
+| `LT` | Lithuania | `LT` | Darbo kodeksas, article 123 |
 | `LV` | Latvia | `LV` | Likums "Par svētku, atceres un atzīmējamām dienām" |
 | `NO` | Norway | `NO` | Lov om helligdager og helligdagsfred, lov om 1 og 17 mai |
 | `SE` | Sweden | `SE` | Lag (1989:253) om allmänna helgdagar |
