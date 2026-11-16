@@ -437,6 +437,7 @@ packs ship:
 
 | Pack | Country | Layers | Source |
 |---|---|---|---|
+| `AR` | Argentina | `AR` | Ley 27.399, yearly calendar of the Ministerio del Interior |
 | `BR` | Brazil | `BR`, `BR-RJ`, `BR-RJ-RIO` | Federal law, Rio de Janeiro state and city law |
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
 
