@@ -438,6 +438,7 @@ packs ship:
 | Pack | Country | Layers | Source |
 |---|---|---|---|
 | `BR` | Brazil | `BR`, `BR-RJ`, `BR-RJ-RIO` | Federal law, Rio de Janeiro state and city law |
+| `CZ` | Czechia | `CZ` | Zákon č. 245/2000 Sb. |
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
 | `PL` | Poland | `PL` | Ustawa o dniach wolnych od pracy (1951) |
 
