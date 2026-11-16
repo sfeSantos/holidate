@@ -1,0 +1,22 @@
+{
+  "layers": [
+    {
+      "id": "NL",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Nieuwjaarsdag",      "rule": { "fixed": "01-01" } },
+        { "name": "Goede Vrijdag",      "rule": { "easter": -2 }, "type": "OBSERVANCE" },
+        { "name": "Eerste Paasdag",     "rule": { "easter": 0 } },
+        { "name": "Tweede Paasdag",     "rule": { "easter": 1 } },
+        { "name": "Koningsdag (2025)",  "rule": { "date": "2025-04-26" } },
+        { "name": "Koningsdag",         "rule": { "fixed": "04-27" }, "from": 2026 },
+        { "name": "Bevrijdingsdag",     "rule": { "fixed": "05-05" } },
+        { "name": "Hemelvaartsdag",     "rule": { "easter": 39 } },
+        { "name": "Eerste Pinksterdag", "rule": { "easter": 49 } },
+        { "name": "Tweede Pinksterdag", "rule": { "easter": 50 } },
+        { "name": "Eerste Kerstdag",    "rule": { "fixed": "12-25" } },
+        { "name": "Tweede Kerstdag",    "rule": { "fixed": "12-26" } }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "layers": [
+    {
+      "id": "CH",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Neujahrstag",    "rule": { "fixed": "01-01" } },
+        { "name": "Auffahrt",       "rule": { "easter": 39 } },
+        { "name": "Bundesfeiertag", "rule": { "fixed": "08-01" } },
+        { "name": "Weihnachtstag",  "rule": { "fixed": "12-25" } }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "layers": [
+    {
+      "id": "LU",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Nouvel An",             "rule": { "fixed": "01-01" } },
+        { "name": "Lundi de Pâques",       "rule": { "easter": 1 } },
+        { "name": "Fête du travail",       "rule": { "fixed": "05-01" } },
+        { "name": "Journée de l'Europe",   "rule": { "fixed": "05-09" }, "from": 2019 },
+        { "name": "Ascension",             "rule": { "easter": 39 } },
+        { "name": "Lundi de Pentecôte",    "rule": { "easter": 50 } },
+        { "name": "Fête nationale",        "rule": { "fixed": "06-23" } },
+        { "name": "Assomption",            "rule": { "fixed": "08-15" } },
+        { "name": "Toussaint",             "rule": { "fixed": "11-01" } },
+        { "name": "Noël",                  "rule": { "fixed": "12-25" } },
+        { "name": "Deuxième jour de Noël", "rule": { "fixed": "12-26" } }
+      ]
+    }
+  ]
+}

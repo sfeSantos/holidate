@@ -1,0 +1,23 @@
+{
+  "layers": [
+    {
+      "id": "PA",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "observance": "SUNDAY_TO_MONDAY",
+      "holidays": [
+        { "name": "Año Nuevo",                         "rule": { "fixed": "01-01" } },
+        { "name": "Día de los Mártires",               "rule": { "fixed": "01-09" } },
+        { "name": "Martes de Carnaval",                "rule": { "easter": -47 } },
+        { "name": "Viernes Santo",                     "rule": { "easter": -2 } },
+        { "name": "Día del Trabajo",                   "rule": { "fixed": "05-01" } },
+        { "name": "Separación de Panamá de Colombia",  "rule": { "fixed": "11-03" } },
+        { "name": "Día de Colón",                      "rule": { "fixed": "11-05" } },
+        { "name": "Primer Grito de Independencia",     "rule": { "fixed": "11-10" } },
+        { "name": "Independencia de Panamá de España", "rule": { "fixed": "11-28" } },
+        { "name": "Día de la Madre",                   "rule": { "fixed": "12-08" } },
+        { "name": "Día de Duelo Nacional",             "rule": { "fixed": "12-20" }, "from": 2022 },
+        { "name": "Navidad",                           "rule": { "fixed": "12-25" } }
+      ]
+    }
+  ]
+}
