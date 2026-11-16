@@ -1,0 +1,21 @@
+{
+  "layers": [
+    {
+      "id": "SV",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Año Nuevo",                            "rule": { "fixed": "01-01" } },
+        { "name": "Jueves Santo",                         "rule": { "easter": -3 } },
+        { "name": "Viernes Santo",                        "rule": { "easter": -2 } },
+        { "name": "Sábado Santo",                         "rule": { "easter": -1 } },
+        { "name": "Día del Trabajo",                      "rule": { "fixed": "05-01" } },
+        { "name": "Día de la Madre",                      "rule": { "fixed": "05-10" } },
+        { "name": "Día del Padre",                        "rule": { "fixed": "06-17" } },
+        { "name": "Fiesta del Divino Salvador del Mundo", "rule": { "fixed": "08-06" } },
+        { "name": "Día de la Independencia",              "rule": { "fixed": "09-15" } },
+        { "name": "Día de los Difuntos",                  "rule": { "fixed": "11-02" } },
+        { "name": "Navidad",                              "rule": { "fixed": "12-25" } }
+      ]
+    }
+  ]
+}

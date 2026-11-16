@@ -441,6 +441,7 @@ packs ship:
 | `BZ` | Belize | `BZ` | Government Press Office notices under the Holidays Act |
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
 | `GT` | Guatemala | `GT` | Código de Trabajo art. 127, Decreto 42-2010 |
+| `SV` | El Salvador | `SV` | Código de Trabajo art. 190 |
 
 Each pack is pinned by one test per year and per official source for 2025,
 2026 and 2027; updating a pack is editing the file and running the tests. The
