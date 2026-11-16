@@ -1,0 +1,146 @@
+{
+  "layers": [
+    {
+      "id": "DE",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Neujahr",                   "rule": { "fixed": "01-01" } },
+        { "name": "Karfreitag",                "rule": { "easter": -2 } },
+        { "name": "Ostermontag",               "rule": { "easter": 1 } },
+        { "name": "Tag der Arbeit",            "rule": { "fixed": "05-01" } },
+        { "name": "Christi Himmelfahrt",       "rule": { "easter": 39 } },
+        { "name": "Pfingstmontag",             "rule": { "easter": 50 } },
+        { "name": "Tag der Deutschen Einheit", "rule": { "fixed": "10-03" } },
+        { "name": "1. Weihnachtstag",          "rule": { "fixed": "12-25" } },
+        { "name": "2. Weihnachtstag",          "rule": { "fixed": "12-26" } }
+      ]
+    },
+    {
+      "id": "DE-BW",
+      "extends": "DE",
+      "holidays": [
+        { "name": "Erscheinungsfest", "rule": { "fixed": "01-06" } },
+        { "name": "Fronleichnam",     "rule": { "easter": 60 } },
+        { "name": "Allerheiligen",    "rule": { "fixed": "11-01" } }
+      ]
+    },
+    {
+      "id": "DE-BY",
+      "extends": "DE",
+      "holidays": [
+        { "name": "Heilige Drei Könige", "rule": { "fixed": "01-06" } },
+        { "name": "Fronleichnam",        "rule": { "easter": 60 } },
+        { "name": "Allerheiligen",       "rule": { "fixed": "11-01" } }
+      ]
+    },
+    {
+      "id": "DE-BE",
+      "extends": "DE",
+      "holidays": [
+        { "name": "Frauentag",         "rule": { "fixed": "03-08" }, "from": 2019 },
+        { "name": "Tag der Befreiung", "rule": { "date": "2025-05-08" } }
+      ]
+    },
+    {
+      "id": "DE-BB",
+      "extends": "DE",
+      "holidays": [
+        { "name": "Ostersonntag",     "rule": { "easter": 0 } },
+        { "name": "Pfingstsonntag",   "rule": { "easter": 49 } },
+        { "name": "Reformationsfest", "rule": { "fixed": "10-31" } }
+      ]
+    },
+    {
+      "id": "DE-HB",
+      "extends": "DE",
+      "holidays": [
+        { "name": "Reformationstag", "rule": { "fixed": "10-31" }, "from": 2018 }
+      ]
+    },
+    {
+      "id": "DE-HH",
+      "extends": "DE",
+      "holidays": [
+        { "name": "Reformationstag", "rule": { "fixed": "10-31" }, "from": 2018 }
+      ]
+    },
+    {
+      "id": "DE-HE",
+      "extends": "DE",
+      "holidays": [
+        { "name": "Fronleichnam", "rule": { "easter": 60 } }
+      ]
+    },
+    {
+      "id": "DE-MV",
+      "extends": "DE",
+      "holidays": [
+        { "name": "Frauentag",       "rule": { "fixed": "03-08" }, "from": 2023 },
+        { "name": "Reformationstag", "rule": { "fixed": "10-31" } }
+      ]
+    },
+    {
+      "id": "DE-NI",
+      "extends": "DE",
+      "holidays": [
+        { "name": "Reformationstag", "rule": { "fixed": "10-31" }, "from": 2018 }
+      ]
+    },
+    {
+      "id": "DE-NW",
+      "extends": "DE",
+      "holidays": [
+        { "name": "Fronleichnam",  "rule": { "easter": 60 } },
+        { "name": "Allerheiligen", "rule": { "fixed": "11-01" } }
+      ]
+    },
+    {
+      "id": "DE-RP",
+      "extends": "DE",
+      "holidays": [
+        { "name": "Fronleichnam",  "rule": { "easter": 60 } },
+        { "name": "Allerheiligen", "rule": { "fixed": "11-01" } }
+      ]
+    },
+    {
+      "id": "DE-SL",
+      "extends": "DE",
+      "holidays": [
+        { "name": "Fronleichnam",      "rule": { "easter": 60 } },
+        { "name": "Mariä Himmelfahrt", "rule": { "fixed": "08-15" } },
+        { "name": "Allerheiligen",     "rule": { "fixed": "11-01" } }
+      ]
+    },
+    {
+      "id": "DE-SN",
+      "extends": "DE",
+      "holidays": [
+        { "name": "Reformationsfest", "rule": { "fixed": "10-31" } },
+        { "name": "Buß- und Bettag",  "rule": { "weekdayBefore": "WEDNESDAY", "base": "11-23" } }
+      ]
+    },
+    {
+      "id": "DE-ST",
+      "extends": "DE",
+      "holidays": [
+        { "name": "Heilige Drei Könige", "rule": { "fixed": "01-06" } },
+        { "name": "Reformationstag",     "rule": { "fixed": "10-31" } }
+      ]
+    },
+    {
+      "id": "DE-SH",
+      "extends": "DE",
+      "holidays": [
+        { "name": "Reformationstag", "rule": { "fixed": "10-31" }, "from": 2018 }
+      ]
+    },
+    {
+      "id": "DE-TH",
+      "extends": "DE",
+      "holidays": [
+        { "name": "Weltkindertag",   "rule": { "fixed": "09-20" }, "from": 2019 },
+        { "name": "Reformationstag", "rule": { "fixed": "10-31" } }
+      ]
+    }
+  ]
+}

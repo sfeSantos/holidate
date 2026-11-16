@@ -1,0 +1,23 @@
+{
+  "layers": [
+    {
+      "id": "AT",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Neujahr",             "rule": { "fixed": "01-01" } },
+        { "name": "Heilige Drei Könige", "rule": { "fixed": "01-06" } },
+        { "name": "Ostermontag",         "rule": { "easter": 1 } },
+        { "name": "Staatsfeiertag",      "rule": { "fixed": "05-01" } },
+        { "name": "Christi Himmelfahrt", "rule": { "easter": 39 } },
+        { "name": "Pfingstmontag",       "rule": { "easter": 50 } },
+        { "name": "Fronleichnam",        "rule": { "easter": 60 } },
+        { "name": "Mariä Himmelfahrt",   "rule": { "fixed": "08-15" } },
+        { "name": "Nationalfeiertag",    "rule": { "fixed": "10-26" } },
+        { "name": "Allerheiligen",       "rule": { "fixed": "11-01" } },
+        { "name": "Mariä Empfängnis",    "rule": { "fixed": "12-08" } },
+        { "name": "Weihnachten",         "rule": { "fixed": "12-25" } },
+        { "name": "Stephanstag",         "rule": { "fixed": "12-26" } }
+      ]
+    }
+  ]
+}

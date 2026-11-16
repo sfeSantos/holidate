@@ -1,0 +1,30 @@
+{
+  "layers": [
+    {
+      "id": "PY",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Año Nuevo",                                         "rule": { "fixed": "01-01" } },
+        { "name": "Día de los Héroes de la Patria",                    "rule": { "nth": 1, "weekday": "MONDAY", "month": "MARCH" } },
+        { "name": "Jueves Santo",                                      "rule": { "easter": -3 } },
+        { "name": "Viernes Santo",                                     "rule": { "easter": -2 } },
+        { "name": "Día de los Trabajadores",                           "rule": { "fixed": "05-01" } },
+        { "name": "Día de la Independencia Nacional (14 de mayo)",     "rule": { "fixed": "05-14" } },
+        { "name": "Día de la Independencia Nacional (15 de mayo)",     "rule": { "fixed": "05-15" } },
+        { "name": "Día de la Paz del Chaco (2025)",                    "rule": { "date": "2025-06-16" } },
+        { "name": "Día de la Paz del Chaco",                           "rule": { "fixed": "06-12" }, "from": 2026 },
+        { "name": "Día de la Jura de la Constitución Nacional (2026)", "rule": { "date": "2026-06-22" } },
+        { "name": "Día de la Jura de la Constitución Nacional",        "rule": { "fixed": "06-20" }, "from": 2027 },
+        { "name": "Día de la Fundación de Asunción",                   "rule": { "fixed": "08-15" } },
+        { "name": "Día de la Batalla de Boquerón (2025)",              "rule": { "date": "2025-09-29" } },
+        { "name": "Día de la Batalla de Boquerón (2026)",              "rule": { "date": "2026-09-28" } },
+        { "name": "Día de la Batalla de Boquerón",                     "rule": { "fixed": "09-29" }, "from": 2027 },
+        { "name": "Día de la Virgen de Caacupé",                       "rule": { "fixed": "12-08" } },
+        { "name": "Día de la Navidad",                                 "rule": { "fixed": "12-25" } },
+        { "name": "Feriado nacional (5 de setiembre de 2025)",         "rule": { "date": "2025-09-05" } },
+        { "name": "Feriado nacional (26 de diciembre de 2025)",        "rule": { "date": "2025-12-26" } },
+        { "name": "Feriado nacional (30 de junio de 2026)",            "rule": { "date": "2026-06-30" } }
+      ]
+    }
+  ]
+}

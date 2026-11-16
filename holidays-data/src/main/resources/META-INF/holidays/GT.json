@@ -1,0 +1,22 @@
+{
+  "layers": [
+    {
+      "id": "GT",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Año Nuevo",               "rule": { "fixed": "01-01" } },
+        { "name": "Jueves Santo",            "rule": { "easter": -3 } },
+        { "name": "Viernes Santo",           "rule": { "easter": -2 } },
+        { "name": "Sábado Santo",            "rule": { "easter": -1 } },
+        { "name": "Día del Trabajo",         "rule": { "fixed": "05-01" } },
+        { "name": "Día del Ejército",        "rule": { "weekdayAfter": "MONDAY", "base": "06-27" } },
+        { "name": "Día de la Independencia", "rule": { "fixed": "09-15" } },
+        { "name": "Día de la Revolución",    "rule": { "fixed": "10-20" } },
+        { "name": "Día de Todos los Santos", "rule": { "fixed": "11-01" } },
+        { "name": "Nochebuena",              "rule": { "fixed": "12-24" }, "closesAt": "12:00" },
+        { "name": "Navidad",                 "rule": { "fixed": "12-25" } },
+        { "name": "Fin de Año",              "rule": { "fixed": "12-31" }, "closesAt": "12:00" }
+      ]
+    }
+  ]
+}
