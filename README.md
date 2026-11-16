@@ -454,16 +454,24 @@ packs ship:
 |---|---|---|---|
 | `BR` | Brazil | `BR`, `BR-RJ`, `BR-RJ-RIO` | Federal law, Rio de Janeiro state and city law |
 | `CZ` | Czechia | `CZ` | Zákon č. 245/2000 Sb. |
+| `DK` | Denmark | `DK` | Lov nr. 214 of 2023, lukkeloven § 2 |
+| `EE` | Estonia | `EE` | Pühade ja tähtpäevade seadus |
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
+| `FI` | Finland | `FI` | University of Helsinki Almanac Office, kirkkolaki |
 | `FR` | France | `FR` (metropolitan France) | Code du travail, article L3133-1 |
 | `GB` | United Kingdom | `GB` (the shared base, pick a nation), `GB-ENG`, `GB-NIR`, `GB-SCT`, `GB-WLS` | GOV.UK bank holidays |
 | `HR` | Croatia | `HR` | Zakon o blagdanima, spomendanima i neradnim danima (NN 110/2019) |
 | `HU` | Hungary | `HU` | Labour Code (2012. évi I. törvény), § 102 |
 | `IE` | Ireland | `IE` | Organisation of Working Time Act 1997, Workplace Relations Commission |
+| `IS` | Iceland | `IS` | Lög nr. 88/1971, lög nr. 32/1997 |
 | `IT` | Italy | `IT` | Legge 260/1949 as amended, last by Legge 151/2025 |
+| `LT` | Lithuania | `LT` | Darbo kodeksas, article 123 |
+| `LV` | Latvia | `LV` | Likums "Par svētku, atceres un atzīmējamām dienām" |
 | `MT` | Malta | `MT` | National Holidays and Other Public Holidays Act (Cap. 252) |
+| `NO` | Norway | `NO` | Lov om helligdager og helligdagsfred, lov om 1 og 17 mai |
 | `PL` | Poland | `PL` | Ustawa o dniach wolnych od pracy (1951) |
 | `PT` | Portugal | `PT`, `PT-11-LIS` (Lisboa), `PT-13-PRT` (Porto) | Código do Trabalho, artigos 234.º and 235.º |
+| `SE` | Sweden | `SE` | Lag (1989:253) om allmänna helgdagar |
 | `SI` | Slovenia | `SI` | Zakon o praznikih in dela prostih dnevih (ZPDPD) |
 | `SK` | Slovakia | `SK` | Zákon č. 241/1993 Z. z. |
 

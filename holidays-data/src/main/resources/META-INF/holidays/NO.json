@@ -1,0 +1,22 @@
+{
+  "layers": [
+    {
+      "id": "NO",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Nyttårsdag",            "rule": { "fixed": "01-01" } },
+        { "name": "Skjærtorsdag",          "rule": { "easter": -3 } },
+        { "name": "Langfredag",            "rule": { "easter": -2 } },
+        { "name": "Første påskedag",       "rule": { "easter": 0 } },
+        { "name": "Annen påskedag",        "rule": { "easter": 1 } },
+        { "name": "1. mai",                "rule": { "fixed": "05-01" } },
+        { "name": "17. mai",               "rule": { "fixed": "05-17" } },
+        { "name": "Kristi Himmelfartsdag", "rule": { "easter": 39 } },
+        { "name": "Første pinsedag",       "rule": { "easter": 49 } },
+        { "name": "Annen pinsedag",        "rule": { "easter": 50 } },
+        { "name": "Første juledag",        "rule": { "fixed": "12-25" } },
+        { "name": "Annen juledag",         "rule": { "fixed": "12-26" } }
+      ]
+    }
+  ]
+}
