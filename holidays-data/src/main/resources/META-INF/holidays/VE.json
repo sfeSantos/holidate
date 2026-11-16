@@ -1,0 +1,27 @@
+{
+  "layers": [
+    {
+      "id": "VE",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Año Nuevo",                                    "rule": { "fixed": "01-01" } },
+        { "name": "Lunes de Carnaval",                            "rule": { "easter": -48 } },
+        { "name": "Martes de Carnaval",                           "rule": { "easter": -47 } },
+        { "name": "Día de Júbilo Nacional (18 de marzo de 2026)", "rule": { "date": "2026-03-18" } },
+        { "name": "Jueves Santo",                                 "rule": { "easter": -3 } },
+        { "name": "Viernes Santo",                                "rule": { "easter": -2 } },
+        { "name": "Movimiento Precursor de la Independencia",     "rule": { "fixed": "04-19" } },
+        { "name": "Día del Trabajador",                           "rule": { "fixed": "05-01" } },
+        { "name": "Batalla de Carabobo",                          "rule": { "fixed": "06-24" } },
+        { "name": "Día de la Independencia",                      "rule": { "fixed": "07-05" } },
+        { "name": "Natalicio del Libertador",                     "rule": { "fixed": "07-24" } },
+        { "name": "Día de la Resistencia Indígena",               "rule": { "fixed": "10-12" } },
+        { "name": "Día no laborable (19 de octubre de 2025)",     "rule": { "date": "2025-10-19" } },
+        { "name": "Día no laborable (20 de octubre de 2025)",     "rule": { "date": "2025-10-20" } },
+        { "name": "Nochebuena",                                   "rule": { "fixed": "12-24" } },
+        { "name": "Navidad",                                      "rule": { "fixed": "12-25" } },
+        { "name": "Fin de Año",                                   "rule": { "fixed": "12-31" } }
+      ]
+    }
+  ]
+}

@@ -25,16 +25,19 @@ public final class BundledDataProvider implements HolidayDataProvider {
             "/META-INF/holidays/CA.json",
             "/META-INF/holidays/CH.json",
             "/META-INF/holidays/CL.json",
+            "/META-INF/holidays/CO.json",
             "/META-INF/holidays/CR.json",
             "/META-INF/holidays/CZ.json",
             "/META-INF/holidays/DE.json",
             "/META-INF/holidays/DK.json",
+            "/META-INF/holidays/EC.json",
             "/META-INF/holidays/EE.json",
             "/META-INF/holidays/ES.json",
             "/META-INF/holidays/FI.json",
             "/META-INF/holidays/FR.json",
             "/META-INF/holidays/GB.json",
             "/META-INF/holidays/GT.json",
+            "/META-INF/holidays/GY.json",
             "/META-INF/holidays/HN.json",
             "/META-INF/holidays/HR.json",
             "/META-INF/holidays/HU.json",
@@ -58,9 +61,11 @@ public final class BundledDataProvider implements HolidayDataProvider {
             "/META-INF/holidays/SE.json",
             "/META-INF/holidays/SI.json",
             "/META-INF/holidays/SK.json",
+            "/META-INF/holidays/SR.json",
             "/META-INF/holidays/SV.json",
             "/META-INF/holidays/US.json",
-            "/META-INF/holidays/UY.json");
+            "/META-INF/holidays/UY.json",
+            "/META-INF/holidays/VE.json");
 
     public BundledDataProvider() {}
 

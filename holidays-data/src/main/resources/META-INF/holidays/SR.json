@@ -1,0 +1,30 @@
+{
+  "layers": [
+    {
+      "id": "SR",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Nieuwjaarsdag",                                "rule": { "fixed": "01-01" } },
+        { "name": "Chinees Nieuwjaar 2025",                       "rule": { "date": "2025-01-29" } },
+        { "name": "Chinees Nieuwjaar 2026",                       "rule": { "date": "2026-02-17" } },
+        { "name": "Holi-dag 2025",                                "rule": { "date": "2025-03-14" } },
+        { "name": "Holi-dag 2026",                                "rule": { "date": "2026-03-03" } },
+        { "name": "Ied Ul Fitre 2025",                            "rule": { "date": "2025-03-31" } },
+        { "name": "Ied Ul Fitre",                                 "rule": { "hijri": "10-01" }, "from": 2026 },
+        { "name": "Goede Vrijdag",                                "rule": { "easter": -2 } },
+        { "name": "Tweede Paasdag",                               "rule": { "easter": 1 } },
+        { "name": "Dag van de Arbeid",                            "rule": { "fixed": "05-01" } },
+        { "name": "Ied Ul Adha",                                  "rule": { "hijri": "12-10" }, "from": 2012 },
+        { "name": "Eenmalige nationale vrije dag (20 juni 2025)", "rule": { "date": "2025-06-20" } },
+        { "name": "Keti Koti Dey",                                "rule": { "fixed": "07-01" } },
+        { "name": "Dag der Inheemsen",                            "rule": { "fixed": "08-09" }, "from": 2007 },
+        { "name": "Dag der Marrons",                              "rule": { "fixed": "10-10" }, "from": 2012 },
+        { "name": "Divali 2025",                                  "rule": { "date": "2025-10-20" } },
+        { "name": "Divali 2026",                                  "rule": { "date": "2026-11-08" } },
+        { "name": "Onafhankelijkheidsdag",                        "rule": { "fixed": "11-25" } },
+        { "name": "Eerste Kerstdag",                              "rule": { "fixed": "12-25" } },
+        { "name": "Tweede Kerstdag",                              "rule": { "fixed": "12-26" } }
+      ]
+    }
+  ]
+}

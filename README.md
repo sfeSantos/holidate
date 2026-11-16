@@ -462,16 +462,19 @@ packs ship:
 | `CA` | Canada | `CA` and the 13 provinces and territories (`CA-AB` to `CA-YT`) | Provincial and territorial employment standards laws |
 | `CH` | Switzerland | `CH` (the days common to all cantons) | Federal Constitution, SECO table of cantonal holidays |
 | `CL` | Chile | `CL` | Ley 2.977 and the laws that amend it (Biblioteca del Congreso Nacional) |
+| `CO` | Colombia | `CO` | Ley 51 de 1983, Ley 2578 de 2026 |
 | `CR` | Costa Rica | `CR` | Código de Trabajo art. 148, MTSS |
 | `CZ` | Czechia | `CZ` | Zákon č. 245/2000 Sb. |
 | `DE` | Germany | `DE` and the 16 Länder (`DE-BW` to `DE-TH`) | Holiday law of each Land, Einigungsvertrag |
 | `DK` | Denmark | `DK` | Lov nr. 214 of 2023, lukkeloven § 2 |
+| `EC` | Ecuador | `EC` | Código del Trabajo art. 65, government calendar 2025 to 2030, executive decrees |
 | `EE` | Estonia | `EE` | Pühade ja tähtpäevade seadus |
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
 | `FI` | Finland | `FI` | University of Helsinki Almanac Office, kirkkolaki |
 | `FR` | France | `FR` (metropolitan France) | Code du travail, article L3133-1 |
 | `GB` | United Kingdom | `GB` (the shared base, pick a nation), `GB-ENG`, `GB-NIR`, `GB-SCT`, `GB-WLS` | GOV.UK bank holidays |
 | `GT` | Guatemala | `GT` | Código de Trabajo art. 127, Decreto 42-2010 |
+| `GY` | Guyana | `GY` | Public Holidays Act Cap. 19:07, Ministry of Home Affairs notices |
 | `HN` | Honduras | `HN` | Código del Trabajo art. 339, Decreto 78-2015 |
 | `HR` | Croatia | `HR` | Zakon o blagdanima, spomendanima i neradnim danima (NN 110/2019) |
 | `HU` | Hungary | `HU` | Labour Code (2012. évi I. törvény), § 102 |
@@ -495,9 +498,11 @@ packs ship:
 | `SE` | Sweden | `SE` | Lag (1989:253) om allmänna helgdagar |
 | `SI` | Slovenia | `SI` | Zakon o praznikih in dela prostih dnevih (ZPDPD) |
 | `SK` | Slovakia | `SK` | Zákon č. 241/1993 Z. z. |
+| `SR` | Suriname | `SR` | Besluit Vrije Dagen 1971 (S.B. 2021 no. 27), Binnenlandse Zaken notices |
 | `SV` | El Salvador | `SV` | Código de Trabajo art. 190 |
 | `US` | United States | `US`, `US-MA`, `US-TX` | 5 U.S.C. 6103 and OPM, Massachusetts General Laws, Texas Government Code |
 | `UY` | Uruguay | `UY` | Decreto-Ley 14.977, Ley 12.590 and Ley 16.805 (IMPO) |
+| `VE` | Venezuela | `VE` | LOTTT art. 184, Ley de Fiestas Nacionales |
 
 Each pack is pinned by one test per year and per official source for 2025,
 2026 and 2027; updating a pack is editing the file and running the tests. The
