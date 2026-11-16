@@ -1,0 +1,22 @@
+{
+  "layers": [
+    {
+      "id": "HU",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Újév",                         "rule": { "fixed": "01-01" } },
+        { "name": "Az 1848-as forradalom ünnepe", "rule": { "fixed": "03-15" } },
+        { "name": "Nagypéntek",                   "rule": { "easter": -2 }, "from": 2017 },
+        { "name": "Húsvéthétfő",                  "rule": { "easter": 1 } },
+        { "name": "A munka ünnepe",               "rule": { "fixed": "05-01" } },
+        { "name": "Pünkösdhétfő",                 "rule": { "easter": 50 } },
+        { "name": "Az államalapítás ünnepe",      "rule": { "fixed": "08-20" } },
+        { "name": "Az 1956-os forradalom ünnepe", "rule": { "fixed": "10-23" } },
+        { "name": "Mindenszentek",                "rule": { "fixed": "11-01" } },
+        { "name": "Szenteste",                    "rule": { "fixed": "12-24" }, "from": 2026 },
+        { "name": "Karácsony",                    "rule": { "fixed": "12-25" } },
+        { "name": "Karácsony másnapja",           "rule": { "fixed": "12-26" } }
+      ]
+    }
+  ]
+}
