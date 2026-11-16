@@ -1,0 +1,43 @@
+{
+  "layers": [
+    {
+      "id": "US",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "observance": "SATURDAY_TO_FRIDAY_SUNDAY_TO_MONDAY",
+      "holidays": [
+        { "name": "New Year's Day",                       "rule": { "fixed": "01-01" } },
+        { "name": "Birthday of Martin Luther King, Jr.",  "rule": { "nth": 3, "weekday": "MONDAY", "month": "JANUARY" } },
+        { "name": "Washington's Birthday",                "rule": { "nth": 3, "weekday": "MONDAY", "month": "FEBRUARY" } },
+        { "name": "Memorial Day",                         "rule": { "nth": -1, "weekday": "MONDAY", "month": "MAY" } },
+        { "name": "Juneteenth National Independence Day", "rule": { "fixed": "06-19" }, "from": 2021 },
+        { "name": "Independence Day",                     "rule": { "fixed": "07-04" } },
+        { "name": "Labor Day",                            "rule": { "nth": 1, "weekday": "MONDAY", "month": "SEPTEMBER" } },
+        { "name": "Columbus Day",                         "rule": { "nth": 2, "weekday": "MONDAY", "month": "OCTOBER" } },
+        { "name": "Veterans Day",                         "rule": { "fixed": "11-11" } },
+        { "name": "Thanksgiving Day",                     "rule": { "nth": 4, "weekday": "THURSDAY", "month": "NOVEMBER" } },
+        { "name": "Christmas Day",                        "rule": { "fixed": "12-25" } }
+      ]
+    },
+    {
+      "id": "US-MA",
+      "extends": "US",
+      "holidays": [
+        { "name": "Patriots' Day", "rule": { "nth": 3, "weekday": "MONDAY", "month": "APRIL" } }
+      ]
+    },
+    {
+      "id": "US-TX",
+      "extends": "US",
+      "holidays": [
+        { "name": "Confederate Heroes Day",    "rule": { "fixed": "01-19" }, "type": "OBSERVANCE", "observance": "NONE" },
+        { "name": "Texas Independence Day",    "rule": { "fixed": "03-02" }, "type": "OBSERVANCE", "observance": "NONE" },
+        { "name": "San Jacinto Day",           "rule": { "fixed": "04-21" }, "type": "OBSERVANCE", "observance": "NONE" },
+        { "name": "Emancipation Day in Texas", "rule": { "fixed": "06-19" }, "type": "OBSERVANCE", "observance": "NONE" },
+        { "name": "Lyndon Baines Johnson Day", "rule": { "fixed": "08-27" }, "type": "OBSERVANCE", "observance": "NONE" },
+        { "name": "Day after Thanksgiving",    "rule": { "nth": 4, "weekday": "THURSDAY", "month": "NOVEMBER", "shift": 1 } },
+        { "name": "Christmas Eve Day",         "rule": { "fixed": "12-24" }, "observance": "NONE" },
+        { "name": "Day after Christmas",       "rule": { "fixed": "12-26" }, "observance": "NONE" }
+      ]
+    }
+  ]
+}
