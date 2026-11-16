@@ -438,6 +438,7 @@ packs ship:
 | Pack | Country | Layers | Source |
 |---|---|---|---|
 | `BR` | Brazil | `BR`, `BR-RJ`, `BR-RJ-RIO` | Federal law, Rio de Janeiro state and city law |
+| `CA` | Canada | `CA` and the 13 provinces and territories (`CA-AB` to `CA-YT`) | Provincial and territorial employment standards laws |
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
 | `NZ` | New Zealand | `NZ` | Holidays Act 2003, Te Kāhui o Matariki Public Holiday Act 2022 |
 
