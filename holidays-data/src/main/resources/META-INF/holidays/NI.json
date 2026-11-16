@@ -1,0 +1,24 @@
+{
+  "layers": [
+    {
+      "id": "NI",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Año Nuevo",                                   "rule": { "fixed": "01-01" } },
+        { "name": "Natalicio de Rubén Darío",                    "rule": { "fixed": "01-18" }, "from": 2027 },
+        { "name": "Día Nacional de la Reconciliación y la Paz",  "rule": { "fixed": "02-02" }, "from": 2026 },
+        { "name": "Muerte del General Augusto C. Sandino",       "rule": { "fixed": "02-21" }, "from": 2026 },
+        { "name": "Jueves Santo",                                "rule": { "easter": -3 } },
+        { "name": "Viernes Santo",                               "rule": { "easter": -2 } },
+        { "name": "Día Internacional del Trabajo",               "rule": { "fixed": "05-01" } },
+        { "name": "Día de la Madre",                             "rule": { "fixed": "05-30" }, "from": 2022 },
+        { "name": "Día de la Revolución",                        "rule": { "fixed": "07-19" } },
+        { "name": "Batalla de San Jacinto",                      "rule": { "fixed": "09-14" } },
+        { "name": "Día de la Independencia",                     "rule": { "fixed": "09-15" } },
+        { "name": "Muerte del Comandante Carlos Fonseca Amador", "rule": { "fixed": "11-08" }, "from": 2026 },
+        { "name": "Inmaculada Concepción de María",              "rule": { "fixed": "12-08" } },
+        { "name": "Navidad",                                     "rule": { "fixed": "12-25" } }
+      ]
+    }
+  ]
+}

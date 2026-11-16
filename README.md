@@ -456,8 +456,10 @@ packs ship:
 | `AU` | Australia | `AU` and the 8 states and territories (`AU-ACT` to `AU-WA`) | State and territory holiday acts and government lists |
 | `BE` | Belgium | `BE` | Royal decree of 18 April 1974, Royal Observatory |
 | `BR` | Brazil | `BR`, `BR-RJ`, `BR-RJ-RIO` | Federal law, Rio de Janeiro state and city law |
+| `BZ` | Belize | `BZ` | Government Press Office notices under the Holidays Act |
 | `CA` | Canada | `CA` and the 13 provinces and territories (`CA-AB` to `CA-YT`) | Provincial and territorial employment standards laws |
 | `CH` | Switzerland | `CH` (the days common to all cantons) | Federal Constitution, SECO table of cantonal holidays |
+| `CR` | Costa Rica | `CR` | Código de Trabajo art. 148, MTSS |
 | `CZ` | Czechia | `CZ` | Zákon č. 245/2000 Sb. |
 | `DE` | Germany | `DE` and the 16 Länder (`DE-BW` to `DE-TH`) | Holiday law of each Land, Einigungsvertrag |
 | `DK` | Denmark | `DK` | Lov nr. 214 of 2023, lukkeloven § 2 |
@@ -466,6 +468,8 @@ packs ship:
 | `FI` | Finland | `FI` | University of Helsinki Almanac Office, kirkkolaki |
 | `FR` | France | `FR` (metropolitan France) | Code du travail, article L3133-1 |
 | `GB` | United Kingdom | `GB` (the shared base, pick a nation), `GB-ENG`, `GB-NIR`, `GB-SCT`, `GB-WLS` | GOV.UK bank holidays |
+| `GT` | Guatemala | `GT` | Código de Trabajo art. 127, Decreto 42-2010 |
+| `HN` | Honduras | `HN` | Código del Trabajo art. 339, Decreto 78-2015 |
 | `HR` | Croatia | `HR` | Zakon o blagdanima, spomendanima i neradnim danima (NN 110/2019) |
 | `HU` | Hungary | `HU` | Labour Code (2012. évi I. törvény), § 102 |
 | `IE` | Ireland | `IE` | Organisation of Working Time Act 1997, Workplace Relations Commission |
@@ -476,14 +480,17 @@ packs ship:
 | `LU` | Luxembourg | `LU` | Code du travail, government circular |
 | `LV` | Latvia | `LV` | Likums "Par svētku, atceres un atzīmējamām dienām" |
 | `MT` | Malta | `MT` | National Holidays and Other Public Holidays Act (Cap. 252) |
+| `NI` | Nicaragua | `NI` | Código del Trabajo art. 66 |
 | `NL` | Netherlands | `NL` | Rijksoverheid, Algemene termijnenwet |
 | `NO` | Norway | `NO` | Lov om helligdager og helligdagsfred, lov om 1 og 17 mai |
 | `NZ` | New Zealand | `NZ` | Holidays Act 2003, Te Kāhui o Matariki Public Holiday Act 2022 |
+| `PA` | Panama | `PA` | Código de Trabajo art. 46 and 47 |
 | `PL` | Poland | `PL` | Ustawa o dniach wolnych od pracy (1951) |
 | `PT` | Portugal | `PT`, `PT-11-LIS` (Lisboa), `PT-13-PRT` (Porto) | Código do Trabalho, artigos 234.º and 235.º |
 | `SE` | Sweden | `SE` | Lag (1989:253) om allmänna helgdagar |
 | `SI` | Slovenia | `SI` | Zakon o praznikih in dela prostih dnevih (ZPDPD) |
 | `SK` | Slovakia | `SK` | Zákon č. 241/1993 Z. z. |
+| `SV` | El Salvador | `SV` | Código de Trabajo art. 190 |
 | `US` | United States | `US`, `US-MA`, `US-TX` | 5 U.S.C. 6103 and OPM, Massachusetts General Laws, Texas Government Code |
 
 Each pack is pinned by one test per year and per official source for 2025,

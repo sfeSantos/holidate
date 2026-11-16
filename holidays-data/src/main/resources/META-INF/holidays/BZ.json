@@ -1,0 +1,26 @@
+{
+  "layers": [
+    {
+      "id": "BZ",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "observance": "SUNDAY_TO_MONDAY",
+      "holidays": [
+        { "name": "New Year's Day",                      "rule": { "fixed": "01-01" } },
+        { "name": "George Price Day",                    "rule": { "fixed": "01-15" }, "from": 2021 },
+        { "name": "National Heroes and Benefactors Day", "rule": { "weekdayAfter": "MONDAY", "base": "03-05" } },
+        { "name": "General Election Day",                "rule": { "date": "2025-03-12" } },
+        { "name": "Good Friday",                         "rule": { "easter": -2 } },
+        { "name": "Holy Saturday",                       "rule": { "easter": -1 } },
+        { "name": "Easter Monday",                       "rule": { "easter": 1 } },
+        { "name": "Labour Day",                          "rule": { "fixed": "05-01" }, "observance": "WEEKEND_TO_MONDAY" },
+        { "name": "Emancipation Day",                    "rule": { "fixed": "08-01" }, "from": 2021 },
+        { "name": "St. George's Caye Day",               "rule": { "fixed": "09-10" } },
+        { "name": "Independence Day",                    "rule": { "fixed": "09-21" } },
+        { "name": "Indigenous People's Resistance Day",  "rule": { "weekdayAfter": "MONDAY", "base": "10-08" } },
+        { "name": "Garifuna Settlement Day",             "rule": { "fixed": "11-19" } },
+        { "name": "Christmas Day",                       "rule": { "fixed": "12-25" } },
+        { "name": "Boxing Day",                          "rule": { "fixed": "12-26" } }
+      ]
+    }
+  ]
+}

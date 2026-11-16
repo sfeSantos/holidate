@@ -1,0 +1,21 @@
+{
+  "layers": [
+    {
+      "id": "HN",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Año Nuevo",                  "rule": { "fixed": "01-01" } },
+        { "name": "Jueves Santo",               "rule": { "easter": -3 } },
+        { "name": "Viernes Santo",              "rule": { "easter": -2 } },
+        { "name": "Sábado Santo",               "rule": { "easter": -1 } },
+        { "name": "Día de las Américas",        "rule": { "fixed": "04-14" } },
+        { "name": "Día del Trabajo",            "rule": { "fixed": "05-01" } },
+        { "name": "Día de la Independencia",    "rule": { "fixed": "09-15" } },
+        { "name": "Día de Morazán",             "rule": { "nth": 1, "weekday": "WEDNESDAY", "month": "OCTOBER" } },
+        { "name": "Descubrimiento de América",  "rule": { "nth": 1, "weekday": "WEDNESDAY", "month": "OCTOBER", "shift": 1 } },
+        { "name": "Día de las Fuerzas Armadas", "rule": { "nth": 1, "weekday": "WEDNESDAY", "month": "OCTOBER", "shift": 2 } },
+        { "name": "Navidad",                    "rule": { "fixed": "12-25" } }
+      ]
+    }
+  ]
+}

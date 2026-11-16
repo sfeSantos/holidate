@@ -1,0 +1,22 @@
+{
+  "layers": [
+    {
+      "id": "CR",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Año Nuevo",                                              "rule": { "fixed": "01-01" } },
+        { "name": "Jueves Santo",                                           "rule": { "easter": -3 } },
+        { "name": "Viernes Santo",                                          "rule": { "easter": -2 } },
+        { "name": "Día de Juan Santamaría",                                 "rule": { "fixed": "04-11" } },
+        { "name": "Día Internacional del Trabajo",                          "rule": { "fixed": "05-01" } },
+        { "name": "Anexión del Partido de Nicoya",                          "rule": { "fixed": "07-25" } },
+        { "name": "Día de la Virgen de los Ángeles",                        "rule": { "fixed": "08-02" } },
+        { "name": "Día de la Madre",                                        "rule": { "fixed": "08-15" } },
+        { "name": "Día de la Persona Negra y la Cultura Afrocostarricense", "rule": { "fixed": "08-31" } },
+        { "name": "Día de la Independencia",                                "rule": { "fixed": "09-15" } },
+        { "name": "Día de la Abolición del Ejército",                       "rule": { "fixed": "12-01" }, "from": 2020 },
+        { "name": "Navidad",                                                "rule": { "fixed": "12-25" } }
+      ]
+    }
+  ]
+}
