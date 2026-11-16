@@ -1,0 +1,29 @@
+{
+  "layers": [
+    {
+      "id": "CO",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Año Nuevo",                                  "rule": { "fixed": "01-01" } },
+        { "name": "Día de los Reyes Magos",                     "rule": { "weekdayAfter": "MONDAY", "base": "01-05" } },
+        { "name": "Día de San José",                            "rule": { "weekdayAfter": "MONDAY", "base": "03-18" } },
+        { "name": "Jueves Santo",                               "rule": { "easter": -3 } },
+        { "name": "Viernes Santo",                              "rule": { "easter": -2 } },
+        { "name": "Día del Trabajo",                            "rule": { "fixed": "05-01" } },
+        { "name": "Ascensión del Señor",                        "rule": { "easter": 43 } },
+        { "name": "Corpus Christi",                             "rule": { "easter": 64 } },
+        { "name": "Sagrado Corazón de Jesús",                   "rule": { "easter": 71 } },
+        { "name": "San Pedro y San Pablo",                      "rule": { "weekdayAfter": "MONDAY", "base": "06-28" } },
+        { "name": "Nuestra Señora del Rosario de Chiquinquirá", "rule": { "weekdayAfter": "MONDAY", "base": "07-08" }, "from": 2026 },
+        { "name": "Día de la Independencia",                    "rule": { "fixed": "07-20" } },
+        { "name": "Batalla de Boyacá",                          "rule": { "fixed": "08-07" } },
+        { "name": "Asunción de la Virgen",                      "rule": { "weekdayAfter": "MONDAY", "base": "08-14" } },
+        { "name": "Día de la Diversidad Étnica y Cultural",     "rule": { "weekdayAfter": "MONDAY", "base": "10-11" } },
+        { "name": "Día de Todos los Santos",                    "rule": { "weekdayAfter": "MONDAY", "base": "10-31" } },
+        { "name": "Independencia de Cartagena",                 "rule": { "weekdayAfter": "MONDAY", "base": "11-10" } },
+        { "name": "Inmaculada Concepción",                      "rule": { "fixed": "12-08" } },
+        { "name": "Navidad",                                    "rule": { "fixed": "12-25" } }
+      ]
+    }
+  ]
+}
