@@ -16,6 +16,7 @@ public final class BundledDataProvider implements HolidayDataProvider {
 
     private static final ClasspathDataProvider PACKS = ClasspathDataProvider.of(BundledDataProvider.class,
             "/META-INF/holidays/AR.json",
+            "/META-INF/holidays/BO.json",
             "/META-INF/holidays/BR.json",
             "/META-INF/holidays/CL.json",
             "/META-INF/holidays/ES.json",
