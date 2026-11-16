@@ -1,0 +1,22 @@
+{
+  "layers": [
+    {
+      "id": "IT",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Capodanno",                      "rule": { "fixed": "01-01" } },
+        { "name": "Epifania",                       "rule": { "fixed": "01-06" } },
+        { "name": "Lunedì dopo Pasqua",             "rule": { "easter": 1 } },
+        { "name": "Anniversario della Liberazione", "rule": { "fixed": "04-25" } },
+        { "name": "Festa del Lavoro",               "rule": { "fixed": "05-01" } },
+        { "name": "Festa della Repubblica",         "rule": { "fixed": "06-02" }, "from": 2001 },
+        { "name": "Assunzione",                     "rule": { "fixed": "08-15" } },
+        { "name": "San Francesco d'Assisi",         "rule": { "fixed": "10-04" }, "from": 2026 },
+        { "name": "Ognissanti",                     "rule": { "fixed": "11-01" } },
+        { "name": "Immacolata Concezione",          "rule": { "fixed": "12-08" } },
+        { "name": "Natale",                         "rule": { "fixed": "12-25" } },
+        { "name": "Santo Stefano",                  "rule": { "fixed": "12-26" } }
+      ]
+    }
+  ]
+}

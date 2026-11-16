@@ -16,15 +16,27 @@ public final class BundledDataProvider implements HolidayDataProvider {
 
     private static final ClasspathDataProvider PACKS = ClasspathDataProvider.of(BundledDataProvider.class,
             "/META-INF/holidays/BR.json",
+            "/META-INF/holidays/CZ.json",
             "/META-INF/holidays/DK.json",
             "/META-INF/holidays/EE.json",
             "/META-INF/holidays/ES.json",
             "/META-INF/holidays/FI.json",
+            "/META-INF/holidays/FR.json",
+            "/META-INF/holidays/GB.json",
+            "/META-INF/holidays/HR.json",
+            "/META-INF/holidays/HU.json",
+            "/META-INF/holidays/IE.json",
             "/META-INF/holidays/IS.json",
+            "/META-INF/holidays/IT.json",
             "/META-INF/holidays/LT.json",
             "/META-INF/holidays/LV.json",
+            "/META-INF/holidays/MT.json",
             "/META-INF/holidays/NO.json",
-            "/META-INF/holidays/SE.json");
+            "/META-INF/holidays/PL.json",
+            "/META-INF/holidays/PT.json",
+            "/META-INF/holidays/SE.json",
+            "/META-INF/holidays/SI.json",
+            "/META-INF/holidays/SK.json");
 
     public BundledDataProvider() {}
 
