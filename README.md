@@ -442,6 +442,7 @@ packs ship:
 | `CL` | Chile | `CL` | Ley 2.977 and the laws that amend it (Biblioteca del Congreso Nacional) |
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
 | `PE` | Peru | `PE` | Decreto Legislativo 713, article 6, and the lists at gob.pe/feriados |
+| `PY` | Paraguay | `PY` | Ley 7544/2025 and the yearly decrees |
 | `UY` | Uruguay | `UY` | Decreto-Ley 14.977, Ley 12.590 and Ley 16.805 (IMPO) |
 
 Each pack is pinned by one test per year and per official source for 2025,
