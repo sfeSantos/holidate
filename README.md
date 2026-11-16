@@ -785,9 +785,10 @@ var greece = HolidayCalendar.builder()
 greece.holidayOn(LocalDate.of(2026, 4, 10));              // Μεγάλη Παρασκευή
 ```
 
-The JSON format has no member for the Easter algorithm yet, so a pack loaded
-through the registry uses the Gregorian one; an Orthodox calendar is built in
-code for now.
+The JSON format has no member for the Easter algorithm, so
+`registry.calendar(id)` builds a pack with the Gregorian one. For an Orthodox
+country ask the registry for the builder and set it there:
+`registry.builder("GR").easter(EasterAlgorithm.orthodox()).build()`.
 
 **`HebrewCalendar`** and **`HebrewMonth`** (`io.github.sfesantos.holidays.hebrew`)
 are the arithmetic behind `Holiday.hebrew`, usable on their own:
@@ -1026,6 +1027,10 @@ second each. The targets are the ones the project set for itself at the start.
 | `businessDurationBetween` over 1000 business days | 5.8 µs | 24 B | |
 | `union` of two calendars, `isBusinessDay` | 1.3 ns | 0 B | |
 | First touch of a year (build the index) | 3.1 µs | 10.8 KB | < 50 µs |
+| First touch of a year, Orthodox calendar of 12 holidays | 2.7 µs | 9.0 KB | |
+| `GregorianEaster.of(year)` | 9.7 ns | 24 B (the `LocalDate`) | |
+| `OrthodoxEaster.of(year)` | 8.1 ns | 24 B | |
+| `JulianEaster.of(year)` | 6.4 ns | 24 B | |
 | `HolidayCalendar.builder().build()` | 0.3 µs | 5.5 KB | |
 | Heap for 100 indexed years | 164 KB | 1.6 KB per year | < 500 KB |
 
