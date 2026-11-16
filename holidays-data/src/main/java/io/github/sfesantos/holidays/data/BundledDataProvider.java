@@ -15,6 +15,7 @@ import io.github.sfesantos.holidays.registry.HolidayDataProvider;
 public final class BundledDataProvider implements HolidayDataProvider {
 
     private static final ClasspathDataProvider PACKS = ClasspathDataProvider.of(BundledDataProvider.class,
+            "/META-INF/holidays/AU.json",
             "/META-INF/holidays/BR.json",
             "/META-INF/holidays/CA.json",
             "/META-INF/holidays/ES.json",

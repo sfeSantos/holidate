@@ -437,6 +437,7 @@ packs ship:
 
 | Pack | Country | Layers | Source |
 |---|---|---|---|
+| `AU` | Australia | `AU` and the 8 states and territories (`AU-ACT` to `AU-WA`) | State and territory holiday acts and government lists |
 | `BR` | Brazil | `BR`, `BR-RJ`, `BR-RJ-RIO` | Federal law, Rio de Janeiro state and city law |
 | `CA` | Canada | `CA` and the 13 provinces and territories (`CA-AB` to `CA-YT`) | Provincial and territorial employment standards laws |
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
