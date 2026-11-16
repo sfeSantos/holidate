@@ -452,8 +452,12 @@ packs ship:
 
 | Pack | Country | Layers | Source |
 |---|---|---|---|
+| `AT` | Austria | `AT` | Arbeitsruhegesetz § 7 |
+| `BE` | Belgium | `BE` | Royal decree of 18 April 1974, Royal Observatory |
 | `BR` | Brazil | `BR`, `BR-RJ`, `BR-RJ-RIO` | Federal law, Rio de Janeiro state and city law |
+| `CH` | Switzerland | `CH` (the days common to all cantons) | Federal Constitution, SECO table of cantonal holidays |
 | `CZ` | Czechia | `CZ` | Zákon č. 245/2000 Sb. |
+| `DE` | Germany | `DE` and the 16 Länder (`DE-BW` to `DE-TH`) | Holiday law of each Land, Einigungsvertrag |
 | `DK` | Denmark | `DK` | Lov nr. 214 of 2023, lukkeloven § 2 |
 | `EE` | Estonia | `EE` | Pühade ja tähtpäevade seadus |
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
@@ -465,9 +469,12 @@ packs ship:
 | `IE` | Ireland | `IE` | Organisation of Working Time Act 1997, Workplace Relations Commission |
 | `IS` | Iceland | `IS` | Lög nr. 88/1971, lög nr. 32/1997 |
 | `IT` | Italy | `IT` | Legge 260/1949 as amended, last by Legge 151/2025 |
+| `LI` | Liechtenstein | `LI` | Arbeitsgesetz Art. 18 |
 | `LT` | Lithuania | `LT` | Darbo kodeksas, article 123 |
+| `LU` | Luxembourg | `LU` | Code du travail, government circular |
 | `LV` | Latvia | `LV` | Likums "Par svētku, atceres un atzīmējamām dienām" |
 | `MT` | Malta | `MT` | National Holidays and Other Public Holidays Act (Cap. 252) |
+| `NL` | Netherlands | `NL` | Rijksoverheid, Algemene termijnenwet |
 | `NO` | Norway | `NO` | Lov om helligdager og helligdagsfred, lov om 1 og 17 mai |
 | `PL` | Poland | `PL` | Ustawa o dniach wolnych od pracy (1951) |
 | `PT` | Portugal | `PT`, `PT-11-LIS` (Lisboa), `PT-13-PRT` (Porto) | Código do Trabalho, artigos 234.º and 235.º |

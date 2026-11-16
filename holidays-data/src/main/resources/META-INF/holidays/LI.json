@@ -1,0 +1,23 @@
+{
+  "layers": [
+    {
+      "id": "LI",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Neujahr",             "rule": { "fixed": "01-01" } },
+        { "name": "Hl. Drei Könige",     "rule": { "fixed": "01-06" } },
+        { "name": "Ostermontag",         "rule": { "easter": 1 } },
+        { "name": "1. Mai",              "rule": { "fixed": "05-01" } },
+        { "name": "Christi Himmelfahrt", "rule": { "easter": 39 } },
+        { "name": "Pfingstmontag",       "rule": { "easter": 50 } },
+        { "name": "Fronleichnam",        "rule": { "easter": 60 } },
+        { "name": "Maria Himmelfahrt",   "rule": { "fixed": "08-15" } },
+        { "name": "Maria Geburt",        "rule": { "fixed": "09-08" } },
+        { "name": "Allerheiligen",       "rule": { "fixed": "11-01" } },
+        { "name": "Maria Empfängnis",    "rule": { "fixed": "12-08" } },
+        { "name": "Weihnacht",           "rule": { "fixed": "12-25" } },
+        { "name": "St. Stephanstag",     "rule": { "fixed": "12-26" } }
+      ]
+    }
+  ]
+}
