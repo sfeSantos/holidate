@@ -1,0 +1,21 @@
+{
+  "layers": [
+    {
+      "id": "FR",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Jour de l'An",       "rule": { "fixed": "01-01" } },
+        { "name": "Lundi de Pâques",    "rule": { "easter": 1 } },
+        { "name": "Fête du Travail",    "rule": { "fixed": "05-01" } },
+        { "name": "Victoire 1945",      "rule": { "fixed": "05-08" } },
+        { "name": "Ascension",          "rule": { "easter": 39 } },
+        { "name": "Lundi de Pentecôte", "rule": { "easter": 50 } },
+        { "name": "Fête nationale",     "rule": { "fixed": "07-14" } },
+        { "name": "Assomption",         "rule": { "fixed": "08-15" } },
+        { "name": "Toussaint",          "rule": { "fixed": "11-01" } },
+        { "name": "Armistice 1918",     "rule": { "fixed": "11-11" } },
+        { "name": "Noël",               "rule": { "fixed": "12-25" } }
+      ]
+    }
+  ]
+}

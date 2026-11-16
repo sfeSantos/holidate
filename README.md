@@ -29,9 +29,9 @@ Version 1.0.0 is on Maven Central. It covers rules, layers, observance, the
 queries, navigation (`nextHoliday`, `addBusinessDays`, `businessDaysBetween`),
 `TemporalAdjuster` and `TemporalQuery` integration, `Clock` overloads, `union`
 of calendars, payment date conventions and cut-off times, business hours and
-half days, Islamic and Hebrew calendar rules, the JSON data format, a calendar
-registry with a provider SPI and the `holidays-data` module with Spain and
-Brazil. The public API is stable from this version on; see
+half days, Islamic and Hebrew calendar rules, the JSON data format, iCalendar
+(`.ics`) export, a calendar registry with a provider SPI and the
+`holidays-data` module with Spain and Brazil. The public API is stable from this version on; see
 [Versioning](#versioning). The roadmap is the
 [issue list](https://github.com/sfeSantos/holidate/issues).
 
@@ -414,6 +414,21 @@ and observances exist only in Java and cannot be written. The JSON Schema
 ships in the jar at `META-INF/holidays/holidays.schema.json`, so files can be
 validated with any tool before loading.
 
+To see the holidays in Outlook, Google Calendar or a phone, export the
+calendar as iCalendar. `ICalendar.write` produces one all-day event per
+holiday on its observed date, for every year from the first to the last
+given, both inclusive:
+
+```java
+ICalendar.write(calendar, "ES-AN-MA", Year.of(2026), Year.of(2027), Clock.systemUTC(), Path.of("malaga.ics"));
+```
+
+A calendar has no name of its own, so you pass one. It names the calendar in
+the client and is part of each event's `UID`, together with the layer, the
+holiday name and the date. Export again with the same name and the client
+updates the events it already has instead of adding them twice. The clock
+only stamps `DTSTAMP`. This is export only: the library does not read `.ics`.
+
 ## Country packs and the registry
 
 `holidays-data` ships one JSON file per country under `META-INF/holidays`
@@ -440,9 +455,15 @@ packs ship:
 | `BR` | Brazil | `BR`, `BR-RJ`, `BR-RJ-RIO` | Federal law, Rio de Janeiro state and city law |
 | `CZ` | Czechia | `CZ` | Zákon č. 245/2000 Sb. |
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
+| `FR` | France | `FR` (metropolitan France) | Code du travail, article L3133-1 |
+| `GB` | United Kingdom | `GB` (the shared base, pick a nation), `GB-ENG`, `GB-NIR`, `GB-SCT`, `GB-WLS` | GOV.UK bank holidays |
 | `HR` | Croatia | `HR` | Zakon o blagdanima, spomendanima i neradnim danima (NN 110/2019) |
 | `HU` | Hungary | `HU` | Labour Code (2012. évi I. törvény), § 102 |
+| `IE` | Ireland | `IE` | Organisation of Working Time Act 1997, Workplace Relations Commission |
+| `IT` | Italy | `IT` | Legge 260/1949 as amended, last by Legge 151/2025 |
+| `MT` | Malta | `MT` | National Holidays and Other Public Holidays Act (Cap. 252) |
 | `PL` | Poland | `PL` | Ustawa o dniach wolnych od pracy (1951) |
+| `PT` | Portugal | `PT`, `PT-11-LIS` (Lisboa), `PT-13-PRT` (Porto) | Código do Trabalho, artigos 234.º and 235.º |
 | `SI` | Slovenia | `SI` | Zakon o praznikih in dela prostih dnevih (ZPDPD) |
 | `SK` | Slovakia | `SK` | Zákon č. 241/1993 Z. z. |
 
@@ -603,8 +624,9 @@ the temporal they are given and throw `DateTimeException` in that case.
 for the Gulf, a single day, or none. The builder's weekend is the fallback;
 the highest layer that declares one wins.
 
-**Easter.** Gregorian by default. Plug a different `EasterAlgorithm` into the
-builder for Julian or Orthodox dates.
+**Easter.** Gregorian by default. `EasterAlgorithm.orthodox()` and
+`EasterAlgorithm.julian()` ship too, and any other `EasterAlgorithm` plugs
+into the builder the same way.
 
 ## Classes
 
@@ -772,19 +794,34 @@ hours.isAllDay();                       // false
 ### Easter and other calendars
 
 **`EasterAlgorithm`** (`io.github.sfesantos.holidays.easter`) turns a year
-into Easter Sunday. `EasterAlgorithm.gregorian()` is the default; any
-implementation plugs into the builder, which is how Julian or Orthodox dates
-would come in. **`GregorianEaster.of(year)`** is the computation on its own.
+into Easter Sunday. `EasterAlgorithm.gregorian()` is the default.
+`EasterAlgorithm.orthodox()` is Easter as the Orthodox churches keep it
+(Greece, Cyprus, Romania, Bulgaria, Serbia): computed in the Julian calendar
+and observed on the Gregorian date of that day, 13 days later from 1900 to
+2099. `EasterAlgorithm.julian()` gives the same Sunday with the month and day
+the Julian calendar calls it. A calendar has one Easter, chosen on the
+builder, and every Easter-relative holiday follows it; any other
+implementation plugs in the same way. **`GregorianEaster.of(year)`**,
+**`OrthodoxEaster.of(year)`** and **`JulianEaster.of(year)`** are the
+computations on their own.
 
 ```java
 GregorianEaster.of(2026);                                 // 2026-04-05
+OrthodoxEaster.of(2026);                                  // 2026-04-12
+JulianEaster.of(2026);                                    // 03-30 in the Julian calendar
 
-EasterAlgorithm julianOnGregorian = year -> /* your Julian computation */ LocalDate.of(year, 4, 12);
-var orthodox = HolidayCalendar.builder()
-        .easter(julianOnGregorian)
+var greece = HolidayCalendar.builder()
+        .easter(EasterAlgorithm.orthodox())
         .layer(Layer.named("GR").add(Holiday.easterRelative("Μεγάλη Παρασκευή", -2)).build())
         .build();
+
+greece.holidayOn(LocalDate.of(2026, 4, 10));              // Μεγάλη Παρασκευή
 ```
+
+The JSON format has no member for the Easter algorithm, so
+`registry.calendar(id)` builds a pack with the Gregorian one. For an Orthodox
+country ask the registry for the builder and set it there:
+`registry.builder("GR").easter(EasterAlgorithm.orthodox()).build()`.
 
 **`HebrewCalendar`** and **`HebrewMonth`** (`io.github.sfesantos.holidays.hebrew`)
 are the arithmetic behind `Holiday.hebrew`, usable on their own:
@@ -815,6 +852,20 @@ try {
 } catch (HolidayFormatException e) {
     log.error("ES.json line {} column {}: {}", e.line(), e.column(), e.getMessage());
 }
+```
+
+**`ICalendar`** writes a calendar's holidays as iCalendar (RFC 5545) text.
+`write(calendar, name, from, until, clock)` returns the text, and the same
+call with a `Writer` or a `Path` at the end sends it there, as UTF-8. Each
+occurrence is an all-day `VEVENT` with the name in `SUMMARY`, the
+`HolidayType` in `CATEGORIES` and the type, the layer and, for a moved
+holiday, the original date in `DESCRIPTION`. Lines are folded at 75 octets and
+text is escaped as the RFC asks. Years are listed with `holidaysIn(Year)`, so
+a moved or shifted date can fall in a neighbouring year.
+
+```java
+var ics = ICalendar.write(calendar, "ES-AN-MA", Year.of(2026), Year.of(2026), Clock.systemUTC());
+// BEGIN:VCALENDAR, VERSION:2.0, ... 14 VEVENTs ... END:VCALENDAR
 ```
 
 ### Registry (`io.github.sfesantos.holidays.registry`)
@@ -1023,6 +1074,10 @@ second each. The targets are the ones the project set for itself at the start.
 | `businessDurationBetween` over 1000 business days | 5.8 µs | 24 B | |
 | `union` of two calendars, `isBusinessDay` | 1.3 ns | 0 B | |
 | First touch of a year (build the index) | 3.1 µs | 10.8 KB | < 50 µs |
+| First touch of a year, Orthodox calendar of 12 holidays | 2.7 µs | 9.0 KB | |
+| `GregorianEaster.of(year)` | 9.7 ns | 24 B (the `LocalDate`) | |
+| `OrthodoxEaster.of(year)` | 8.1 ns | 24 B | |
+| `JulianEaster.of(year)` | 6.4 ns | 24 B | |
 | `HolidayCalendar.builder().build()` | 0.3 µs | 5.5 KB | |
 | Heap for 100 indexed years | 164 KB | 1.6 KB per year | < 500 KB |
 
