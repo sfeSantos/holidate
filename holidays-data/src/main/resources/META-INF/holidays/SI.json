@@ -1,0 +1,33 @@
+{
+  "layers": [
+    {
+      "id": "SI",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "novo leto",                                          "rule": { "fixed": "01-01" } },
+        { "name": "novo leto (2. januar)",                              "rule": { "fixed": "01-02" }, "from": 2017 },
+        { "name": "Prešernov dan, slovenski kulturni praznik",          "rule": { "fixed": "02-08" } },
+        { "name": "velikonočna nedelja",                                "rule": { "easter": 0 } },
+        { "name": "velikonočni ponedeljek",                             "rule": { "easter": 1 } },
+        { "name": "dan upora proti okupatorju",                         "rule": { "fixed": "04-27" } },
+        { "name": "praznik dela",                                       "rule": { "fixed": "05-01" } },
+        { "name": "praznik dela (2. maj)",                              "rule": { "fixed": "05-02" } },
+        { "name": "binkoštna nedelja",                                  "rule": { "easter": 49 } },
+        { "name": "dan Primoža Trubarja",                               "rule": { "fixed": "06-08" }, "type": "OBSERVANCE" },
+        { "name": "dan državnosti",                                     "rule": { "fixed": "06-25" } },
+        { "name": "dan Triglava",                                       "rule": { "fixed": "08-07" }, "type": "OBSERVANCE", "from": 2027 },
+        { "name": "Marijino vnebovzetje",                               "rule": { "fixed": "08-15" } },
+        { "name": "združitev prekmurskih Slovencev z matičnim narodom", "rule": { "fixed": "08-17" }, "type": "OBSERVANCE" },
+        { "name": "vrnitev Primorske k matični domovini",               "rule": { "fixed": "09-15" }, "type": "OBSERVANCE" },
+        { "name": "dan slovenskega športa",                             "rule": { "fixed": "09-23" }, "type": "OBSERVANCE", "from": 2020 },
+        { "name": "dan suverenosti",                                    "rule": { "fixed": "10-25" }, "type": "OBSERVANCE", "from": 2015 },
+        { "name": "dan reformacije",                                    "rule": { "fixed": "10-31" } },
+        { "name": "dan spomina na mrtve",                               "rule": { "fixed": "11-01" } },
+        { "name": "dan znanosti",                                       "rule": { "fixed": "11-10" }, "type": "OBSERVANCE", "from": 2025 },
+        { "name": "dan Rudolfa Maistra",                                "rule": { "fixed": "11-23" }, "type": "OBSERVANCE" },
+        { "name": "božič",                                              "rule": { "fixed": "12-25" } },
+        { "name": "dan samostojnosti in enotnosti",                     "rule": { "fixed": "12-26" } }
+      ]
+    }
+  ]
+}

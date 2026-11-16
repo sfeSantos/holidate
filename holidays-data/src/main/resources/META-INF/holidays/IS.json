@@ -1,0 +1,26 @@
+{
+  "layers": [
+    {
+      "id": "IS",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Nýársdagur",              "rule": { "fixed": "01-01" } },
+        { "name": "Skírdagur",               "rule": { "easter": -3 } },
+        { "name": "Föstudagurinn langi",     "rule": { "easter": -2 } },
+        { "name": "Páskadagur",              "rule": { "easter": 0 } },
+        { "name": "Annar í páskum",          "rule": { "easter": 1 } },
+        { "name": "Sumardagurinn fyrsti",    "rule": { "weekdayAfter": "THURSDAY", "base": "04-18" } },
+        { "name": "1. maí",                  "rule": { "fixed": "05-01" } },
+        { "name": "Uppstigningardagur",      "rule": { "easter": 39 } },
+        { "name": "Hvítasunnudagur",         "rule": { "easter": 49 } },
+        { "name": "Annar í hvítasunnu",      "rule": { "easter": 50 } },
+        { "name": "17. júní",                "rule": { "fixed": "06-17" } },
+        { "name": "Frídagur verslunarmanna", "rule": { "nth": 1, "weekday": "MONDAY", "month": "AUGUST" } },
+        { "name": "Aðfangadagur jóla",       "rule": { "fixed": "12-24" }, "closesAt": "13:00" },
+        { "name": "Jóladagur",               "rule": { "fixed": "12-25" } },
+        { "name": "Annar í jólum",           "rule": { "fixed": "12-26" } },
+        { "name": "Gamlársdagur",            "rule": { "fixed": "12-31" }, "closesAt": "13:00" }
+      ]
+    }
+  ]
+}

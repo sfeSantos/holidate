@@ -1,0 +1,25 @@
+{
+  "layers": [
+    {
+      "id": "FI",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Uudenvuodenpäivä",     "rule": { "fixed": "01-01" } },
+        { "name": "Loppiainen",           "rule": { "fixed": "01-06" } },
+        { "name": "Pitkäperjantai",       "rule": { "easter": -2 } },
+        { "name": "Pääsiäispäivä",        "rule": { "easter": 0 } },
+        { "name": "Toinen pääsiäispäivä", "rule": { "easter": 1 } },
+        { "name": "Vappu",                "rule": { "fixed": "05-01" } },
+        { "name": "Helatorstai",          "rule": { "easter": 39 } },
+        { "name": "Helluntaipäivä",       "rule": { "easter": 49 } },
+        { "name": "Juhannusaatto",        "rule": { "weekdayAfter": "FRIDAY", "base": "06-18" }, "type": "OBSERVANCE" },
+        { "name": "Juhannuspäivä",        "rule": { "weekdayAfter": "SATURDAY", "base": "06-19" } },
+        { "name": "Pyhäinpäivä",          "rule": { "weekdayAfter": "SATURDAY", "base": "10-30" } },
+        { "name": "Itsenäisyyspäivä",     "rule": { "fixed": "12-06" } },
+        { "name": "Jouluaatto",           "rule": { "fixed": "12-24" }, "type": "OBSERVANCE" },
+        { "name": "Joulupäivä",           "rule": { "fixed": "12-25" } },
+        { "name": "Tapaninpäivä",         "rule": { "fixed": "12-26" } }
+      ]
+    }
+  ]
+}

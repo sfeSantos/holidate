@@ -1,0 +1,20 @@
+{
+  "layers": [
+    {
+      "id": "BE",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "Nieuwjaar",           "rule": { "fixed": "01-01" } },
+        { "name": "Paasmaandag",         "rule": { "easter": 1 } },
+        { "name": "Feest van de arbeid", "rule": { "fixed": "05-01" } },
+        { "name": "Hemelvaartsdag",      "rule": { "easter": 39 } },
+        { "name": "Pinkstermaandag",     "rule": { "easter": 50 } },
+        { "name": "Nationale feestdag",  "rule": { "fixed": "07-21" } },
+        { "name": "Tenhemelopneming",    "rule": { "fixed": "08-15" } },
+        { "name": "Allerheiligen",       "rule": { "fixed": "11-01" } },
+        { "name": "Wapenstilstand",      "rule": { "fixed": "11-11" } },
+        { "name": "Kerstmis",            "rule": { "fixed": "12-25" } }
+      ]
+    }
+  ]
+}
