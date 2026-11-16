@@ -18,10 +18,11 @@ import org.junit.jupiter.api.Test;
  * Biblioteca del Congreso Nacional prints them; the solstice falls on 20 June
  * in 2025 and on 21 June in 2026 and 2027.
  *
- * <p>San Pedro y San Pablo (29 June) and Encuentro de Dos Mundos (12 October)
- * are not in the pack: Ley 19.668 moves them to a Monday from Tuesday to
- * Friday and leaves them alone at the weekend, and no rule gives that. The
- * lists below are the legal holidays without those two and without election
+ * <p>Ley 19.668 moves San Pedro y San Pablo (29 June) and Encuentro de Dos
+ * Mundos (12 October) to a Monday from Tuesday to Friday and leaves them
+ * alone at the weekend, which no rule gives. The pack uses the Monday of a
+ * seven-day window from 2026 and pins 2025, when both fall on a Sunday, as
+ * dated one-offs. The lists below are the legal holidays without election
  * days.
  */
 class ChileHolidaysTest {
@@ -30,8 +31,8 @@ class ChileHolidaysTest {
     void national2025() {
         assertEquals(List.of(
                 d(2025, 1, 1), d(2025, 4, 18), d(2025, 4, 19), d(2025, 5, 1), d(2025, 5, 21), d(2025, 6, 20),
-                d(2025, 7, 16), d(2025, 8, 15), d(2025, 9, 18), d(2025, 9, 19), d(2025, 10, 31), d(2025, 11, 1),
-                d(2025, 12, 8), d(2025, 12, 25)),
+                d(2025, 6, 29), d(2025, 7, 16), d(2025, 8, 15), d(2025, 9, 18), d(2025, 9, 19), d(2025, 10, 12),
+                d(2025, 10, 31), d(2025, 11, 1), d(2025, 12, 8), d(2025, 12, 25)),
                 Observed.datesIn("CL", 2025));
     }
 
@@ -39,8 +40,8 @@ class ChileHolidaysTest {
     void national2026() {
         assertEquals(List.of(
                 d(2026, 1, 1), d(2026, 4, 3), d(2026, 4, 4), d(2026, 5, 1), d(2026, 5, 21), d(2026, 6, 21),
-                d(2026, 7, 16), d(2026, 8, 15), d(2026, 9, 18), d(2026, 9, 19), d(2026, 10, 31), d(2026, 11, 1),
-                d(2026, 12, 8), d(2026, 12, 25)),
+                d(2026, 6, 29), d(2026, 7, 16), d(2026, 8, 15), d(2026, 9, 18), d(2026, 9, 19), d(2026, 10, 12),
+                d(2026, 10, 31), d(2026, 11, 1), d(2026, 12, 8), d(2026, 12, 25)),
                 Observed.datesIn("CL", 2026));
     }
 
@@ -48,9 +49,21 @@ class ChileHolidaysTest {
     void national2027() {
         assertEquals(List.of(
                 d(2027, 1, 1), d(2027, 3, 26), d(2027, 3, 27), d(2027, 5, 1), d(2027, 5, 21), d(2027, 6, 21),
-                d(2027, 7, 16), d(2027, 8, 15), d(2027, 9, 17), d(2027, 9, 18), d(2027, 9, 19), d(2027, 10, 31),
-                d(2027, 11, 1), d(2027, 12, 8), d(2027, 12, 25)),
+                d(2027, 6, 28), d(2027, 7, 16), d(2027, 8, 15), d(2027, 9, 17), d(2027, 9, 18), d(2027, 9, 19),
+                d(2027, 10, 11), d(2027, 10, 31), d(2027, 11, 1), d(2027, 12, 8), d(2027, 12, 25)),
                 Observed.datesIn("CL", 2027));
+    }
+
+    @Test
+    void sanPedroYSanPabloIsPinnedIn2025AndFollowsTheRuleFrom2026() {
+        var chile = Observed.calendar("CL");
+
+        assertTrue(chile.isHoliday(d(2025, 6, 29)));
+        assertFalse(chile.isHoliday(d(2025, 6, 30)));
+        assertFalse(chile.isBusinessDay(d(2026, 6, 29)));
+        assertFalse(chile.isBusinessDay(d(2027, 6, 28)));
+        assertFalse(chile.isHoliday(d(2027, 6, 29)));
+        assertFalse(chile.isBusinessDay(d(2029, 7, 2)));
     }
 
     @Test
