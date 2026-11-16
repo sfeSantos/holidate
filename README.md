@@ -453,8 +453,10 @@ packs ship:
 | Pack | Country | Layers | Source |
 |---|---|---|---|
 | `AT` | Austria | `AT` | Arbeitsruhegesetz § 7 |
+| `AU` | Australia | `AU` and the 8 states and territories (`AU-ACT` to `AU-WA`) | State and territory holiday acts and government lists |
 | `BE` | Belgium | `BE` | Royal decree of 18 April 1974, Royal Observatory |
 | `BR` | Brazil | `BR`, `BR-RJ`, `BR-RJ-RIO` | Federal law, Rio de Janeiro state and city law |
+| `CA` | Canada | `CA` and the 13 provinces and territories (`CA-AB` to `CA-YT`) | Provincial and territorial employment standards laws |
 | `CH` | Switzerland | `CH` (the days common to all cantons) | Federal Constitution, SECO table of cantonal holidays |
 | `CZ` | Czechia | `CZ` | Zákon č. 245/2000 Sb. |
 | `DE` | Germany | `DE` and the 16 Länder (`DE-BW` to `DE-TH`) | Holiday law of each Land, Einigungsvertrag |
@@ -476,6 +478,7 @@ packs ship:
 | `MT` | Malta | `MT` | National Holidays and Other Public Holidays Act (Cap. 252) |
 | `NL` | Netherlands | `NL` | Rijksoverheid, Algemene termijnenwet |
 | `NO` | Norway | `NO` | Lov om helligdager og helligdagsfred, lov om 1 og 17 mai |
+| `NZ` | New Zealand | `NZ` | Holidays Act 2003, Te Kāhui o Matariki Public Holiday Act 2022 |
 | `PL` | Poland | `PL` | Ustawa o dniach wolnych od pracy (1951) |
 | `PT` | Portugal | `PT`, `PT-11-LIS` (Lisboa), `PT-13-PRT` (Porto) | Código do Trabalho, artigos 234.º and 235.º |
 | `SE` | Sweden | `SE` | Lag (1989:253) om allmänna helgdagar |

@@ -1,0 +1,164 @@
+{
+  "layers": [
+    {
+      "id": "CA",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "holidays": [
+        { "name": "New Year's Day", "rule": { "fixed": "01-01" } },
+        { "name": "Good Friday",    "rule": { "easter": -2 } },
+        { "name": "Canada Day",     "rule": { "fixed": "07-01" }, "observance": "SUNDAY_TO_MONDAY" },
+        { "name": "Labour Day",     "rule": { "nth": 1, "weekday": "MONDAY", "month": "SEPTEMBER" } },
+        { "name": "Christmas Day",  "rule": { "fixed": "12-25" } }
+      ]
+    },
+    {
+      "id": "CA-AB",
+      "extends": "CA",
+      "holidays": [
+        { "name": "Alberta Family Day",                        "rule": { "nth": 3, "weekday": "MONDAY", "month": "FEBRUARY" } },
+        { "name": "Easter Monday",                             "rule": { "easter": 1 }, "type": "OBSERVANCE" },
+        { "name": "Victoria Day",                              "rule": { "weekdayBefore": "MONDAY", "base": "05-25" } },
+        { "name": "Heritage Day",                              "rule": { "nth": 1, "weekday": "MONDAY", "month": "AUGUST" }, "type": "OBSERVANCE" },
+        { "name": "National Day for Truth and Reconciliation", "rule": { "fixed": "09-30" }, "type": "OBSERVANCE" },
+        { "name": "Thanksgiving Day",                          "rule": { "nth": 2, "weekday": "MONDAY", "month": "OCTOBER" } },
+        { "name": "Remembrance Day",                           "rule": { "fixed": "11-11" } },
+        { "name": "Boxing Day",                                "rule": { "fixed": "12-26" }, "type": "OBSERVANCE" }
+      ]
+    },
+    {
+      "id": "CA-BC",
+      "extends": "CA",
+      "holidays": [
+        { "name": "Family Day",                                "rule": { "nth": 3, "weekday": "MONDAY", "month": "FEBRUARY" }, "from": 2019 },
+        { "name": "Victoria Day",                              "rule": { "weekdayBefore": "MONDAY", "base": "05-25" } },
+        { "name": "B.C. Day",                                  "rule": { "nth": 1, "weekday": "MONDAY", "month": "AUGUST" } },
+        { "name": "National Day for Truth and Reconciliation", "rule": { "fixed": "09-30" }, "from": 2023 },
+        { "name": "Thanksgiving Day",                          "rule": { "nth": 2, "weekday": "MONDAY", "month": "OCTOBER" } },
+        { "name": "Remembrance Day",                           "rule": { "fixed": "11-11" } }
+      ]
+    },
+    {
+      "id": "CA-MB",
+      "extends": "CA",
+      "holidays": [
+        { "name": "Louis Riel Day",   "rule": { "nth": 3, "weekday": "MONDAY", "month": "FEBRUARY" }, "from": 2008 },
+        { "name": "Victoria Day",     "rule": { "weekdayBefore": "MONDAY", "base": "05-25" } },
+        { "name": "Orange Shirt Day", "rule": { "fixed": "09-30" }, "from": 2023 },
+        { "name": "Thanksgiving Day", "rule": { "nth": 2, "weekday": "MONDAY", "month": "OCTOBER" } },
+        { "name": "Remembrance Day",  "rule": { "fixed": "11-11" }, "type": "OBSERVANCE" }
+      ]
+    },
+    {
+      "id": "CA-NB",
+      "extends": "CA",
+      "holidays": [
+        { "name": "Family Day",        "rule": { "nth": 3, "weekday": "MONDAY", "month": "FEBRUARY" }, "from": 2018 },
+        { "name": "New Brunswick Day", "rule": { "nth": 1, "weekday": "MONDAY", "month": "AUGUST" } },
+        { "name": "Remembrance Day",   "rule": { "fixed": "11-11" } }
+      ]
+    },
+    {
+      "id": "CA-NL",
+      "extends": "CA",
+      "remove": ["Canada Day"],
+      "holidays": [
+        { "name": "Memorial Day",    "rule": { "fixed": "07-01" } },
+        { "name": "Remembrance Day", "rule": { "fixed": "11-11" } }
+      ]
+    },
+    {
+      "id": "CA-NS",
+      "extends": "CA",
+      "holidays": [
+        { "name": "Nova Scotia Heritage Day", "rule": { "nth": 3, "weekday": "MONDAY", "month": "FEBRUARY" }, "from": 2015 },
+        { "name": "Remembrance Day",          "rule": { "fixed": "11-11" }, "type": "OBSERVANCE" }
+      ]
+    },
+    {
+      "id": "CA-NT",
+      "extends": "CA",
+      "holidays": [
+        { "name": "Victoria Day",                              "rule": { "weekdayBefore": "MONDAY", "base": "05-25" } },
+        { "name": "National Indigenous Peoples Day",           "rule": { "fixed": "06-21" }, "from": 2002 },
+        { "name": "Civic Holiday",                             "rule": { "nth": 1, "weekday": "MONDAY", "month": "AUGUST" } },
+        { "name": "National Day for Truth and Reconciliation", "rule": { "fixed": "09-30" }, "from": 2022 },
+        { "name": "Thanksgiving Day",                          "rule": { "nth": 2, "weekday": "MONDAY", "month": "OCTOBER" } },
+        { "name": "Remembrance Day",                           "rule": { "fixed": "11-11" } }
+      ]
+    },
+    {
+      "id": "CA-NU",
+      "extends": "CA",
+      "holidays": [
+        { "name": "Victoria Day",                              "rule": { "weekdayBefore": "MONDAY", "base": "05-25" } },
+        { "name": "Nunavut Day",                               "rule": { "fixed": "07-09" }, "from": 2020 },
+        { "name": "Civic Holiday",                             "rule": { "nth": 1, "weekday": "MONDAY", "month": "AUGUST" } },
+        { "name": "National Day for Truth and Reconciliation", "rule": { "fixed": "09-30" }, "from": 2022 },
+        { "name": "Thanksgiving Day",                          "rule": { "nth": 2, "weekday": "MONDAY", "month": "OCTOBER" } },
+        { "name": "Remembrance Day",                           "rule": { "fixed": "11-11" } }
+      ]
+    },
+    {
+      "id": "CA-ON",
+      "extends": "CA",
+      "holidays": [
+        { "name": "Family Day",       "rule": { "nth": 3, "weekday": "MONDAY", "month": "FEBRUARY" }, "from": 2008 },
+        { "name": "Victoria Day",     "rule": { "weekdayBefore": "MONDAY", "base": "05-25" } },
+        { "name": "Thanksgiving Day", "rule": { "nth": 2, "weekday": "MONDAY", "month": "OCTOBER" } },
+        { "name": "Boxing Day",       "rule": { "fixed": "12-26" } }
+      ]
+    },
+    {
+      "id": "CA-PE",
+      "extends": "CA",
+      "holidays": [
+        { "name": "Islander Day",                              "rule": { "nth": 3, "weekday": "MONDAY", "month": "FEBRUARY" }, "from": 2010 },
+        { "name": "National Day for Truth and Reconciliation", "rule": { "fixed": "09-30" }, "from": 2022 },
+        { "name": "Remembrance Day",                           "rule": { "fixed": "11-11" } }
+      ]
+    },
+    {
+      "id": "CA-QC",
+      "extends": "CA",
+      "remove": ["New Year's Day", "Good Friday", "Canada Day", "Labour Day", "Christmas Day"],
+      "holidays": [
+        { "name": "Jour de l'An",                    "rule": { "fixed": "01-01" } },
+        { "name": "Vendredi saint",                  "rule": { "easter": -2 } },
+        { "name": "Lundi de Pâques",                 "rule": { "easter": 1 }, "type": "OBSERVANCE" },
+        { "name": "Journée nationale des patriotes", "rule": { "weekdayBefore": "MONDAY", "base": "05-25" } },
+        { "name": "Fête nationale",                  "rule": { "fixed": "06-24" }, "observance": "SUNDAY_TO_MONDAY" },
+        { "name": "Fête du Canada",                  "rule": { "fixed": "07-01" }, "observance": "SUNDAY_TO_MONDAY" },
+        { "name": "Fête du Travail",                 "rule": { "nth": 1, "weekday": "MONDAY", "month": "SEPTEMBER" } },
+        { "name": "Action de grâce",                 "rule": { "nth": 2, "weekday": "MONDAY", "month": "OCTOBER" } },
+        { "name": "Jour de Noël",                    "rule": { "fixed": "12-25" } }
+      ]
+    },
+    {
+      "id": "CA-SK",
+      "extends": "CA",
+      "holidays": [
+        { "name": "Family Day",       "rule": { "nth": 3, "weekday": "MONDAY", "month": "FEBRUARY" }, "from": 2007 },
+        { "name": "Victoria Day",     "rule": { "weekdayBefore": "MONDAY", "base": "05-25" } },
+        { "name": "Saskatchewan Day", "rule": { "nth": 1, "weekday": "MONDAY", "month": "AUGUST" } },
+        { "name": "Thanksgiving Day", "rule": { "nth": 2, "weekday": "MONDAY", "month": "OCTOBER" } },
+        { "name": "Remembrance Day",  "rule": { "fixed": "11-11" }, "observance": "SUNDAY_TO_MONDAY" }
+      ],
+      "override": [
+        { "name": "New Year's Day", "rule": { "fixed": "01-01" }, "observance": "SUNDAY_TO_MONDAY" },
+        { "name": "Christmas Day",  "rule": { "fixed": "12-25" }, "observance": "SUNDAY_TO_MONDAY" }
+      ]
+    },
+    {
+      "id": "CA-YT",
+      "extends": "CA",
+      "holidays": [
+        { "name": "Victoria Day",                              "rule": { "weekdayBefore": "MONDAY", "base": "05-25" } },
+        { "name": "National Indigenous Peoples Day",           "rule": { "fixed": "06-21" }, "from": 2017 },
+        { "name": "Discovery Day",                             "rule": { "nth": 3, "weekday": "MONDAY", "month": "AUGUST" } },
+        { "name": "National Day for Truth and Reconciliation", "rule": { "fixed": "09-30" }, "from": 2023 },
+        { "name": "Thanksgiving Day",                          "rule": { "nth": 2, "weekday": "MONDAY", "month": "OCTOBER" } },
+        { "name": "Remembrance Day",                           "rule": { "fixed": "11-11" } }
+      ]
+    }
+  ]
+}
