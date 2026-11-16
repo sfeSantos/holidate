@@ -20,10 +20,12 @@ import io.github.sfesantos.holidays.HolidayType;
  * non-working days at the employer's choice, kept as {@code OBSERVANCE}. 9
  * November 2026 is the national holiday of Decreto 1103/2026.
  *
- * <p>Three of the four "feriados trasladables" are not in the pack, because
- * no rule gives their dates for the three years: 17 August, 12 October and 20
- * November. The lists below are the official ones without those three and
- * without the days that bind one religious community only.
+ * <p>Article 6 moves a "feriado trasladable" to a Monday from Tuesday to
+ * Friday and leaves it alone at the weekend, which no rule gives. The pack
+ * uses the Monday of a seven-day window and pins the years that rule gets
+ * wrong as dated one-offs: 17 August and 12 October in 2025, 20 November in
+ * 2025 to 2027. The lists below are the official ones without the days that
+ * bind one religious community only.
  */
 class ArgentinaHolidaysTest {
 
@@ -32,7 +34,8 @@ class ArgentinaHolidaysTest {
         assertEquals(List.of(
                 d(2025, 1, 1), d(2025, 3, 3), d(2025, 3, 4), d(2025, 3, 24), d(2025, 4, 2), d(2025, 4, 17),
                 d(2025, 4, 18), d(2025, 5, 1), d(2025, 5, 2), d(2025, 5, 25), d(2025, 6, 16), d(2025, 6, 20),
-                d(2025, 7, 9), d(2025, 8, 15), d(2025, 11, 21), d(2025, 12, 8), d(2025, 12, 25)),
+                d(2025, 7, 9), d(2025, 8, 15), d(2025, 8, 17), d(2025, 10, 10), d(2025, 11, 21), d(2025, 11, 24),
+                d(2025, 12, 8), d(2025, 12, 25)),
                 Observed.datesIn("AR", 2025));
     }
 
@@ -41,7 +44,8 @@ class ArgentinaHolidaysTest {
         assertEquals(List.of(
                 d(2026, 1, 1), d(2026, 2, 16), d(2026, 2, 17), d(2026, 3, 23), d(2026, 3, 24), d(2026, 4, 2),
                 d(2026, 4, 2), d(2026, 4, 3), d(2026, 5, 1), d(2026, 5, 25), d(2026, 6, 15), d(2026, 6, 20),
-                d(2026, 7, 9), d(2026, 7, 10), d(2026, 11, 9), d(2026, 12, 7), d(2026, 12, 8), d(2026, 12, 25)),
+                d(2026, 7, 9), d(2026, 7, 10), d(2026, 8, 17), d(2026, 10, 12), d(2026, 11, 9), d(2026, 11, 23),
+                d(2026, 12, 7), d(2026, 12, 8), d(2026, 12, 25)),
                 Observed.datesIn("AR", 2026));
     }
 
@@ -50,7 +54,7 @@ class ArgentinaHolidaysTest {
         assertEquals(List.of(
                 d(2027, 1, 1), d(2027, 2, 8), d(2027, 2, 9), d(2027, 3, 24), d(2027, 3, 25), d(2027, 3, 26),
                 d(2027, 4, 2), d(2027, 5, 1), d(2027, 5, 25), d(2027, 6, 20), d(2027, 6, 21), d(2027, 7, 9),
-                d(2027, 12, 8), d(2027, 12, 25)),
+                d(2027, 8, 16), d(2027, 10, 11), d(2027, 11, 20), d(2027, 12, 8), d(2027, 12, 25)),
                 Observed.datesIn("AR", 2027));
     }
 
@@ -63,6 +67,18 @@ class ArgentinaHolidaysTest {
         assertTrue(argentina.isHoliday(d(2026, 6, 15)));
         assertTrue(argentina.isHoliday(d(2027, 6, 21)));
         assertFalse(argentina.isHoliday(d(2027, 6, 17)));
+    }
+
+    @Test
+    void sanMartinIsPinnedIn2025AndFollowsTheRuleFrom2026() {
+        var argentina = Observed.calendar("AR");
+
+        assertTrue(argentina.isHoliday(d(2025, 8, 17)));
+        assertFalse(argentina.isHoliday(d(2025, 8, 18)));
+        assertFalse(argentina.isBusinessDay(d(2026, 8, 17)));
+        assertFalse(argentina.isBusinessDay(d(2027, 8, 16)));
+        assertFalse(argentina.isHoliday(d(2027, 8, 17)));
+        assertFalse(argentina.isBusinessDay(d(2028, 8, 21)));
     }
 
     @Test
