@@ -441,6 +441,7 @@ packs ship:
 | `CZ` | Czechia | `CZ` | Zákon č. 245/2000 Sb. |
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
 | `PL` | Poland | `PL` | Ustawa o dniach wolnych od pracy (1951) |
+| `SK` | Slovakia | `SK` | Zákon č. 241/1993 Z. z. |
 
 Each pack is pinned by one test per year and per official source for 2025,
 2026 and 2027; updating a pack is editing the file and running the tests. The
