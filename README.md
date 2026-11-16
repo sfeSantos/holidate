@@ -452,13 +452,16 @@ packs ship:
 
 | Pack | Country | Layers | Source |
 |---|---|---|---|
+| `AR` | Argentina | `AR` | Ley 27.399, yearly calendar of the Ministerio del Interior |
 | `AT` | Austria | `AT` | Arbeitsruhegesetz § 7 |
 | `AU` | Australia | `AU` and the 8 states and territories (`AU-ACT` to `AU-WA`) | State and territory holiday acts and government lists |
 | `BE` | Belgium | `BE` | Royal decree of 18 April 1974, Royal Observatory |
+| `BO` | Bolivia | `BO` | Decreto Supremo 2750 and the yearly decrees (Gaceta Oficial) |
 | `BR` | Brazil | `BR`, `BR-RJ`, `BR-RJ-RIO` | Federal law, Rio de Janeiro state and city law |
 | `BZ` | Belize | `BZ` | Government Press Office notices under the Holidays Act |
 | `CA` | Canada | `CA` and the 13 provinces and territories (`CA-AB` to `CA-YT`) | Provincial and territorial employment standards laws |
 | `CH` | Switzerland | `CH` (the days common to all cantons) | Federal Constitution, SECO table of cantonal holidays |
+| `CL` | Chile | `CL` | Ley 2.977 and the laws that amend it (Biblioteca del Congreso Nacional) |
 | `CR` | Costa Rica | `CR` | Código de Trabajo art. 148, MTSS |
 | `CZ` | Czechia | `CZ` | Zákon č. 245/2000 Sb. |
 | `DE` | Germany | `DE` and the 16 Länder (`DE-BW` to `DE-TH`) | Holiday law of each Land, Einigungsvertrag |
@@ -485,13 +488,16 @@ packs ship:
 | `NO` | Norway | `NO` | Lov om helligdager og helligdagsfred, lov om 1 og 17 mai |
 | `NZ` | New Zealand | `NZ` | Holidays Act 2003, Te Kāhui o Matariki Public Holiday Act 2022 |
 | `PA` | Panama | `PA` | Código de Trabajo art. 46 and 47 |
+| `PE` | Peru | `PE` | Decreto Legislativo 713, article 6, and the lists at gob.pe/feriados |
 | `PL` | Poland | `PL` | Ustawa o dniach wolnych od pracy (1951) |
 | `PT` | Portugal | `PT`, `PT-11-LIS` (Lisboa), `PT-13-PRT` (Porto) | Código do Trabalho, artigos 234.º and 235.º |
+| `PY` | Paraguay | `PY` | Ley 7544/2025 and the yearly decrees |
 | `SE` | Sweden | `SE` | Lag (1989:253) om allmänna helgdagar |
 | `SI` | Slovenia | `SI` | Zakon o praznikih in dela prostih dnevih (ZPDPD) |
 | `SK` | Slovakia | `SK` | Zákon č. 241/1993 Z. z. |
 | `SV` | El Salvador | `SV` | Código de Trabajo art. 190 |
 | `US` | United States | `US`, `US-MA`, `US-TX` | 5 U.S.C. 6103 and OPM, Massachusetts General Laws, Texas Government Code |
+| `UY` | Uruguay | `UY` | Decreto-Ley 14.977, Ley 12.590 and Ley 16.805 (IMPO) |
 
 Each pack is pinned by one test per year and per official source for 2025,
 2026 and 2027; updating a pack is editing the file and running the tests. The

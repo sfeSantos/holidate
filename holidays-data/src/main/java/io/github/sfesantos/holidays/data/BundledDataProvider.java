@@ -15,13 +15,16 @@ import io.github.sfesantos.holidays.registry.HolidayDataProvider;
 public final class BundledDataProvider implements HolidayDataProvider {
 
     private static final ClasspathDataProvider PACKS = ClasspathDataProvider.of(BundledDataProvider.class,
+            "/META-INF/holidays/AR.json",
             "/META-INF/holidays/AT.json",
             "/META-INF/holidays/AU.json",
             "/META-INF/holidays/BE.json",
+            "/META-INF/holidays/BO.json",
             "/META-INF/holidays/BR.json",
             "/META-INF/holidays/BZ.json",
             "/META-INF/holidays/CA.json",
             "/META-INF/holidays/CH.json",
+            "/META-INF/holidays/CL.json",
             "/META-INF/holidays/CR.json",
             "/META-INF/holidays/CZ.json",
             "/META-INF/holidays/DE.json",
@@ -48,13 +51,16 @@ public final class BundledDataProvider implements HolidayDataProvider {
             "/META-INF/holidays/NO.json",
             "/META-INF/holidays/NZ.json",
             "/META-INF/holidays/PA.json",
+            "/META-INF/holidays/PE.json",
             "/META-INF/holidays/PL.json",
             "/META-INF/holidays/PT.json",
+            "/META-INF/holidays/PY.json",
             "/META-INF/holidays/SE.json",
             "/META-INF/holidays/SI.json",
             "/META-INF/holidays/SK.json",
             "/META-INF/holidays/SV.json",
-            "/META-INF/holidays/US.json");
+            "/META-INF/holidays/US.json",
+            "/META-INF/holidays/UY.json");
 
     public BundledDataProvider() {}
 
