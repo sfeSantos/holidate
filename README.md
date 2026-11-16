@@ -444,6 +444,7 @@ packs ship:
 | `DE` | Germany | `DE` and the 16 Länder (`DE-BW` to `DE-TH`) | Holiday law of each Land, Einigungsvertrag |
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
 | `LI` | Liechtenstein | `LI` | Arbeitsgesetz Art. 18 |
+| `LU` | Luxembourg | `LU` | Code du travail, government circular |
 | `NL` | Netherlands | `NL` | Rijksoverheid, Algemene termijnenwet |
 
 Each pack is pinned by one test per year and per official source for 2025,
