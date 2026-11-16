@@ -437,6 +437,7 @@ packs ship:
 
 | Pack | Country | Layers | Source |
 |---|---|---|---|
+| `AT` | Austria | `AT` | Arbeitsruhegesetz § 7 |
 | `BR` | Brazil | `BR`, `BR-RJ`, `BR-RJ-RIO` | Federal law, Rio de Janeiro state and city law |
 | `DE` | Germany | `DE` and the 16 Länder (`DE-BW` to `DE-TH`) | Holiday law of each Land, Einigungsvertrag |
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
