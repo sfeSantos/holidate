@@ -1,0 +1,35 @@
+{
+  "layers": [
+    {
+      "id": "GY",
+      "weekend": ["SATURDAY", "SUNDAY"],
+      "observance": "SUNDAY_TO_MONDAY",
+      "holidays": [
+        { "name": "New Year's Day",                      "rule": { "fixed": "01-01" } },
+        { "name": "Republic Day",                        "rule": { "fixed": "02-23" } },
+        { "name": "Phagwah 2025",                        "rule": { "date": "2025-03-14" } },
+        { "name": "Phagwah 2026",                        "rule": { "date": "2026-03-03" } },
+        { "name": "Phagwah 2027",                        "rule": { "date": "2027-03-22" } },
+        { "name": "Good Friday",                         "rule": { "easter": -2 } },
+        { "name": "Easter Monday",                       "rule": { "easter": 1 } },
+        { "name": "Labour Day",                          "rule": { "fixed": "05-01" } },
+        { "name": "Arrival Day",                         "rule": { "fixed": "05-05" } },
+        { "name": "Independence Day",                    "rule": { "fixed": "05-26" } },
+        { "name": "Eid-ul-Adha 2025",                    "rule": { "date": "2025-06-07" } },
+        { "name": "Eid-ul-Adha",                         "rule": { "hijri": "12-10" }, "from": 2026 },
+        { "name": "CARICOM Day",                         "rule": { "nth": 1, "weekday": "MONDAY", "month": "JULY" } },
+        { "name": "Emancipation Day",                    "rule": { "fixed": "08-01" } },
+        { "name": "General and Regional Elections 2025", "rule": { "date": "2025-09-01" } },
+        { "name": "Youman Nabi 2025",                    "rule": { "date": "2025-09-05" } },
+        { "name": "Youman Nabi 2026",                    "rule": { "date": "2026-08-25" } },
+        { "name": "Youman Nabi 2027",                    "rule": { "date": "2027-08-15" } },
+        { "name": "Youman Nabi",                         "rule": { "hijri": "03-12" }, "from": 2028 },
+        { "name": "Deepavali 2025",                      "rule": { "date": "2025-10-20" } },
+        { "name": "Deepavali 2026",                      "rule": { "date": "2026-11-08" } },
+        { "name": "Deepavali 2027",                      "rule": { "date": "2027-10-28" } },
+        { "name": "Christmas Day",                       "rule": { "fixed": "12-25" } },
+        { "name": "Boxing Day",                          "rule": { "fixed": "12-26" } }
+      ]
+    }
+  ]
+}
