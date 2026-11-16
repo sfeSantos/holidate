@@ -440,6 +440,7 @@ packs ship:
 | `BR` | Brazil | `BR`, `BR-RJ`, `BR-RJ-RIO` | Federal law, Rio de Janeiro state and city law |
 | `CZ` | Czechia | `CZ` | Zákon č. 245/2000 Sb. |
 | `ES` | Spain | `ES`, `ES-AN`, `ES-AN-MA`, `ES-CT` | BOE, BOJA, DOGC |
+| `HU` | Hungary | `HU` | Labour Code (2012. évi I. törvény), § 102 |
 | `PL` | Poland | `PL` | Ustawa o dniach wolnych od pracy (1951) |
 | `SK` | Slovakia | `SK` | Zákon č. 241/1993 Z. z. |
 
