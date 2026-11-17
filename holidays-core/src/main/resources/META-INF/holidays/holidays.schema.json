@@ -97,6 +97,6 @@
     "monthDay": { "type": "string", "pattern": "^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$", "description": "MM-DD" },
     "dayOfWeek": { "type": "string", "enum": ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"] },
     "month": { "type": "string", "enum": ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"] },
-    "observance": { "type": "string", "enum": ["NONE", "SUNDAY_TO_MONDAY", "WEEKEND_TO_MONDAY", "SATURDAY_TO_FRIDAY_SUNDAY_TO_MONDAY", "NEAREST_WEEKDAY", "INHERIT"] }
+    "observance": { "type": "string", "enum": ["NONE", "SUNDAY_TO_MONDAY", "WEEKEND_TO_MONDAY", "WEEKEND_ADDS_MONDAY", "SATURDAY_TO_FRIDAY_SUNDAY_TO_MONDAY", "NEAREST_WEEKDAY", "INHERIT"] }
   }
 }

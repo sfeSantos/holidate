@@ -12,6 +12,7 @@ import io.github.sfesantos.holidays.HolidayOccurrence;
 import io.github.sfesantos.holidays.HolidayPeriod;
 import io.github.sfesantos.holidays.HolidayRule;
 import io.github.sfesantos.holidays.ObservanceContext;
+import io.github.sfesantos.holidays.ObservanceRule;
 import io.github.sfesantos.holidays.Weekend;
 import io.github.sfesantos.holidays.internal.LayerResolver.ResolvedHoliday;
 
@@ -25,17 +26,33 @@ import io.github.sfesantos.holidays.internal.LayerResolver.ResolvedHoliday;
 final class YearIndexBuilder {
 
     private static final Comparator<HolidayOccurrence> BY_OBSERVED = Comparator.comparing(HolidayOccurrence::observed);
-    private static final Comparator<HolidayOccurrence> BY_ORIGINAL = Comparator.comparing(HolidayOccurrence::original);
+    private static final Comparator<HolidayOccurrence> BY_ORIGINAL = Comparator.comparing(HolidayOccurrence::original)
+            .thenComparing(HolidayOccurrence::observed);
 
     /** A date moved by more days than this may leave the neighbouring year once observance has moved it too. */
     private static final int NEAR_DAYS = 365 - 14;
 
     private final CompiledCalendar calendar;
     private final int reach;
+    private final boolean keepsOriginals;
 
     YearIndexBuilder(CompiledCalendar calendar) {
         this.calendar = calendar;
         this.reach = reachOf(calendar.holidays());
+        this.keepsOriginals = keepsOriginals(calendar.holidays());
+    }
+
+    /** Loops instead of a stream: this runs on the first touch of every calendar. */
+    private boolean keepsOriginals(List<ResolvedHoliday> holidays) {
+        for (var resolved : holidays) {
+            for (var period : resolved.holiday().periods()) {
+                if (ruleOf(period).keepsOriginal()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     YearIndex build(int year) {
@@ -119,6 +136,10 @@ final class YearIndexBuilder {
 
         var placedYear = Year.of(year);
 
+        if (keepsOriginals) {
+            takeKeptOriginals(placedYear, context);
+        }
+
         for (var resolved : calendar.holidays()) {
             var holiday = resolved.holiday();
             var period = holiday.periodIn(placedYear);
@@ -128,22 +149,57 @@ final class YearIndexBuilder {
             }
 
             for (var original : holiday.datesIn(placedYear, calendar.easter())) {
-                placed.add(place(resolved, period.get(), original, context));
+                place(resolved, period.get(), original, context, placed);
             }
         }
 
         return placed;
     }
 
-    private HolidayOccurrence place(ResolvedHoliday resolved, HolidayPeriod period, LocalDate original,
-            PlacementContext context) {
-        var rule = period.inheritsObservance() ? calendar.observance() : period.observance();
+    /** A kept date is occupied whatever the placement order, so the day another holiday adds must skip it. */
+    private void takeKeptOriginals(Year placedYear, PlacementContext context) {
+        for (var resolved : calendar.holidays()) {
+            var holiday = resolved.holiday();
+            var period = holiday.periodIn(placedYear);
+
+            if (period.isPresent() && ruleOf(period.get()).keepsOriginal()
+                    && calendar.isNonWorking(period.get().type())) {
+                context.taken().addAll(holiday.datesIn(placedYear, calendar.easter()));
+            }
+        }
+    }
+
+    private ObservanceRule ruleOf(HolidayPeriod period) {
+        return period.inheritsObservance() ? calendar.observance() : period.observance();
+    }
+
+    private void place(ResolvedHoliday resolved, HolidayPeriod period, LocalDate original, PlacementContext context,
+            List<HolidayOccurrence> placed) {
+        var rule = ruleOf(period);
+
+        if (rule.keepsOriginal()) {
+            placed.add(occurrence(resolved, period, original, original));
+
+            if (!context.isWeekend(original)) {
+                return;
+            }
+        }
+
         var observed = ObservanceChain.observe(rule, original, context);
+
+        if (rule.keepsOriginal() && observed.equals(original)) {
+            return;
+        }
 
         if (calendar.isNonWorking(period.type())) {
             context.taken().add(observed);
         }
 
+        placed.add(occurrence(resolved, period, original, observed));
+    }
+
+    private static HolidayOccurrence occurrence(ResolvedHoliday resolved, HolidayPeriod period, LocalDate original,
+            LocalDate observed) {
         return new HolidayOccurrence(resolved.holiday().name(), original, observed, period.type(), resolved.layer(),
                 period.closesAt());
     }

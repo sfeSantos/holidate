@@ -16,6 +16,8 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
 
 import io.github.sfesantos.holidays.HolidayCalendar;
+import io.github.sfesantos.holidays.Layer;
+import io.github.sfesantos.holidays.ObservanceRule;
 import io.github.sfesantos.holidays.data.Spain;
 
 /**
@@ -39,6 +41,31 @@ public class IndexBenchmark {
         fresh = HolidayCalendar.builder()
                 .layers(Spain.NATIONAL, Spain.ANDALUCIA, Spain.MALAGA)
                 .build();
+    }
+
+    /** The same calendar under a rule that keeps weekend holidays and adds a weekday for each. */
+    @State(Scope.Thread)
+    public static class KeepingCalendar {
+
+        private static final Layer KEEPING = Layer.named("keeping")
+                .observance(ObservanceRule.weekendAddsMonday())
+                .build();
+
+        HolidayCalendar calendar;
+
+        @Setup(Level.Invocation)
+        public void build() {
+            calendar = HolidayCalendar.builder()
+                    .layers(Spain.NATIONAL, Spain.ANDALUCIA, Spain.MALAGA, KEEPING)
+                    .build();
+        }
+    }
+
+    @Benchmark
+    public HolidayCalendar buildIndexForOneYearKeepingWeekendDates(KeepingCalendar keeping) {
+        keeping.calendar.warmUp(Year.of(2026), Year.of(2026));
+
+        return keeping.calendar;
     }
 
     @Benchmark

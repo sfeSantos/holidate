@@ -136,6 +136,84 @@ class HolidayCalendarTest {
         assertEquals(1, calendar.holidaysIn(Year.of(2026)).size());
     }
 
+    private static HolidayCalendar keepingChristmas() {
+        return HolidayCalendar.builder()
+                .layer(Layer.named("x")
+                        .add(Holiday.fixed("Christmas Day", Month.DECEMBER, 25),
+                                Holiday.fixed("Boxing Day", Month.DECEMBER, 26),
+                                Holiday.fixed("New Year's Eve", Month.DECEMBER, 31))
+                        .observance(ObservanceRule.weekendAddsMonday())
+                        .build())
+                .build();
+    }
+
+    private static List<LocalDate> observedDates(HolidayCalendar calendar, int year, String name) {
+        return calendar.holidaysIn(Year.of(year))
+                .stream()
+                .filter(occurrence -> occurrence.name().equals(name))
+                .map(HolidayOccurrence::observed)
+                .toList();
+    }
+
+    @Test
+    void aKeptHolidayOnSaturdayStaysAndAddsTheNextFreeWeekday() {
+        var calendar = keepingChristmas();
+        var christmas = LocalDate.of(2027, 12, 25);
+
+        assertEquals(List.of(christmas, LocalDate.of(2027, 12, 27)), observedDates(calendar, 2027, "Christmas Day"));
+        assertEquals(List.of(LocalDate.of(2027, 12, 26), LocalDate.of(2027, 12, 28)),
+                observedDates(calendar, 2027, "Boxing Day"));
+        assertTrue(calendar.isHoliday(christmas));
+        assertFalse(calendar.holidayOn(christmas).orElseThrow().isMoved());
+        assertEquals(christmas, calendar.holidayOn(LocalDate.of(2027, 12, 27)).orElseThrow().original());
+        assertEquals("Boxing Day", calendar.holidayOn(LocalDate.of(2027, 12, 28)).orElseThrow().name());
+        assertFalse(calendar.isBusinessDay(LocalDate.of(2027, 12, 28)));
+        assertTrue(calendar.isBusinessDay(LocalDate.of(2027, 12, 29)));
+    }
+
+    @Test
+    void theAddedDaySkipsAHolidayKeptOnAWeekday() {
+        var calendar = keepingChristmas();
+
+        assertEquals(List.of(LocalDate.of(2033, 12, 25), LocalDate.of(2033, 12, 27)),
+                observedDates(calendar, 2033, "Christmas Day"));
+        assertEquals(List.of(LocalDate.of(2033, 12, 26)), observedDates(calendar, 2033, "Boxing Day"));
+        assertTrue(calendar.isBusinessDay(LocalDate.of(2033, 12, 28)));
+    }
+
+    @Test
+    void aKeptHolidayOnAWeekdayOccursOnce() {
+        var calendar = keepingChristmas();
+
+        assertEquals(List.of(LocalDate.of(2025, 12, 25)), observedDates(calendar, 2025, "Christmas Day"));
+        assertEquals(List.of(LocalDate.of(2025, 12, 26)), observedDates(calendar, 2025, "Boxing Day"));
+    }
+
+    @Test
+    void theAddedDayMayFallInTheNextYear() {
+        var calendar = keepingChristmas();
+        var added = LocalDate.of(2023, 1, 2);
+
+        assertEquals(List.of(LocalDate.of(2022, 12, 31), added), observedDates(calendar, 2022, "New Year's Eve"));
+        assertEquals("New Year's Eve", calendar.holidayOn(added).orElseThrow().name());
+        assertFalse(calendar.isBusinessDay(added));
+    }
+
+    @Test
+    void aKeptHolidayThatIsNotADayOffAddsItsDayWithoutBlockingOthers() {
+        var calendar = HolidayCalendar.builder()
+                .layer(Layer.named("x")
+                        .add(Holiday.fixed("Remembrance", Month.DECEMBER, 25).ofType(HolidayType.OBSERVANCE),
+                                Holiday.fixed("Boxing Day", Month.DECEMBER, 26))
+                        .observance(ObservanceRule.weekendAddsMonday())
+                        .build())
+                .build();
+
+        assertEquals(2, observedDates(calendar, 2027, "Remembrance").size());
+        assertEquals(List.of(LocalDate.of(2027, 12, 26), LocalDate.of(2027, 12, 27)),
+                observedDates(calendar, 2027, "Boxing Day"));
+    }
+
     @Test
     void aHolidayKeepsItsNameAcrossItsPeriods() {
         var calendar = HolidayCalendar.builder()

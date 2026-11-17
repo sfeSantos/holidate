@@ -36,6 +36,7 @@ import io.github.sfesantos.holidays.ObservanceRule;
 import io.github.sfesantos.holidays.Weekend;
 import io.github.sfesantos.holidays.easter.EasterAlgorithm;
 import io.github.sfesantos.holidays.hebrew.HebrewMonth;
+import io.github.sfesantos.holidays.internal.ObservanceNames;
 
 class HolidayFormatJsonTest {
 
@@ -453,5 +454,27 @@ class HolidayFormatJsonTest {
             assertTrue(text.contains("\"$schema\""));
             assertTrue(text.contains("weekdayBefore"));
         }
+    }
+
+    @Test
+    void schemaListsEveryObservanceName() throws IOException {
+        try (var in = HolidayFormat.class.getResourceAsStream("/META-INF/holidays/holidays.schema.json")) {
+            var text = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+            var quoted = ObservanceNames.names().replaceAll("(\\w+)", "\"$1\"");
+
+            assertTrue(text.contains("\"observance\": { \"type\": \"string\", \"enum\": " + quoted + " }"), quoted);
+        }
+    }
+
+    @Test
+    void anObservanceThatKeepsTheDateIsReadAndWrittenByName() {
+        var json = """
+                {"layers": [{"id": "x", "holidays": [
+                    {"name": "Christmas Day", "rule": {"fixed": "12-25"}, "observance": "WEEKEND_ADDS_MONDAY"}]}]}
+                """;
+        var layers = JSON.parse(json);
+
+        assertEquals(ObservanceRule.weekendAddsMonday(), layers.get(0).additions().get(0).periods().get(0).observance());
+        assertTrue(JSON.write(layers).contains("\"WEEKEND_ADDS_MONDAY\""));
     }
 }
