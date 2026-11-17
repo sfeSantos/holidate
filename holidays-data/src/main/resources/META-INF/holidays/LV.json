@@ -14,6 +14,7 @@
         { "name": "Vasarsvētki",                                        "rule": { "easter": 49 } },
         { "name": "Līgo diena",                                         "rule": { "fixed": "06-23" } },
         { "name": "Jāņu diena",                                         "rule": { "fixed": "06-24" } },
+        { "name": "Vispārējo latviešu Dziesmu un deju svētku noslēguma diena", "dates": ["2018-07-08", "2023-07-09", "2028-07-09"], "observance": "WEEKEND_TO_MONDAY" },
         { "name": "Latvijas Republikas Proklamēšanas diena",            "rule": { "fixed": "11-18" }, "observance": "WEEKEND_TO_MONDAY" },
         { "name": "Ziemassvētku vakars",                                "rule": { "fixed": "12-24" } },
         { "name": "Pirmie Ziemassvētki",                                "rule": { "fixed": "12-25" } },

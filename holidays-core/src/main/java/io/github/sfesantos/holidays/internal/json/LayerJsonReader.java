@@ -14,6 +14,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import io.github.sfesantos.holidays.Holiday;
+import io.github.sfesantos.holidays.HolidayPeriod;
 import io.github.sfesantos.holidays.HolidayRule;
 import io.github.sfesantos.holidays.HolidayType;
 import io.github.sfesantos.holidays.Layer;
@@ -34,6 +35,9 @@ final class LayerJsonReader {
 
     private static final List<String> RULE_KINDS =
             List.of("fixed", "date", "easter", "nth", "weekdayAfter", "weekdayBefore", "hijri", "hebrew");
+
+    private static final List<String> PERIOD_MEMBERS =
+            List.of("rule", "dates", "type", "from", "until", "observance", "closesAt");
 
     private LayerJsonReader() {}
 
@@ -69,30 +73,95 @@ final class LayerJsonReader {
     }
 
     private static Holiday readHoliday(JsonObject object) {
-        object.allowOnly("name", "rule", "type", "from", "until", "observance", "closesAt");
+        object.allowOnly("name", "periods", "rule", "dates", "type", "from", "until", "observance", "closesAt");
         var name = object.require("name");
-        var holiday = guarded(name, () -> Holiday.of(name.asString(), readRule(object.require("rule").asObject())));
+        var placed = new ArrayList<PlacedPeriod>();
 
+        if (object.get("periods").isPresent()) {
+            var periods = object.require("periods");
+
+            for (var member : PERIOD_MEMBERS) {
+                if (object.get(member).isPresent()) {
+                    throw object.require(member).error("a holiday with \"periods\" takes \"" + member + "\" inside each period");
+                }
+            }
+
+            if (periods.asArray().elements().isEmpty()) {
+                throw periods.error("\"periods\" must not be empty");
+            }
+
+            forEachObject(periods, period -> {
+                period.allowOnly(PERIOD_MEMBERS.toArray(String[]::new));
+                placed.addAll(readPeriods(period));
+            });
+        } else {
+            placed.addAll(readPeriods(object));
+        }
+
+        var first = placed.get(0).period();
+        var holiday = guarded(name, () -> Holiday.of(name.asString(), first));
+
+        for (var next : placed.subList(1, placed.size())) {
+            var current = holiday;
+            holiday = guarded(next.at(), () -> current.and(next.period()));
+        }
+
+        return holiday;
+    }
+
+    /** The periods one object describes: one for a {@code rule}, one per date for {@code dates}. */
+    private static List<PlacedPeriod> readPeriods(JsonObject object) {
+        var dates = object.get("dates");
+
+        if (dates.isEmpty()) {
+            var rule = object.require("rule").asObject();
+            var period = guarded(rule, () -> HolidayPeriod.of(readRule(rule)));
+
+            return List.of(new PlacedPeriod(readMembers(object, period), object));
+        }
+
+        for (var member : List.of("rule", "from", "until")) {
+            if (object.get(member).isPresent()) {
+                throw object.require(member).error("\"dates\" cannot be combined with \"" + member + "\"");
+            }
+        }
+
+        var elements = dates.get().asArray().elements();
+
+        if (elements.isEmpty()) {
+            throw dates.get().error("\"dates\" must not be empty");
+        }
+
+        var placed = new ArrayList<PlacedPeriod>();
+
+        for (var element : elements) {
+            placed.add(new PlacedPeriod(readMembers(object, HolidayPeriod.of(HolidayRule.on(date(element)))), element));
+        }
+
+        return placed;
+    }
+
+    private static HolidayPeriod readMembers(JsonObject object, HolidayPeriod period) {
         var explicitType = object.get("type").map(type -> enumValue(type, HolidayType.class));
 
         if (explicitType.isPresent()) {
-            holiday = holiday.ofType(explicitType.get());
+            period = period.ofType(explicitType.get());
         }
 
         if (object.get("from").isPresent()) {
             var from = object.require("from");
-            var current = holiday;
-            holiday = guarded(from, () -> current.validFrom(Year.of(from.asInt())));
+            var current = period;
+            period = guarded(from, () -> current.validFrom(Year.of(from.asInt())));
         }
 
         if (object.get("until").isPresent()) {
             var until = object.require("until");
-            var current = holiday;
-            holiday = guarded(until, () -> current.validUntil(Year.of(until.asInt())));
+            var current = period;
+            period = guarded(until, () -> current.validUntil(Year.of(until.asInt())));
         }
 
         if (object.get("observance").isPresent()) {
-            holiday = holiday.withObservance(readObservance(object.require("observance"), true));
+            period = period.withObservance(readObservance(object.require("observance"), true));
         }
 
         if (object.get("closesAt").isPresent()) {
@@ -102,11 +171,11 @@ final class LayerJsonReader {
                 throw closesAt.error("closesAt needs type HALF_DAY but the type is " + explicitType.get());
             }
 
-            var current = holiday;
-            holiday = guarded(closesAt, () -> current.closingAt(LocalTime.parse(closesAt.asString())));
+            var current = period;
+            period = guarded(closesAt, () -> current.closingAt(LocalTime.parse(closesAt.asString())));
         }
 
-        return holiday;
+        return period;
     }
 
     static HolidayRule readRule(JsonObject rule) {
@@ -237,6 +306,9 @@ final class LayerJsonReader {
 
         return new Guard(rule);
     }
+
+    /** A period and the place in the file to blame when it overlaps another. */
+    private record PlacedPeriod(HolidayPeriod period, JsonValue at) {}
 
     private record Guard(JsonObject at) {
 

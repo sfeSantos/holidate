@@ -32,12 +32,11 @@
       "id": "AU-NSW",
       "extends": "AU",
       "holidays": [
-        { "name": "Easter Saturday",               "rule": { "easter": -1 } },
-        { "name": "Easter Sunday",                 "rule": { "easter": 0 } },
-        { "name": "Anzac Day Additional Day 2026", "rule": { "date": "2026-04-27" } },
-        { "name": "Anzac Day Additional Day 2027", "rule": { "date": "2027-04-26" } },
-        { "name": "King's Birthday",               "rule": { "nth": 2, "weekday": "MONDAY", "month": "JUNE" } },
-        { "name": "Labour Day",                    "rule": { "nth": 1, "weekday": "MONDAY", "month": "OCTOBER" } }
+        { "name": "Easter Saturday",          "rule": { "easter": -1 } },
+        { "name": "Easter Sunday",            "rule": { "easter": 0 } },
+        { "name": "Anzac Day Additional Day", "dates": ["2026-04-27", "2027-04-26"] },
+        { "name": "King's Birthday",          "rule": { "nth": 2, "weekday": "MONDAY", "month": "JUNE" } },
+        { "name": "Labour Day",               "rule": { "nth": 1, "weekday": "MONDAY", "month": "OCTOBER" } }
       ]
     },
     {
@@ -98,24 +97,31 @@
       "id": "AU-VIC",
       "extends": "AU",
       "holidays": [
-        { "name": "Labour Day",                             "rule": { "nth": 2, "weekday": "MONDAY", "month": "MARCH" } },
-        { "name": "Saturday before Easter Sunday",          "rule": { "easter": -1 } },
-        { "name": "Easter Sunday",                          "rule": { "easter": 0 } },
-        { "name": "King's Birthday",                        "rule": { "nth": 2, "weekday": "MONDAY", "month": "JUNE" } },
-        { "name": "Friday before the AFL Grand Final 2025", "rule": { "date": "2025-09-26" } },
-        { "name": "Friday before the AFL Grand Final 2026", "rule": { "date": "2026-09-25" } },
-        { "name": "Melbourne Cup Day",                      "rule": { "nth": 1, "weekday": "TUESDAY", "month": "NOVEMBER" } }
+        { "name": "Labour Day",                        "rule": { "nth": 2, "weekday": "MONDAY", "month": "MARCH" } },
+        { "name": "Saturday before Easter Sunday",     "rule": { "easter": -1 } },
+        { "name": "Easter Sunday",                     "rule": { "easter": 0 } },
+        { "name": "King's Birthday",                   "rule": { "nth": 2, "weekday": "MONDAY", "month": "JUNE" } },
+        { "name": "Friday before the AFL Grand Final", "dates": ["2025-09-26", "2026-09-25"] },
+        { "name": "Melbourne Cup Day",                 "rule": { "nth": 1, "weekday": "TUESDAY", "month": "NOVEMBER" } }
       ]
     },
     {
       "id": "AU-WA",
       "extends": "AU",
       "holidays": [
-        { "name": "Labour Day",            "rule": { "nth": 1, "weekday": "MONDAY", "month": "MARCH" } },
+        { "name": "Labour Day", "periods": [
+            { "rule": { "nth": 1, "weekday": "MONDAY", "month": "MARCH" }, "until": 2027 },
+            { "rule": { "nth": 2, "weekday": "MONDAY", "month": "MARCH" }, "from": 2028, "until": 2028 },
+            { "rule": { "date": "2029-03-19" } },
+            { "rule": { "nth": 2, "weekday": "MONDAY", "month": "MARCH" }, "from": 2030 } ] },
         { "name": "Easter Saturday",       "rule": { "easter": -1 }, "from": 2028 },
         { "name": "Easter Sunday",         "rule": { "easter": 0 }, "from": 2022 },
-        { "name": "Western Australia Day", "rule": { "nth": 1, "weekday": "MONDAY", "month": "JUNE" } },
-        { "name": "King's Birthday",       "rule": { "nth": -1, "weekday": "MONDAY", "month": "SEPTEMBER" } }
+        { "name": "Western Australia Day", "periods": [
+            { "rule": { "nth": 1, "weekday": "MONDAY", "month": "JUNE" }, "until": 2027 },
+            { "rule": { "nth": 2, "weekday": "MONDAY", "month": "NOVEMBER" }, "from": 2028 } ] },
+        { "name": "King's Birthday", "periods": [
+            { "rule": { "nth": -1, "weekday": "MONDAY", "month": "SEPTEMBER" }, "until": 2027 },
+            { "rule": { "nth": 2, "weekday": "MONDAY", "month": "JUNE" }, "from": 2028 } ] }
       ],
       "override": [
         { "name": "Anzac Day", "rule": { "fixed": "04-25" }, "observance": "WEEKEND_TO_MONDAY" }

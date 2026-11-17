@@ -357,4 +357,16 @@ class CanadaProvincialHolidaysTest {
         assertFalse(Observed.calendar("CA-ON").isHoliday(d(2007, 2, 19)));
         assertTrue(Observed.calendar("CA-ON").isHoliday(d(2008, 2, 18)));
     }
+
+    @Test
+    void britishColumbiaFamilyDayMovedFromTheSecondToTheThirdMondayIn2019() {
+        var britishColumbia = Observed.calendar("CA-BC");
+
+        assertFalse(britishColumbia.isHoliday(d(2012, 2, 13)));
+        assertEquals("Family Day", britishColumbia.holidayOn(d(2013, 2, 11)).orElseThrow().name());
+        assertEquals("Family Day", britishColumbia.holidayOn(d(2018, 2, 12)).orElseThrow().name());
+        assertFalse(britishColumbia.isHoliday(d(2018, 2, 19)));
+        assertEquals("Family Day", britishColumbia.holidayOn(d(2019, 2, 18)).orElseThrow().name());
+        assertFalse(britishColumbia.isHoliday(d(2019, 2, 11)));
+    }
 }

@@ -5,9 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.Year;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
+
+import io.github.sfesantos.holidays.HolidayOccurrence;
 
 /**
  * New Zealand's national public holidays under the Holidays Act 2003,
@@ -79,5 +83,23 @@ class NewZealandHolidaysTest {
         assertTrue(newZealand.isHoliday(d(2022, 6, 24)));
         assertTrue(newZealand.isHoliday(d(2028, 7, 14)));
         assertTrue(newZealand.isHoliday(d(2052, 6, 21)));
+    }
+
+    @Test
+    void matarikiIsOneHolidayUnderOneNameInEveryLegislatedYear() {
+        var newZealand = Observed.calendar("NZ");
+        var layer = Observed.REGISTRY.layer("NZ").orElseThrow();
+        var matariki = newZealand.holidaysBetween(d(2022, 1, 1), d(2053, 1, 1))
+                .stream()
+                .filter(holiday -> holiday.name().startsWith("Matariki"))
+                .toList();
+
+        assertEquals(1, layer.additions().stream().filter(holiday -> holiday.name().startsWith("Matariki")).count());
+        assertEquals(31, matariki.size());
+        assertEquals(List.of("Matariki"), matariki.stream().map(HolidayOccurrence::name).distinct().toList());
+        assertEquals(IntStream.rangeClosed(2022, 2052).boxed().toList(),
+                matariki.stream().map(holiday -> holiday.observed().getYear()).toList());
+        assertEquals("Matariki", newZealand.holidayOn(d(2026, 7, 10)).orElseThrow().name());
+        assertTrue(newZealand.holidaysIn(Year.of(2053)).stream().noneMatch(holiday -> holiday.name().equals("Matariki")));
     }
 }

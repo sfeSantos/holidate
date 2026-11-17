@@ -75,6 +75,16 @@ class SlovakiaHolidaysTest {
     }
 
     @Test
+    void theTwoDaysKeepTheirNamesThroughTheYearTheyAreWorked() {
+        var slovakia = Observed.calendar("SK");
+
+        for (var year = 2025; year <= 2027; year++) {
+            assertEquals("Deň víťazstva nad fašizmom", slovakia.holidayOn(d(year, 5, 8)).orElseThrow().name());
+            assertEquals("Sedembolestná Panna Mária", slovakia.holidayOn(d(year, 9, 15)).orElseThrow().name());
+        }
+    }
+
+    @Test
     void czechoslovakStateDayIsAStateHolidayFrom2021() {
         var slovakia = Observed.calendar("SK");
 

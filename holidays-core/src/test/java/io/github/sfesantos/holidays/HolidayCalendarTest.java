@@ -137,6 +137,73 @@ class HolidayCalendarTest {
     }
 
     @Test
+    void aHolidayKeepsItsNameAcrossItsPeriods() {
+        var calendar = HolidayCalendar.builder()
+                .layer(Layer.named("XX")
+                        .add(Holiday.of("Statehood Day",
+                                HolidayPeriod.of(HolidayRule.fixed(Month.JUNE, 25)).validUntil(Year.of(2019)),
+                                HolidayPeriod.of(HolidayRule.fixed(Month.MAY, 30)).validFrom(Year.of(2020))),
+                                Holiday.onDates("Matariki", LocalDate.of(2022, 6, 24), LocalDate.of(2023, 7, 14)))
+                        .build())
+                .build();
+
+        assertEquals("Statehood Day", calendar.holidayOn(LocalDate.of(2019, 6, 25)).orElseThrow().name());
+        assertEquals("Statehood Day", calendar.holidayOn(LocalDate.of(2020, 5, 30)).orElseThrow().name());
+        assertFalse(calendar.isHoliday(LocalDate.of(2020, 6, 25)));
+        assertFalse(calendar.isHoliday(LocalDate.of(2019, 5, 30)));
+        assertEquals("Matariki", calendar.holidayOn(LocalDate.of(2022, 6, 24)).orElseThrow().name());
+        assertEquals("Matariki", calendar.holidayOn(LocalDate.of(2023, 7, 14)).orElseThrow().name());
+        assertEquals(1, calendar.holidaysIn(Year.of(2024)).size());
+    }
+
+    @Test
+    void typeAndObservanceFollowThePeriodOfTheYear() {
+        var victory = HolidayRule.fixed(Month.MAY, 8);
+        var calendar = HolidayCalendar.builder()
+                .layer(Layer.named("XX")
+                        .add(Holiday.of("Victory Day",
+                                HolidayPeriod.of(victory).validUntil(Year.of(2025)),
+                                HolidayPeriod.of(HolidayRule.on(LocalDate.of(2026, 5, 8))).ofType(HolidayType.OBSERVANCE),
+                                HolidayPeriod.of(victory).validFrom(Year.of(2027)).withObservance(ObservanceRule.weekendToMonday())))
+                        .build())
+                .build();
+
+        assertEquals(HolidayType.PUBLIC, calendar.holidayOn(LocalDate.of(2025, 5, 8)).orElseThrow().type());
+        assertFalse(calendar.isBusinessDay(LocalDate.of(2025, 5, 8)));
+        assertEquals(HolidayType.OBSERVANCE, calendar.holidayOn(LocalDate.of(2026, 5, 8)).orElseThrow().type());
+        assertTrue(calendar.isBusinessDay(LocalDate.of(2026, 5, 8)));
+        assertEquals(LocalDate.of(2027, 5, 8), calendar.holidayOn(LocalDate.of(2027, 5, 10)).orElseThrow().original());
+    }
+
+    @Test
+    void aSuspendedHolidayIsAbsentInTheGap() {
+        var allSaints = HolidayRule.fixed(Month.NOVEMBER, 1);
+        var calendar = HolidayCalendar.builder()
+                .layer(Layer.named("XX")
+                        .add(Holiday.of("All Saints", HolidayPeriod.of(allSaints).validUntil(Year.of(2012)),
+                                HolidayPeriod.of(allSaints).validFrom(Year.of(2016))))
+                        .build())
+                .build();
+
+        assertTrue(calendar.isHoliday(LocalDate.of(2012, 11, 1)));
+        assertFalse(calendar.isHoliday(LocalDate.of(2013, 11, 1)));
+        assertFalse(calendar.isHoliday(LocalDate.of(2015, 11, 1)));
+        assertTrue(calendar.isHoliday(LocalDate.of(2016, 11, 1)));
+    }
+
+    @Test
+    void aFarShiftInAnyPeriodWidensTheSearch() {
+        var calendar = HolidayCalendar.builder()
+                .layer(Layer.named("XX")
+                        .add(Holiday.of("Far", HolidayPeriod.of(HolidayRule.fixed(Month.JANUARY, 1)).validUntil(Year.of(2019)),
+                                HolidayPeriod.of(HolidayRule.fixed(Month.JANUARY, 1).plusDays(-366)).validFrom(Year.of(2020))))
+                        .build())
+                .build();
+
+        assertEquals("Far", calendar.holidayOn(LocalDate.of(2024, 12, 31)).orElseThrow().name());
+    }
+
+    @Test
     void warmUpCachesTheRequestedYears() {
         var calendar = assertInstanceOf(CompiledCalendar.class, HolidayCalendar.builder().layer(SPAIN).build());
 

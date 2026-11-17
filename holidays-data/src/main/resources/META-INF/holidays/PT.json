@@ -10,12 +10,20 @@
         { "name": "Domingo de Páscoa",            "rule": { "easter": 0 } },
         { "name": "Dia da Liberdade",             "rule": { "fixed": "04-25" } },
         { "name": "Dia do Trabalhador",           "rule": { "fixed": "05-01" } },
-        { "name": "Corpo de Deus",                "rule": { "easter": 60 } },
+        { "name": "Corpo de Deus", "periods": [
+            { "rule": { "easter": 60 }, "until": 2012 },
+            { "rule": { "easter": 60 }, "from": 2016 } ] },
         { "name": "Dia de Portugal",              "rule": { "fixed": "06-10" } },
         { "name": "Assunção de Nossa Senhora",    "rule": { "fixed": "08-15" } },
-        { "name": "Implantação da República",     "rule": { "fixed": "10-05" } },
-        { "name": "Todos os Santos",              "rule": { "fixed": "11-01" } },
-        { "name": "Restauração da Independência", "rule": { "fixed": "12-01" } },
+        { "name": "Implantação da República", "periods": [
+            { "rule": { "fixed": "10-05" }, "until": 2012 },
+            { "rule": { "fixed": "10-05" }, "from": 2016 } ] },
+        { "name": "Todos os Santos", "periods": [
+            { "rule": { "fixed": "11-01" }, "until": 2012 },
+            { "rule": { "fixed": "11-01" }, "from": 2016 } ] },
+        { "name": "Restauração da Independência", "periods": [
+            { "rule": { "fixed": "12-01" }, "until": 2012 },
+            { "rule": { "fixed": "12-01" }, "from": 2016 } ] },
         { "name": "Imaculada Conceição",          "rule": { "fixed": "12-08" } },
         { "name": "Natal",                        "rule": { "fixed": "12-25" } }
       ]

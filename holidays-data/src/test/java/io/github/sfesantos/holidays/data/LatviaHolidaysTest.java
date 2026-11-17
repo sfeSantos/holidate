@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.Year;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -13,9 +14,11 @@ import org.junit.jupiter.api.Test;
  * Latvia's public holidays under the law "Par svētku, atceres un
  * atzīmējamām dienām", article 1. No yearly list is published, so the dates
  * are derived from the law. When 4 May or 18 November falls on a Saturday or
- * a Sunday, the next working day is a day off. The closing day of the Song
- * and Dance Festival, held about every five years, is not in the pack: none
- * falls in 2025 to 2027.
+ * a Sunday, the next working day is a day off. The same holds for the
+ * closing day of the Song and Dance Festival, a holiday since the amendment
+ * of 2 October 2014. It is held about every five years and the Cabinet sets
+ * the dates each time: 8 July 2018, 9 July 2023 (order 92 of 2022) and
+ * 9 July 2028 (order 208 of 2026), all Sundays.
  */
 class LatviaHolidaysTest {
 
@@ -63,5 +66,20 @@ class LatviaHolidaysTest {
         assertTrue(latvia.isHoliday(d(2027, 5, 1)));
         assertTrue(latvia.isBusinessDay(d(2027, 5, 3)));
         assertTrue(latvia.isBusinessDay(d(2027, 12, 27)));
+    }
+
+    @Test
+    void songAndDanceFestivalClosingDayGivesTheMondayOff() {
+        var latvia = Observed.calendar("LV");
+        var name = "Vispārējo latviešu Dziesmu un deju svētku noslēguma diena";
+
+        for (var monday : List.of(d(2018, 7, 9), d(2023, 7, 10), d(2028, 7, 10))) {
+            var closingDay = latvia.holidayOn(monday).orElseThrow();
+
+            assertEquals(name, closingDay.name());
+            assertEquals(monday.minusDays(1), closingDay.original());
+        }
+
+        assertTrue(latvia.holidaysIn(Year.of(2026)).stream().noneMatch(holiday -> holiday.name().equals(name)));
     }
 }

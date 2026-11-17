@@ -65,6 +65,7 @@ class NetherlandsHolidaysTest {
 
         assertEquals(DayOfWeek.SATURDAY, d(2025, 4, 26).getDayOfWeek());
         assertTrue(netherlands.isHoliday(d(2025, 4, 26)));
+        assertEquals("Koningsdag", netherlands.holidayOn(d(2025, 4, 26)).orElseThrow().name());
         assertFalse(netherlands.isHoliday(d(2025, 4, 27)));
         assertEquals(DayOfWeek.MONDAY, d(2026, 4, 27).getDayOfWeek());
         assertEquals("Koningsdag", netherlands.holidayOn(d(2026, 4, 27)).orElseThrow().name());

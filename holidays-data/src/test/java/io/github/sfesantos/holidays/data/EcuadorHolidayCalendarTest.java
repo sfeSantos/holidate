@@ -65,8 +65,8 @@ class EcuadorHolidayCalendarTest {
         var ecuador = Observed.calendar("EC");
 
         assertFalse(ecuador.isHoliday(d(2025, 11, 2)));
-        assertEquals("Día de los Difuntos 2025", ecuador.holidayOn(d(2025, 11, 4)).orElseThrow().name());
-        assertEquals("Independencia de Cuenca 2027", ecuador.holidayOn(d(2027, 11, 1)).orElseThrow().name());
+        assertEquals("Día de los Difuntos", ecuador.holidayOn(d(2025, 11, 4)).orElseThrow().name());
+        assertEquals("Independencia de Cuenca", ecuador.holidayOn(d(2027, 11, 1)).orElseThrow().name());
         assertFalse(ecuador.isHoliday(d(2027, 11, 3)));
     }
 

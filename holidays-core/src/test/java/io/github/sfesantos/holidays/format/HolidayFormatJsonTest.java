@@ -28,6 +28,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import io.github.sfesantos.holidays.Holiday;
 import io.github.sfesantos.holidays.HolidayCalendar;
+import io.github.sfesantos.holidays.HolidayPeriod;
 import io.github.sfesantos.holidays.HolidayRule;
 import io.github.sfesantos.holidays.HolidayType;
 import io.github.sfesantos.holidays.Layer;
@@ -60,21 +61,21 @@ class HolidayFormatJsonTest {
         assertEquals(Weekend.standard(), spain.weekend().orElseThrow());
         assertTrue(spain.parent().isEmpty());
         assertEquals(8, names.size());
-        assertEquals(HolidayRule.fixed(Month.JANUARY, 1), spain.additions().get(0).rule());
-        assertEquals(HolidayRule.easterRelative(-2), spain.additions().get(1).rule());
-        assertEquals(Year.of(1978), spain.additions().get(2).validity().from());
-        assertEquals(HolidayRule.nthWeekdayOfMonth(4, DayOfWeek.THURSDAY, Month.NOVEMBER), spain.additions().get(3).rule());
+        assertEquals(HolidayRule.fixed(Month.JANUARY, 1), spain.additions().get(0).periods().get(0).rule());
+        assertEquals(HolidayRule.easterRelative(-2), spain.additions().get(1).periods().get(0).rule());
+        assertEquals(Year.of(1978), spain.additions().get(2).periods().get(0).validity().from());
+        assertEquals(HolidayRule.nthWeekdayOfMonth(4, DayOfWeek.THURSDAY, Month.NOVEMBER), spain.additions().get(3).periods().get(0).rule());
 
         var election = spain.additions().get(4);
 
-        assertEquals(HolidayType.OBSERVANCE, election.type());
-        assertEquals(Year.of(2030), election.validity().until());
-        assertEquals(HolidayRule.weekdayAfter(DayOfWeek.MONDAY, java.time.MonthDay.of(11, 1)), election.rule());
-        assertEquals(HolidayType.HALF_DAY, spain.additions().get(5).type());
-        assertEquals(LocalTime.of(13, 0), spain.additions().get(5).closesAt());
-        assertEquals(HolidayRule.hijri(10, 1), spain.additions().get(6).rule());
-        assertEquals(HolidayRule.hebrew(HebrewMonth.NISAN, 15), spain.additions().get(7).rule());
-        assertEquals(HolidayType.BANK, spain.additions().get(7).type());
+        assertEquals(HolidayType.OBSERVANCE, election.periods().get(0).type());
+        assertEquals(Year.of(2030), election.periods().get(0).validity().until());
+        assertEquals(HolidayRule.weekdayAfter(DayOfWeek.MONDAY, java.time.MonthDay.of(11, 1)), election.periods().get(0).rule());
+        assertEquals(HolidayType.HALF_DAY, spain.additions().get(5).periods().get(0).type());
+        assertEquals(LocalTime.of(13, 0), spain.additions().get(5).periods().get(0).closesAt());
+        assertEquals(HolidayRule.hijri(10, 1), spain.additions().get(6).periods().get(0).rule());
+        assertEquals(HolidayRule.hebrew(HebrewMonth.NISAN, 15), spain.additions().get(7).periods().get(0).rule());
+        assertEquals(HolidayType.BANK, spain.additions().get(7).periods().get(0).type());
 
         var andalucia = layers.get(1);
 
@@ -84,7 +85,7 @@ class HolidayFormatJsonTest {
         var catalunya = layers.get(2);
 
         assertEquals(List.of("Constitución"), List.copyOf(catalunya.removals()));
-        assertEquals(ObservanceRule.none(), catalunya.overrides().get("Thanksgiving").observance());
+        assertEquals(ObservanceRule.none(), catalunya.overrides().get("Thanksgiving").periods().get(0).observance());
     }
 
     @Test
@@ -202,7 +203,7 @@ class HolidayFormatJsonTest {
         var text = "{\"layers\": [{\"id\": \"UK\", \"holidays\": [{\"name\": \"Royal Wedding\", \"rule\": {\"date\": \"2011-04-29\"}}]}]}";
         var holiday = JSON.parse(text).get(0).additions().get(0);
 
-        assertEquals(HolidayRule.on(LocalDate.of(2011, 4, 29)), holiday.rule());
+        assertEquals(HolidayRule.on(LocalDate.of(2011, 4, 29)), holiday.periods().get(0).rule());
         assertTrue(JSON.write(JSON.parse(text)).contains("\"date\": \"2011-04-29\""));
     }
 
@@ -212,7 +213,7 @@ class HolidayFormatJsonTest {
                 + "\"rule\": {\"nth\": 4, \"weekday\": \"THURSDAY\", \"month\": \"NOVEMBER\", \"shift\": 1}}]}]}";
         var holiday = JSON.parse(text).get(0).additions().get(0);
 
-        assertEquals(HolidayRule.nthWeekdayOfMonth(4, DayOfWeek.THURSDAY, Month.NOVEMBER).plusDays(1), holiday.rule());
+        assertEquals(HolidayRule.nthWeekdayOfMonth(4, DayOfWeek.THURSDAY, Month.NOVEMBER).plusDays(1), holiday.periods().get(0).rule());
         assertEquals(Optional.of(LocalDate.of(2026, 11, 27)), holiday.dateIn(Year.of(2026), EasterAlgorithm.gregorian()));
         assertTrue(JSON.write(JSON.parse(text)).contains("\"month\": \"NOVEMBER\",\n            \"shift\": 1\n"));
     }
@@ -221,7 +222,7 @@ class HolidayFormatJsonTest {
     void aShiftOfZeroReadsAsThePlainRule() {
         var text = "{\"layers\": [{\"id\": \"x\", \"holidays\": [{\"name\": \"h\", \"rule\": {\"fixed\": \"12-25\", \"shift\": 0}}]}]}";
 
-        assertEquals(HolidayRule.fixed(Month.DECEMBER, 25), JSON.parse(text).get(0).additions().get(0).rule());
+        assertEquals(HolidayRule.fixed(Month.DECEMBER, 25), JSON.parse(text).get(0).additions().get(0).periods().get(0).rule());
     }
 
     @Test
@@ -233,8 +234,8 @@ class HolidayFormatJsonTest {
         var written = JSON.write(List.of(layer));
         var reparsed = JSON.parse(written).get(0);
 
-        assertEquals(christmas.plusDays(3), reparsed.additions().get(0).rule());
-        assertEquals(christmas, reparsed.additions().get(1).rule());
+        assertEquals(christmas.plusDays(3), reparsed.additions().get(0).periods().get(0).rule());
+        assertEquals(christmas, reparsed.additions().get(1).periods().get(0).rule());
         assertEquals(1, written.split("\"shift\"", -1).length - 1);
     }
 
@@ -310,12 +311,106 @@ class HolidayFormatJsonTest {
         assertEquals(column, error.column(), error.getMessage());
     }
 
+    private static final String PERIODS = """
+            { "layers": [ { "id": "XX", "holidays": [
+              { "name": "Matariki", "dates": ["2022-06-24", "2023-07-14"] },
+              { "name": "Statehood", "periods": [
+                { "rule": { "fixed": "06-25" }, "until": 2019 },
+                { "rule": { "fixed": "05-30" }, "from": 2020, "observance": "NONE" } ] },
+              { "name": "Victory", "periods": [
+                { "rule": { "fixed": "05-08" }, "until": 2025 },
+                { "dates": ["2026-05-08", "2027-05-10"], "type": "OBSERVANCE" },
+                { "rule": { "fixed": "05-08" }, "from": 2028 } ] }
+            ] } ] }
+            """;
+
+    @Test
+    void readsPeriodsAndDates() {
+        var holidays = JSON.parse(PERIODS).get(0).additions();
+
+        assertEquals(Holiday.onDates("Matariki", LocalDate.of(2022, 6, 24), LocalDate.of(2023, 7, 14)), holidays.get(0));
+        assertEquals(Holiday.of("Statehood",
+                HolidayPeriod.of(HolidayRule.fixed(Month.JUNE, 25)).validUntil(Year.of(2019)),
+                HolidayPeriod.of(HolidayRule.fixed(Month.MAY, 30)).validFrom(Year.of(2020)).withObservance(ObservanceRule.none())),
+                holidays.get(1));
+        assertEquals(4, holidays.get(2).periods().size());
+        assertEquals(HolidayPeriod.of(HolidayRule.on(LocalDate.of(2027, 5, 10))).ofType(HolidayType.OBSERVANCE),
+                holidays.get(2).periods().get(2));
+    }
+
+    @Test
+    void periodsAndDatesRoundTrip() {
+        var layers = JSON.parse(PERIODS);
+        var written = JSON.write(layers);
+
+        assertEquals(layers.get(0).additions(), JSON.parse(written).get(0).additions());
+        assertTrue(written.contains("""
+                          "name": "Matariki",
+                          "dates": [
+                            "2022-06-24",
+                            "2023-07-14"
+                          ]
+                """.stripTrailing()), written);
+        assertTrue(written.contains("\"periods\": ["), written);
+        assertEquals(2, written.split("\"dates\"", -1).length - 1);
+    }
+
+    @Test
+    void datesThatDifferInMoreThanTheDateAreWrittenAsSeparatePeriods() {
+        var mixed = Holiday.of("Mixed",
+                HolidayPeriod.of(HolidayRule.on(LocalDate.of(2024, 3, 1))),
+                HolidayPeriod.of(HolidayRule.on(LocalDate.of(2025, 3, 3))).ofType(HolidayType.BANK),
+                HolidayPeriod.of(HolidayRule.on(LocalDate.of(2026, 3, 2)).plusDays(1)),
+                HolidayPeriod.of(HolidayRule.on(LocalDate.of(2027, 3, 1))).validFrom(Year.of(2027)));
+        var layer = Layer.named("x").add(mixed).build();
+        var written = JSON.write(List.of(layer));
+
+        assertFalse(written.contains("\"dates\""), written);
+        assertEquals(mixed, JSON.parse(written).get(0).additions().get(0));
+    }
+
+    @Test
+    void aSingleDateInDatesReadsAsADateRule() {
+        var text = "{\"layers\": [{\"id\": \"x\", \"holidays\": [{\"name\": \"h\", \"dates\": [\"2026-07-10\"], \"closesAt\": \"13:00\"}]}]}";
+        var holiday = JSON.parse(text).get(0).additions().get(0);
+
+        assertEquals(Holiday.on("h", LocalDate.of(2026, 7, 10)).closingAt(LocalTime.of(13, 0)), holiday);
+        assertTrue(JSON.write(JSON.parse(text)).contains("\"date\": \"2026-07-10\""));
+    }
+
+    @ParameterizedTest
+    @CsvSource(delimiter = '|', value = {
+        "{ `name`: `x`, `periods`: [\\n { `rule`: { `fixed`: `06-25` }, `until`: 2020 },\\n { `rule`: { `fixed`: `05-30` }, `from`: 2020 } ] } | 3 | 2 | has overlapping periods: until 2020 and from 2020",
+        "{ `name`: `x`, `dates`: [`2022-06-24`,\\n `2023-07-14`,\\n `2022-07-01`] } | 3 | 2 | has overlapping periods: 2022 and 2022",
+        "{ `name`: `x`, `periods`: [\\n { `rule`: { `fixed`: `04-27` } },\\n { `dates`: [`2025-04-26`] } ] } | 3 | 14 | overlapping periods: every year and 2025",
+        "{ `name`: `x`, `dates`: [`2022-06-24`], `from`: 2022 } | 1 | 87 | \"dates\" cannot be combined with \"from\"",
+        "{ `name`: `x`, `dates`: [`2022-06-24`], `until`: 2022 } | 1 | 88 | \"dates\" cannot be combined with \"until\"",
+        "{ `name`: `x`, `dates`: [`2022-06-24`], `rule`: { `fixed`: `01-01` } } | 1 | 87 | \"dates\" cannot be combined with \"rule\"",
+        "{ `name`: `x`, `dates`: [] } | 1 | 63 | \"dates\" must not be empty",
+        "{ `name`: `x`, `dates`: [`24 June`] } | 1 | 64 | expected a date as \"YYYY-MM-DD\"",
+        "{ `name`: `x`, `dates`: `2022-06-24` } | 1 | 63 | expected an array",
+        "{ `name`: `x`, `periods`: [] } | 1 | 65 | \"periods\" must not be empty",
+        "{ `name`: `x`, `periods`: [ { `rule`: { `fixed`: `01-01` } } ], `type`: `BANK` } | 1 | 111 | a holiday with \"periods\" takes \"type\" inside each period",
+        "{ `name`: `x`, `periods`: [ { `rule`: { `fixed`: `01-01` } } ], `rule`: { `fixed`: `01-02` } } | 1 | 111 | takes \"rule\" inside each period",
+        "{ `name`: `x`, `periods`: [ { `name`: `y`, `rule`: { `fixed`: `01-01` } } ] } | 1 | 77 | unknown member \"name\"",
+        "{ `name`: `x`, `periods`: [ { `type`: `BANK` } ] } | 1 | 67 | missing required member \"rule\"",
+        "{ `name`: `x`, `periods`: [ `always` ] } | 1 | 67 | expected an object",
+        "{ `name`: ``, `dates`: [`2022-06-24`, `2023-07-14`] } | 1 | 49 | name must not be blank"})
+    void periodErrorsPointAtThePeriod(String holiday, int line, int column, String message) {
+        var text = "{\"layers\": [{\"id\": \"ES\", \"holidays\": [" + holiday.replace('`', '"').replace("\\n", "\n") + "]}]}";
+        var error = assertThrows(HolidayFormatException.class, () -> JSON.parse(text));
+
+        assertTrue(error.getMessage().contains(message), error.getMessage());
+        assertEquals(line, error.line(), error.getMessage());
+        assertEquals(column, error.column(), error.getMessage());
+    }
+
     @Test
     void closesAtWithHalfDayTypeIsAccepted() {
         var layer = JSON.parse("{\"layers\": [{\"id\": \"x\", \"holidays\": [{\"name\": \"h\", \"rule\": {\"fixed\": \"12-24\"}, \"type\": \"HALF_DAY\", \"closesAt\": \"14:30\"}]}]}").get(0);
 
-        assertEquals(LocalTime.of(14, 30), layer.additions().get(0).closesAt());
-        assertEquals(HolidayType.HALF_DAY, layer.additions().get(0).type());
+        assertEquals(LocalTime.of(14, 30), layer.additions().get(0).periods().get(0).closesAt());
+        assertEquals(HolidayType.HALF_DAY, layer.additions().get(0).periods().get(0).type());
     }
 
     @Test
