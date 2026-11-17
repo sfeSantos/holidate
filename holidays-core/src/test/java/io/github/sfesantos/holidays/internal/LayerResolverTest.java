@@ -4,12 +4,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.Month;
+import java.time.Year;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 import io.github.sfesantos.holidays.Holiday;
+import io.github.sfesantos.holidays.HolidayPeriod;
+import io.github.sfesantos.holidays.HolidayRule;
 import io.github.sfesantos.holidays.Layer;
 import io.github.sfesantos.holidays.ObservanceRule;
 import io.github.sfesantos.holidays.Weekend;
@@ -44,6 +48,21 @@ class LayerResolverTest {
         var resolved = LayerResolver.resolve(List.of(SPAIN, catalunya), ObservanceRule.none(), Weekend.standard()).holidays();
 
         assertEquals(List.of(new ResolvedHoliday(CHRISTMAS, "ES"), new ResolvedHoliday(moved, "ES-CT")), resolved);
+    }
+
+    @Test
+    void overrideAndRemoveTakeAHolidayWithAllItsPeriods() {
+        var matariki = Holiday.onDates("Matariki", LocalDate.of(2022, 6, 24), LocalDate.of(2023, 7, 14));
+        var statehood = Holiday.of("Statehood",
+                HolidayPeriod.of(HolidayRule.fixed(Month.JUNE, 25)).validUntil(Year.of(2019)),
+                HolidayPeriod.of(HolidayRule.fixed(Month.MAY, 30)).validFrom(Year.of(2020)));
+        var base = Layer.named("base").add(matariki, statehood).build();
+        var moved = Holiday.onDates("Matariki", LocalDate.of(2022, 6, 27));
+        var region = Layer.named("region").override(moved).remove("Statehood").build();
+
+        var resolved = LayerResolver.resolve(List.of(base, region), ObservanceRule.none(), Weekend.standard()).holidays();
+
+        assertEquals(List.of(new ResolvedHoliday(moved, "region")), resolved);
     }
 
     @Test
