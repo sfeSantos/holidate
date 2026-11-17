@@ -35,6 +35,23 @@ class ValidateTest {
                   { "name": "Typo", "rule": { "fixd": "01-01" } } ] } ] }
             """;
 
+    private static final String OVERLAP = """
+            { "layers": [ { "id": "XX",
+                "holidays": [
+                  { "name": "Statehood", "periods": [
+                      { "rule": { "fixed": "06-25" }, "until": 2020 },
+                      { "rule": { "fixed": "05-30" }, "from": 2020 } ] } ] } ] }
+            """;
+
+    private static final String PERIODS = """
+            { "layers": [ { "id": "XX",
+                "holidays": [
+                  { "name": "Matariki", "dates": ["2025-06-20", "2026-07-10"] },
+                  { "name": "Statehood", "periods": [
+                      { "rule": { "fixed": "06-25" }, "until": 2025 },
+                      { "rule": { "fixed": "05-30" }, "from": 2026, "type": "BANK" } ] } ] } ] }
+            """;
+
     @TempDir
     Path directory;
 
@@ -130,6 +147,28 @@ class ValidateTest {
         assertTrue(message.contains("wrong.json: line 3, column "), message);
         assertTrue(message.contains("fixed") && message.contains("easter") && message.contains("weekdayAfter"), message);
         assertEquals("", out.toString(StandardCharsets.UTF_8));
+    }
+
+    @Test
+    void overlappingPeriodsNameTheLineAndTheColumnOfTheSecondOne() throws IOException {
+        assertEquals(1, run(write("overlap.json", OVERLAP), "XX", "2026"));
+
+        var message = err.toString(StandardCharsets.UTF_8);
+
+        assertTrue(message.contains("overlap.json: line 5, column 11: holiday 'Statehood' has overlapping periods: until 2020 and from 2020"),
+                message);
+        assertEquals("", out.toString(StandardCharsets.UTF_8));
+    }
+
+    @Test
+    void aHolidayWithPeriodsPrintsUnderOneName() throws IOException {
+        assertEquals(0, run(write("periods.json", PERIODS), "XX", "2025..2026"));
+
+        assertEquals(List.of(
+                "2025-06-20  Fri  Matariki   PUBLIC  XX",
+                "2025-06-25  Wed  Statehood  PUBLIC  XX",
+                "2026-05-30  Sat  Statehood  BANK    XX",
+                "2026-07-10  Fri  Matariki   PUBLIC  XX"), lines(out).subList(3, 7));
     }
 
     @Test
