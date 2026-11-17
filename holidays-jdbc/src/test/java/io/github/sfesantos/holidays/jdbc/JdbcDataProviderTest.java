@@ -57,8 +57,7 @@ class JdbcDataProviderTest {
                 valid_from  INTEGER,
                 valid_until INTEGER,
                 observance  VARCHAR(40),
-                closes_at   VARCHAR(5),
-                PRIMARY KEY (layer_id, name)
+                closes_at   VARCHAR(5)
             );
             """;
 
@@ -149,15 +148,15 @@ class JdbcDataProviderTest {
         assertFalse(provider.layer("PLAIN").orElseThrow().declaresObservance());
         assertEquals(Optional.empty(), provider.layer("missing"));
 
-        assertEquals(HolidayType.HALF_DAY, byName.get("Early close").type());
-        assertEquals(LocalTime.of(13, 0), byName.get("Early close").closesAt());
-        assertEquals(HolidayType.HALF_DAY, byName.get("Implied half day").type());
-        assertEquals(LocalTime.of(14, 30), byName.get("Implied half day").closesAt());
-        assertEquals(HolidayType.BANK, byName.get("Bank day").type());
-        assertEquals(Year.of(2000), byName.get("Bank day").validity().from());
-        assertEquals(Year.of(2030), byName.get("Bank day").validity().until());
-        assertEquals(ObservanceRule.none(), byName.get("Bank day").observance());
-        assertEquals(ObservanceRule.inherit(), byName.get("Day after").observance());
+        assertEquals(HolidayType.HALF_DAY, byName.get("Early close").periods().get(0).type());
+        assertEquals(LocalTime.of(13, 0), byName.get("Early close").periods().get(0).closesAt());
+        assertEquals(HolidayType.HALF_DAY, byName.get("Implied half day").periods().get(0).type());
+        assertEquals(LocalTime.of(14, 30), byName.get("Implied half day").periods().get(0).closesAt());
+        assertEquals(HolidayType.BANK, byName.get("Bank day").periods().get(0).type());
+        assertEquals(Year.of(2000), byName.get("Bank day").periods().get(0).validity().from());
+        assertEquals(Year.of(2030), byName.get("Bank day").periods().get(0).validity().until());
+        assertEquals(ObservanceRule.none(), byName.get("Bank day").periods().get(0).observance());
+        assertEquals(ObservanceRule.inherit(), byName.get("Day after").periods().get(0).observance());
 
         var dayAfter = HolidayCalendar.builder()
                 .layers(emirates)
@@ -276,7 +275,32 @@ class JdbcDataProviderTest {
     }
 
     @Test
-    void aHolidayAddedTwiceInOneLayerFails() {
+    void rowsThatShareANameAreThePeriodsOfOneHoliday() {
+        run("""
+                INSERT INTO holiday_layer (id, parent_id) VALUES ('HR', NULL), ('HR-X', 'HR');
+                INSERT INTO holiday (layer_id, name, action, rule, type, valid_from, valid_until) VALUES
+                    ('HR', 'Dan državnosti', NULL, '{"fixed": "05-30"}', NULL, 2020, NULL),
+                    ('HR', 'Dan državnosti', 'ADD', '{"fixed": "06-25"}', NULL, NULL, 2019),
+                    ('HR', 'Matariki', NULL, '{"date": "2023-07-14"}', NULL, NULL, NULL),
+                    ('HR', 'Matariki', NULL, '{"date": "2022-06-24"}', NULL, NULL, NULL),
+                    ('HR-X', 'Matariki', 'OVERRIDE', '{"date": "2022-06-27"}', 'BANK', NULL, NULL),
+                    ('HR-X', 'Matariki', 'OVERRIDE', '{"date": "2023-07-17"}', NULL, NULL, NULL);
+                """);
+        var registry = CalendarRegistry.of(JdbcDataProvider.of(dataSource));
+        var croatia = registry.layer("HR").orElseThrow();
+        var statehood = croatia.additions().get(0);
+
+        assertEquals(List.of("Dan državnosti", "Matariki"), croatia.additions().stream().map(Holiday::name).toList());
+        assertEquals(2, statehood.periods().size());
+        assertEquals("Dan državnosti", registry.calendar("HR").holidayOn(LocalDate.of(2019, 6, 25)).orElseThrow().name());
+        assertEquals("Dan državnosti", registry.calendar("HR").holidayOn(LocalDate.of(2020, 5, 30)).orElseThrow().name());
+        assertEquals(2, registry.layer("HR-X").orElseThrow().overrides().get("Matariki").periods().size());
+        assertEquals("Matariki", registry.calendar("HR-X").holidayOn(LocalDate.of(2023, 7, 17)).orElseThrow().name());
+        assertEquals(HolidayType.BANK, registry.calendar("HR-X").holidayOn(LocalDate.of(2022, 6, 27)).orElseThrow().type());
+    }
+
+    @Test
+    void rowsOfOneNameWithOverlappingYearsFail() {
         run("""
                 CREATE TABLE loose_holiday (layer_id VARCHAR(64), name VARCHAR(200), action VARCHAR(8), rule VARCHAR(400),
                     type VARCHAR(16), valid_from INTEGER, valid_until INTEGER, observance VARCHAR(40), closes_at VARCHAR(5));
@@ -284,16 +308,29 @@ class JdbcDataProviderTest {
                 INSERT INTO loose_holiday (layer_id, name, rule) VALUES
                     ('ES', 'Navidad', '{"fixed": "12-25"}'), ('ES', 'Navidad', '{"fixed": "12-26"}'), ('ES', NULL, '{"fixed": "01-01"}');
                 """);
-        var twice = JdbcSchema.defaults().withTables("holiday_layer", "loose_holiday");
+        var loose = JdbcSchema.defaults().withTables("holiday_layer", "loose_holiday");
 
-        var nullName = assertThrows(IllegalArgumentException.class, () -> JdbcDataProvider.of(dataSource, twice));
+        var nullName = assertThrows(IllegalArgumentException.class, () -> JdbcDataProvider.of(dataSource, loose));
 
         assertTrue(nullName.getMessage().contains("the holiday name is null"), nullName.getMessage());
 
         run("DELETE FROM loose_holiday WHERE name IS NULL");
-        var duplicate = assertThrows(IllegalArgumentException.class, () -> JdbcDataProvider.of(dataSource, twice));
+        var overlap = assertThrows(IllegalArgumentException.class, () -> JdbcDataProvider.of(dataSource, loose));
 
-        assertTrue(duplicate.getMessage().contains("'Navidad' more than once"), duplicate.getMessage());
+        assertTrue(overlap.getMessage().contains("holiday 'Navidad' of layer 'ES' in table loose_holiday"), overlap.getMessage());
+        assertTrue(overlap.getMessage().contains("overlapping periods: every year and every year"), overlap.getMessage());
+    }
+
+    @Test
+    void aNameBothAddedAndOverriddenInOneLayerFails() {
+        run("""
+                INSERT INTO holiday_layer (id) VALUES ('ES');
+                INSERT INTO holiday (layer_id, name, action, rule, valid_from, valid_until) VALUES
+                    ('ES', 'Navidad', 'ADD', '{"fixed": "12-25"}', NULL, 2019),
+                    ('ES', 'Navidad', 'OVERRIDE', '{"fixed": "12-26"}', 2020, NULL);
+                """);
+
+        assertFails("layer 'ES'", "'Navidad' more than once");
     }
 
     @Test

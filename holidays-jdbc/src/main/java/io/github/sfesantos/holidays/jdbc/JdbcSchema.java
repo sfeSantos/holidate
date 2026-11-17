@@ -28,10 +28,12 @@ import java.util.regex.Pattern;
  *     valid_from  INTEGER,
  *     valid_until INTEGER,
  *     observance  VARCHAR(40),
- *     closes_at   VARCHAR(5),      -- '13:00'
- *     PRIMARY KEY (layer_id, name)
+ *     closes_at   VARCHAR(5)       -- '13:00'
  * );
  * }</pre>
+ *
+ * <p>The holiday table has no primary key on the layer and the name: a
+ * holiday with several periods takes one row per period.
  */
 public record JdbcSchema(LayerTable layers, HolidayTable holidays) {
 
@@ -69,7 +71,7 @@ public record JdbcSchema(LayerTable layers, HolidayTable holidays) {
         }
     }
 
-    /** The table with one row per holiday of a layer; every argument but {@code table} is a column name. */
+    /** The table with one row per holiday of a layer, or per period of one; every argument but {@code table} is a column name. */
     public record HolidayTable(String table, String layer, String name, String action, String rule, String type,
             String from, String until, String observance, String closesAt) {
 

@@ -9,6 +9,7 @@ import java.time.LocalTime;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -17,6 +18,7 @@ import java.util.Set;
 import javax.sql.DataSource;
 
 import io.github.sfesantos.holidays.Holiday;
+import io.github.sfesantos.holidays.HolidayPeriod;
 import io.github.sfesantos.holidays.HolidayType;
 import io.github.sfesantos.holidays.Layer;
 import io.github.sfesantos.holidays.LayerBuilder;
@@ -30,7 +32,10 @@ import io.github.sfesantos.holidays.registry.HolidayDataProvider;
 
 /**
  * Layers read from two database tables, one row per layer and one row per
- * holiday; {@link JdbcSchema} names them and documents the default schema.
+ * holiday, or per period of a holiday that has several: rows of one layer
+ * that share a name and an action become one holiday, and their years must
+ * not overlap. {@link JdbcSchema} names the tables and documents the default
+ * schema.
  * Both tables are read once, with one query each, when the provider is
  * created, and the connection is closed before {@code of} returns. A
  * duplicate layer id or a row that does not describe a valid holiday fails
@@ -149,7 +154,9 @@ public final class JdbcDataProvider implements HolidayDataProvider {
             throws SQLException {
         var sql = "SELECT " + String.join(", ", table.layer(), table.name(), table.action(), table.rule(), table.type(),
                 table.from(), table.until(), table.observance(), table.closesAt())
-                + " FROM " + table.table() + " ORDER BY " + table.layer() + ", " + table.name();
+                + " FROM " + table.table() + " ORDER BY " + table.layer() + ", " + table.name() + ", " + table.from();
+
+        var holidays = new LinkedHashMap<List<String>, GroupedHoliday>();
 
         try (var statement = connection.createStatement(); var rows = statement.executeQuery(sql)) {
             while (rows.next()) {
@@ -161,8 +168,12 @@ public final class JdbcDataProvider implements HolidayDataProvider {
                     throw new IllegalArgumentException(where + " belongs to a layer that is not defined");
                 }
 
-                guarded(where, () -> row.applyTo(builder));
+                guarded(where, () -> row.applyTo(builder, where, holidays));
             }
+        }
+
+        for (var grouped : holidays.values()) {
+            guarded(grouped.where(), grouped::apply);
         }
     }
 
@@ -195,17 +206,26 @@ public final class JdbcDataProvider implements HolidayDataProvider {
                     rows.getString(8), rows.getString(9));
         }
 
-        LayerBuilder applyTo(LayerBuilder builder) {
+        /** Rows that add or override under one name are the periods of one holiday, so they wait for each other. */
+        LayerBuilder applyTo(LayerBuilder builder, String where, Map<List<String>, GroupedHoliday> holidays) {
             if (name == null) {
                 throw new IllegalArgumentException("the holiday name is null");
             }
 
-            return switch (action == null ? "ADD" : action) {
-                case "ADD" -> builder.add(holiday());
-                case "OVERRIDE" -> builder.override(holiday());
+            var kind = action == null ? "ADD" : action;
+
+            switch (kind) {
+                case "ADD", "OVERRIDE" -> {
+                    var period = period();
+                    holidays.merge(List.of(layer, kind, name),
+                            new GroupedHoliday(where, builder, kind.equals("OVERRIDE"), Holiday.of(name, period)),
+                            (grouped, single) -> grouped.and(period));
+                }
                 case "REMOVE" -> builder.remove(removedName());
                 default -> throw new IllegalArgumentException("unknown action \"" + action + "\"; expected ADD, OVERRIDE or REMOVE");
-            };
+            }
+
+            return builder;
         }
 
         private String removedName() {
@@ -216,28 +236,28 @@ public final class JdbcDataProvider implements HolidayDataProvider {
             return name;
         }
 
-        private Holiday holiday() {
+        private HolidayPeriod period() {
             if (rule == null) {
                 throw new IllegalArgumentException("the rule is null");
             }
 
-            var holiday = Holiday.of(name, HolidayFormat.json().parseRule(rule));
+            var period = HolidayPeriod.of(HolidayFormat.json().parseRule(rule));
             var explicitType = type == null ? null : HolidayType.valueOf(type);
 
             if (explicitType != null) {
-                holiday = holiday.ofType(explicitType);
+                period = period.ofType(explicitType);
             }
 
             if (from != null) {
-                holiday = holiday.validFrom(Year.of(from));
+                period = period.validFrom(Year.of(from));
             }
 
             if (until != null) {
-                holiday = holiday.validUntil(Year.of(until));
+                period = period.validUntil(Year.of(until));
             }
 
             if (observance != null) {
-                holiday = holiday.withObservance(ObservanceRule.named(observance));
+                period = period.withObservance(ObservanceRule.named(observance));
             }
 
             if (closesAt != null) {
@@ -245,10 +265,21 @@ public final class JdbcDataProvider implements HolidayDataProvider {
                     throw new IllegalArgumentException("closes at needs type HALF_DAY but the type is " + explicitType);
                 }
 
-                holiday = holiday.closingAt(LocalTime.parse(closesAt));
+                period = period.closingAt(LocalTime.parse(closesAt));
             }
 
-            return holiday;
+            return period;
+        }
+    }
+
+    private record GroupedHoliday(String where, LayerBuilder builder, boolean override, Holiday holiday) {
+
+        GroupedHoliday and(HolidayPeriod period) {
+            return new GroupedHoliday(where, builder, override, holiday.and(period));
+        }
+
+        LayerBuilder apply() {
+            return override ? builder.override(holiday) : builder.add(holiday);
         }
     }
 }
