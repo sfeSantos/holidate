@@ -15,6 +15,7 @@ public final class ObservanceNames {
         BY_NAME.put("NONE", ObservanceRule.none());
         BY_NAME.put("SUNDAY_TO_MONDAY", ObservanceRule.sundayToMonday());
         BY_NAME.put("WEEKEND_TO_MONDAY", ObservanceRule.weekendToMonday());
+        BY_NAME.put("WEEKEND_ADDS_MONDAY", ObservanceRule.weekendAddsMonday());
         BY_NAME.put("SATURDAY_TO_FRIDAY_SUNDAY_TO_MONDAY", ObservanceRule.saturdayToFridaySundayToMonday());
         BY_NAME.put("NEAREST_WEEKDAY", ObservanceRule.nearestWeekday());
         BY_NAME.put("INHERIT", ObservanceRule.inherit());

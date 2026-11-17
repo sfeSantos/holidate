@@ -10,12 +10,22 @@ import io.github.sfesantos.holidays.internal.ObservanceNames;
 /**
  * Moves a holiday off a day on which it is not observed. A rule performs one
  * step; the calendar repeats it until the date stops moving, at most seven
- * times, so a rule only has to be idempotent on a date it accepts.
+ * times, so a rule only has to be idempotent on a date it accepts. A rule
+ * that {@link #keepsOriginal() keeps the original} leaves the holiday on its
+ * date and adds the day it would have moved to.
  */
 @FunctionalInterface
 public interface ObservanceRule {
 
     LocalDate observe(LocalDate date, ObservanceContext context);
+
+    /**
+     * Whether a holiday on a weekend stays a holiday there, with the date this rule gives as a second
+     * occurrence. A holiday on a weekday is left alone.
+     */
+    default boolean keepsOriginal() {
+        return false;
+    }
 
     static ObservanceRule none() {
         return Observances.NONE;
@@ -33,6 +43,11 @@ public interface ObservanceRule {
     /** Saturday or Sunday move forward to the next free weekday, as do collisions with other holidays. */
     static ObservanceRule weekendToMonday() {
         return Observances.WEEKEND_TO_MONDAY;
+    }
+
+    /** Saturday or Sunday stay a holiday and the next free weekday becomes one as well. */
+    static ObservanceRule weekendAddsMonday() {
+        return Observances.WEEKEND_ADDS_MONDAY;
     }
 
     /** United States federal model: Saturday back to Friday, Sunday forward to Monday. */
@@ -74,6 +89,19 @@ final class Observances {
 
     static final ObservanceRule WEEKEND_TO_MONDAY = (date, context) ->
             context.isNonWorking(date) ? date.plusDays(1) : date;
+
+    static final ObservanceRule WEEKEND_ADDS_MONDAY = new ObservanceRule() {
+
+        @Override
+        public LocalDate observe(LocalDate date, ObservanceContext context) {
+            return WEEKEND_TO_MONDAY.observe(date, context);
+        }
+
+        @Override
+        public boolean keepsOriginal() {
+            return true;
+        }
+    };
 
     static final ObservanceRule SATURDAY_TO_FRIDAY_SUNDAY_TO_MONDAY = (date, context) ->
             switch (date.getDayOfWeek()) {

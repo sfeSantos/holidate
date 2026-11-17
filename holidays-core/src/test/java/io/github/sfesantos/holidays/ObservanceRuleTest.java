@@ -1,6 +1,7 @@
 package io.github.sfesantos.holidays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -114,9 +115,18 @@ class ObservanceRuleTest {
         assertSame(ObservanceRule.none(), ObservanceRule.named("NONE"));
         assertSame(ObservanceRule.sundayToMonday(), ObservanceRule.named("SUNDAY_TO_MONDAY"));
         assertSame(ObservanceRule.weekendToMonday(), ObservanceRule.named("WEEKEND_TO_MONDAY"));
+        assertSame(ObservanceRule.weekendAddsMonday(), ObservanceRule.named("WEEKEND_ADDS_MONDAY"));
         assertSame(ObservanceRule.saturdayToFridaySundayToMonday(), ObservanceRule.named("SATURDAY_TO_FRIDAY_SUNDAY_TO_MONDAY"));
         assertSame(ObservanceRule.nearestWeekday(), ObservanceRule.named("NEAREST_WEEKDAY"));
         assertSame(ObservanceRule.inherit(), ObservanceRule.named("INHERIT"));
+    }
+
+    @Test
+    void onlyWeekendAddsMondayKeepsTheOriginal() {
+        assertTrue(ObservanceRule.weekendAddsMonday().keepsOriginal());
+        assertFalse(ObservanceRule.weekendToMonday().keepsOriginal());
+        assertFalse(ObservanceRule.custom(date -> date).keepsOriginal());
+        assertEquals(TUESDAY, observe(ObservanceRule.weekendAddsMonday(), SUNDAY, Context.standard().taking(MONDAY)));
     }
 
     @Test
