@@ -406,7 +406,32 @@ happens once, in that year only), `easter` (offset in days), `nth` with
 of days from -366 to 366 added to its date: the day after Thanksgiving is
 `{ "nth": 4, "weekday": "THURSDAY", "month": "NOVEMBER", "shift": 1 }`.
 Optional members on a holiday:
-`type`, `from`, `until`, `observance` and `closesAt`. Observance names are
+`type`, `from`, `until`, `observance` and `closesAt`.
+
+A holiday keeps one name through its whole history. When its rule or type
+changed, or it was suspended for some years, write `periods` in place of the
+single rule: each period has its own `rule` and optional members, and the
+years of two periods must not overlap. A holiday whose date is set year by
+year takes `dates` in place of `rule`, at most one date a year; `dates` also
+works inside a period, and takes `type`, `observance` and `closesAt` but no
+`from` or `until`.
+
+```json
+{ "name": "Matariki", "dates": ["2025-06-20", "2026-07-10", "2027-06-25"] },
+{ "name": "Dan državnosti", "periods": [
+    { "rule": { "fixed": "06-25" }, "until": 2019 },
+    { "rule": { "fixed": "05-30" }, "from": 2020 } ] },
+{ "name": "Todos os Santos", "periods": [
+    { "rule": { "fixed": "11-01" }, "until": 2012 },
+    { "rule": { "fixed": "11-01" }, "from": 2016 } ] },
+{ "name": "Deň víťazstva nad fašizmom", "periods": [
+    { "rule": { "fixed": "05-08" }, "until": 2025 },
+    { "dates": ["2026-05-08"], "type": "OBSERVANCE" },
+    { "rule": { "fixed": "05-08" }, "from": 2027 } ] }
+```
+
+Overlapping periods fail with the line and column of the second one.
+Observance names are
 `NONE`, `SUNDAY_TO_MONDAY`, `WEEKEND_TO_MONDAY`,
 `SATURDAY_TO_FRIDAY_SUNDAY_TO_MONDAY` and `NEAREST_WEEKDAY`;
 `ObservanceRule.named(name)` gives the rule for a name. `custom` rules
@@ -601,8 +626,10 @@ the date 1 January 2027. A `custom` function must answer with a date in the
 year it is asked about, or empty; a date in any other year fails with an
 `IllegalStateException` that names the holiday. Wrap it in `plusDays` when
 the date has to cross the year end.
-A `Holiday` is a rule plus a name, a `HolidayType` and a validity range
-(`validFrom`, `validUntil`).
+A `Holiday` is a name plus one or more periods. A `HolidayPeriod` is a rule
+with a `HolidayType` and a validity range (`validFrom`, `validUntil`); most
+holidays have one, and a holiday whose rule changed over time has one per
+stretch of years.
 
 **Types.** `PUBLIC` and `BANK` make a day non-working. `OBSERVANCE` and
 `HALF_DAY` show up in `isHoliday` and `holidayOn` but leave `isBusinessDay`
@@ -711,10 +738,32 @@ var catalunya = Layer.named("ES-CT")
         .build();
 ```
 
-**`Holiday`** is a named rule plus a `HolidayType`, a `YearRange` and an
-optional observance of its own. The name is the identity across layers.
-Factories cover the common rules; `validFrom`, `validUntil`, `validBetween`,
-`ofType`, `closingAt` and `withObservance` return modified copies.
+**`Holiday`** is a name and a list of periods. The name is the identity
+across layers. Factories cover the common rules and build a holiday with one
+period; `validFrom`, `validUntil`, `validBetween`, `ofType`, `closingAt` and
+`withObservance` return modified copies.
+
+**`HolidayPeriod`** is what a holiday is in a range of years: a rule, a
+`HolidayType`, a `YearRange` and an optional observance of its own. A holiday
+has several when its rule or type changed, when it was suspended for a while
+or when its date is set year by year. Their years must not overlap, so at
+most one period is in force in any year; a period on a single date covers
+that date's year. `Holiday.of(name, periods...)` and `and(period)` build
+them, `Holiday.onDates(name, dates...)` makes one period per date, and
+`periodIn(year)` gives the one in force. On a holiday with several periods
+`ofType`, `closingAt` and `withObservance` apply to all of them, while the
+`valid...` methods throw: set the years on each period.
+
+```java
+var statehood = Holiday.of("Dan državnosti",
+        HolidayPeriod.of(HolidayRule.fixed(Month.JUNE, 25)).validUntil(Year.of(2019)),
+        HolidayPeriod.of(HolidayRule.fixed(Month.MAY, 30)).validFrom(Year.of(2020)));
+var matariki = Holiday.onDates("Matariki", LocalDate.of(2025, 6, 20), LocalDate.of(2026, 7, 10));
+
+statehood.dateIn(Year.of(2019), EasterAlgorithm.gregorian());   // Optional[2019-06-25]
+statehood.dateIn(Year.of(2020), EasterAlgorithm.gregorian());   // Optional[2020-05-30]
+matariki.periodIn(Year.of(2027));                               // Optional.empty
+```
 
 **`HolidayRule`** is the sealed family of rules behind a holiday: `FixedDate`,
 `OnDate`, `EasterRelative`, `NthWeekdayOfMonth`, `WeekdayAfter`,
@@ -971,8 +1020,7 @@ CREATE TABLE holiday (
     valid_from  INTEGER,
     valid_until INTEGER,
     observance  VARCHAR(40),
-    closes_at   VARCHAR(5),      -- '13:00'
-    PRIMARY KEY (layer_id, name)
+    closes_at   VARCHAR(5)       -- '13:00'
 );
 ```
 
@@ -980,7 +1028,11 @@ A row reads like a holiday in a [data file](#data-files): `rule` holds the
 same rule object, `shift` included, and `type`, `observance` and `closes_at`
 take the same values. `action` says whether the row adds a holiday, overrides
 one from a layer below or removes it; a `REMOVE` row needs only the layer and
-the name. A duplicate layer id, a holiday whose layer is missing or a value
+the name. A holiday with several periods takes one row per period: rows of a
+layer that share a name and an action become one holiday, which is why the
+table has no primary key on the layer and the name, and rows whose years
+overlap fail like any other bad row. A date set year by year is one row per
+date with a `{"date": "2026-07-10"}` rule. A duplicate layer id, a holiday whose layer is missing or a value
 that does not parse fails in `of` with an `IllegalArgumentException` naming
 the table, the layer and the holiday. An `SQLException` comes out wrapped in
 an `IllegalStateException`.
@@ -1187,6 +1239,10 @@ without a reason:
 - **Layer names are identities.** Adding a holiday a lower layer already
   defines is an error; `override` or `remove` have to be said. It makes a
   pack's intent explicit and catches typos in names.
+- **One name per holiday, whatever its history.** A rule that changed, a
+  suspension or a date set year by year are periods of one holiday, compared
+  by year, so `holidayOn` gives the same name in every year. A higher layer
+  cannot add a period to an inherited holiday; it overrides the whole thing.
 - **Rules are strict where the calendar is strict.** `weekdayAfter` and
   `weekdayBefore` exclude the base day, `nextHoliday` and `nextBusinessDay`
   exclude the given date; inclusive variants exist under their own names
