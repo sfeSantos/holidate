@@ -132,6 +132,7 @@ class JdbcDataProviderTest {
                     ('AE', 'Early close', 'ADD', '{"fixed": "12-24"}', 'HALF_DAY', NULL, NULL, NULL, '13:00'),
                     ('AE', 'Implied half day', NULL, '{"fixed": "12-31"}', NULL, NULL, NULL, NULL, '14:30'),
                     ('AE', 'Bank day', NULL, '{"fixed": "07-01"}', 'BANK', 2000, 2030, 'NONE', NULL),
+                    ('AE', 'Kept day', NULL, '{"fixed": "05-04"}', NULL, NULL, NULL, 'WEEKEND_ADDS_MONDAY', NULL),
                     ('AE', 'Day after', NULL, '{"nth": 4, "weekday": "THURSDAY", "month": "NOVEMBER", "shift": 1}', NULL, NULL, NULL, 'INHERIT', NULL);
                 """);
 
@@ -156,6 +157,7 @@ class JdbcDataProviderTest {
         assertEquals(Year.of(2000), byName.get("Bank day").periods().get(0).validity().from());
         assertEquals(Year.of(2030), byName.get("Bank day").periods().get(0).validity().until());
         assertEquals(ObservanceRule.none(), byName.get("Bank day").periods().get(0).observance());
+        assertEquals(ObservanceRule.weekendAddsMonday(), byName.get("Kept day").periods().get(0).observance());
         assertEquals(ObservanceRule.inherit(), byName.get("Day after").periods().get(0).observance());
 
         var dayAfter = HolidayCalendar.builder()
