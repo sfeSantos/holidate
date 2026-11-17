@@ -17,7 +17,9 @@ import io.github.sfesantos.holidays.HolidayType;
  * read in the consolidated texts on PISRS up to ZPDPD-I (Uradni list RS,
  * št. 1567/26). There is no yearly list, so the dates are derived from the
  * law. Holidays that article 1 excludes from the work-free days are
- * {@code OBSERVANCE}. 8 June 2025 appears twice: it is both Whit Sunday and
+ * {@code OBSERVANCE}. 2 January was not work-free from 2013 to 2016: ZUJF
+ * (Uradni list RS, št. 40/12) dropped it and ZPDPD-D (št. 83/16) brought it
+ * back. 8 June 2025 appears twice: it is both Whit Sunday and
  * dan Primoža Trubarja. Article 3 says a holiday on a Sunday does not move.
  */
 class SloveniaHolidaysTest {
@@ -70,6 +72,8 @@ class SloveniaHolidaysTest {
     void laterHolidaysStartInTheirYear() {
         var slovenia = Observed.calendar("SI");
 
+        assertEquals("novo leto (2. januar)", slovenia.holidayOn(d(2012, 1, 2)).orElseThrow().name());
+        assertFalse(slovenia.isHoliday(d(2013, 1, 2)));
         assertFalse(slovenia.isHoliday(d(2016, 1, 2)));
         assertTrue(slovenia.isHoliday(d(2017, 1, 2)));
         assertFalse(slovenia.isHoliday(d(2024, 11, 10)));

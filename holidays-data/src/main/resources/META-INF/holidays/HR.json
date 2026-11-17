@@ -9,7 +9,9 @@
         { "name": "Uskrs",                                                                              "rule": { "easter": 0 } },
         { "name": "Uskrsni ponedjeljak",                                                                "rule": { "easter": 1 } },
         { "name": "Praznik rada",                                                                       "rule": { "fixed": "05-01" } },
-        { "name": "Dan državnosti",                                                                     "rule": { "fixed": "05-30" }, "from": 2020 },
+        { "name": "Dan državnosti", "periods": [
+            { "rule": { "fixed": "06-25" }, "from": 2002, "until": 2019 },
+            { "rule": { "fixed": "05-30" }, "from": 2020 } ] },
         { "name": "Tijelovo",                                                                           "rule": { "easter": 60 } },
         { "name": "Dan antifašističke borbe",                                                           "rule": { "fixed": "06-22" } },
         { "name": "Dan pobjede i domovinske zahvalnosti i Dan hrvatskih branitelja",                    "rule": { "fixed": "08-05" } },

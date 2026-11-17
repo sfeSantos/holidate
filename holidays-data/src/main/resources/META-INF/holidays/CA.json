@@ -29,7 +29,9 @@
       "id": "CA-BC",
       "extends": "CA",
       "holidays": [
-        { "name": "Family Day",                                "rule": { "nth": 3, "weekday": "MONDAY", "month": "FEBRUARY" }, "from": 2019 },
+        { "name": "Family Day", "periods": [
+            { "rule": { "nth": 2, "weekday": "MONDAY", "month": "FEBRUARY" }, "from": 2013, "until": 2018 },
+            { "rule": { "nth": 3, "weekday": "MONDAY", "month": "FEBRUARY" }, "from": 2019 } ] },
         { "name": "Victoria Day",                              "rule": { "weekdayBefore": "MONDAY", "base": "05-25" } },
         { "name": "B.C. Day",                                  "rule": { "nth": 1, "weekday": "MONDAY", "month": "AUGUST" } },
         { "name": "National Day for Truth and Reconciliation", "rule": { "fixed": "09-30" }, "from": 2023 },

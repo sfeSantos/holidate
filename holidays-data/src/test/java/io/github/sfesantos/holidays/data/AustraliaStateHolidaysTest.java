@@ -320,4 +320,30 @@ class AustraliaStateHolidaysTest {
         assertFalse(Observed.calendar("AU-QLD").isHoliday(d(2016, 3, 27)));
         assertTrue(Observed.calendar("AU-QLD").isHoliday(d(2017, 4, 16)));
     }
+
+    /**
+     * The Western Australian Government's "Changes to WA's public holidays to commence in 2028" and its
+     * published dates for 2028 and 2029. Labour Day is the third Monday of March in a State election year;
+     * only 2029 is in the pack, so later election years come out a week early. Show Day is left out until
+     * it is proclaimed.
+     */
+    @Test
+    void westernAustraliaMovesThreeHolidaysFrom2028() {
+        var westernAustralia = Observed.calendar("AU-WA");
+
+        assertEquals("Labour Day", westernAustralia.holidayOn(d(2027, 3, 1)).orElseThrow().name());
+        assertEquals("Labour Day", westernAustralia.holidayOn(d(2028, 3, 13)).orElseThrow().name());
+        assertFalse(westernAustralia.isHoliday(d(2028, 3, 6)));
+        assertEquals("Labour Day", westernAustralia.holidayOn(d(2029, 3, 19)).orElseThrow().name());
+        assertFalse(westernAustralia.isHoliday(d(2029, 3, 12)));
+        assertEquals("Labour Day", westernAustralia.holidayOn(d(2030, 3, 11)).orElseThrow().name());
+        assertEquals("Western Australia Day", westernAustralia.holidayOn(d(2027, 6, 7)).orElseThrow().name());
+        assertEquals("Western Australia Day", westernAustralia.holidayOn(d(2028, 11, 13)).orElseThrow().name());
+        assertEquals("Western Australia Day", westernAustralia.holidayOn(d(2029, 11, 12)).orElseThrow().name());
+        assertFalse(westernAustralia.isHoliday(d(2028, 6, 5)));
+        assertEquals("King's Birthday", westernAustralia.holidayOn(d(2027, 9, 27)).orElseThrow().name());
+        assertEquals("King's Birthday", westernAustralia.holidayOn(d(2028, 6, 12)).orElseThrow().name());
+        assertEquals("King's Birthday", westernAustralia.holidayOn(d(2029, 6, 11)).orElseThrow().name());
+        assertFalse(westernAustralia.isHoliday(d(2028, 9, 25)));
+    }
 }

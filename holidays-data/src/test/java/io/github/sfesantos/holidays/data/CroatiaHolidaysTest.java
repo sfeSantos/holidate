@@ -16,7 +16,8 @@ import org.junit.jupiter.api.Test;
  * dates are derived from the law. It names Easter Sunday, and article 4
  * says a holiday on a Sunday does not move. The 2020 law added 18 November,
  * put Dan državnosti on 30 May and turned 25 June and 8 October into
- * memorial days.
+ * memorial days. Dan državnosti had been on 25 June since the amendment in
+ * Narodne novine 96/2001, first observed in 2002.
  */
 class CroatiaHolidaysTest {
 
@@ -58,5 +59,16 @@ class CroatiaHolidaysTest {
         assertTrue(croatia.isHoliday(d(2019, 10, 8)));
         assertFalse(croatia.isHoliday(d(2020, 10, 8)));
         assertFalse(croatia.isHoliday(d(2025, 6, 25)));
+    }
+
+    @Test
+    void danDrzavnostiWasOn25JuneFrom2002To2019() {
+        var croatia = Observed.calendar("HR");
+
+        assertFalse(croatia.isHoliday(d(2001, 6, 25)));
+        assertEquals("Dan državnosti", croatia.holidayOn(d(2002, 6, 25)).orElseThrow().name());
+        assertEquals("Dan državnosti", croatia.holidayOn(d(2019, 6, 25)).orElseThrow().name());
+        assertFalse(croatia.isHoliday(d(2020, 6, 25)));
+        assertEquals("Dan državnosti", croatia.holidayOn(d(2020, 5, 30)).orElseThrow().name());
     }
 }

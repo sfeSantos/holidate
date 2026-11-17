@@ -5,7 +5,9 @@
       "weekend": ["SATURDAY", "SUNDAY"],
       "holidays": [
         { "name": "novo leto",                                          "rule": { "fixed": "01-01" } },
-        { "name": "novo leto (2. januar)",                              "rule": { "fixed": "01-02" }, "from": 2017 },
+        { "name": "novo leto (2. januar)", "periods": [
+            { "rule": { "fixed": "01-02" }, "until": 2012 },
+            { "rule": { "fixed": "01-02" }, "from": 2017 } ] },
         { "name": "Prešernov dan, slovenski kulturni praznik",          "rule": { "fixed": "02-08" } },
         { "name": "velikonočna nedelja",                                "rule": { "easter": 0 } },
         { "name": "velikonočni ponedeljek",                             "rule": { "easter": 1 } },

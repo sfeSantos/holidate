@@ -109,11 +109,19 @@
       "id": "AU-WA",
       "extends": "AU",
       "holidays": [
-        { "name": "Labour Day",            "rule": { "nth": 1, "weekday": "MONDAY", "month": "MARCH" } },
+        { "name": "Labour Day", "periods": [
+            { "rule": { "nth": 1, "weekday": "MONDAY", "month": "MARCH" }, "until": 2027 },
+            { "rule": { "nth": 2, "weekday": "MONDAY", "month": "MARCH" }, "from": 2028, "until": 2028 },
+            { "rule": { "date": "2029-03-19" } },
+            { "rule": { "nth": 2, "weekday": "MONDAY", "month": "MARCH" }, "from": 2030 } ] },
         { "name": "Easter Saturday",       "rule": { "easter": -1 }, "from": 2028 },
         { "name": "Easter Sunday",         "rule": { "easter": 0 }, "from": 2022 },
-        { "name": "Western Australia Day", "rule": { "nth": 1, "weekday": "MONDAY", "month": "JUNE" } },
-        { "name": "King's Birthday",       "rule": { "nth": -1, "weekday": "MONDAY", "month": "SEPTEMBER" } }
+        { "name": "Western Australia Day", "periods": [
+            { "rule": { "nth": 1, "weekday": "MONDAY", "month": "JUNE" }, "until": 2027 },
+            { "rule": { "nth": 2, "weekday": "MONDAY", "month": "NOVEMBER" }, "from": 2028 } ] },
+        { "name": "King's Birthday", "periods": [
+            { "rule": { "nth": -1, "weekday": "MONDAY", "month": "SEPTEMBER" }, "until": 2027 },
+            { "rule": { "nth": 2, "weekday": "MONDAY", "month": "JUNE" }, "from": 2028 } ] }
       ],
       "override": [
         { "name": "Anzac Day", "rule": { "fixed": "04-25" }, "observance": "WEEKEND_TO_MONDAY" }
