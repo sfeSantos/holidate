@@ -4,13 +4,13 @@
       "id": "AU",
       "weekend": ["SATURDAY", "SUNDAY"],
       "holidays": [
-        { "name": "New Year's Day", "rule": { "fixed": "01-01" }, "observance": "WEEKEND_TO_MONDAY" },
+        { "name": "New Year's Day", "rule": { "fixed": "01-01" }, "observance": "WEEKEND_ADDS_MONDAY" },
         { "name": "Australia Day",  "rule": { "fixed": "01-26" }, "observance": "WEEKEND_TO_MONDAY" },
         { "name": "Good Friday",    "rule": { "easter": -2 } },
         { "name": "Easter Monday",  "rule": { "easter": 1 } },
         { "name": "Anzac Day",      "rule": { "fixed": "04-25" } },
-        { "name": "Christmas Day",  "rule": { "fixed": "12-25" }, "observance": "WEEKEND_TO_MONDAY" },
-        { "name": "Boxing Day",     "rule": { "fixed": "12-26" }, "observance": "WEEKEND_TO_MONDAY" }
+        { "name": "Christmas Day",  "rule": { "fixed": "12-25" }, "observance": "WEEKEND_ADDS_MONDAY" },
+        { "name": "Boxing Day",     "rule": { "fixed": "12-26" }, "observance": "WEEKEND_ADDS_MONDAY" }
       ]
     },
     {
@@ -25,7 +25,10 @@
         { "name": "Labour Day",         "rule": { "nth": 1, "weekday": "MONDAY", "month": "OCTOBER" } }
       ],
       "override": [
-        { "name": "Anzac Day", "rule": { "fixed": "04-25" }, "observance": "SUNDAY_TO_MONDAY" }
+        { "name": "Anzac Day", "periods": [
+            { "rule": { "fixed": "04-25" }, "until": 2026, "observance": "SUNDAY_TO_MONDAY" },
+            { "rule": { "fixed": "04-25" }, "from": 2027, "until": 2027, "observance": "WEEKEND_ADDS_MONDAY" },
+            { "rule": { "fixed": "04-25" }, "from": 2028, "observance": "SUNDAY_TO_MONDAY" } ] }
       ]
     },
     {
@@ -80,7 +83,7 @@
         { "name": "King's Birthday",  "rule": { "nth": 2, "weekday": "MONDAY", "month": "JUNE" } },
         { "name": "Labour Day",       "rule": { "nth": 1, "weekday": "MONDAY", "month": "OCTOBER" } },
         { "name": "Christmas Eve",    "rule": { "fixed": "12-24" }, "type": "HALF_DAY", "closesAt": "19:00" },
-        { "name": "Proclamation Day", "rule": { "fixed": "12-26" }, "observance": "WEEKEND_TO_MONDAY" },
+        { "name": "Proclamation Day", "rule": { "fixed": "12-26" }, "observance": "WEEKEND_ADDS_MONDAY" },
         { "name": "New Year's Eve",   "rule": { "fixed": "12-31" }, "type": "HALF_DAY", "closesAt": "19:00" }
       ]
     },
@@ -91,6 +94,10 @@
         { "name": "Eight Hours Day", "rule": { "nth": 2, "weekday": "MONDAY", "month": "MARCH" } },
         { "name": "Easter Sunday",   "rule": { "easter": 0 }, "from": 2027 },
         { "name": "King's Birthday", "rule": { "nth": 2, "weekday": "MONDAY", "month": "JUNE" } }
+      ],
+      "override": [
+        { "name": "New Year's Day", "rule": { "fixed": "01-01" }, "observance": "WEEKEND_TO_MONDAY" },
+        { "name": "Boxing Day",     "rule": { "fixed": "12-26" }, "observance": "WEEKEND_TO_MONDAY" }
       ]
     },
     {
@@ -124,7 +131,7 @@
             { "rule": { "nth": 2, "weekday": "MONDAY", "month": "JUNE" }, "from": 2028 } ] }
       ],
       "override": [
-        { "name": "Anzac Day", "rule": { "fixed": "04-25" }, "observance": "WEEKEND_TO_MONDAY" }
+        { "name": "Anzac Day", "rule": { "fixed": "04-25" }, "observance": "WEEKEND_ADDS_MONDAY" }
       ]
     }
   ]

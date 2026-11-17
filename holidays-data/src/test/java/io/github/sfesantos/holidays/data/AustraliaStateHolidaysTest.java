@@ -23,14 +23,17 @@ import io.github.sfesantos.holidays.HolidayType;
  * list starts at 2026 the 2025 dates are derived from the same rules. The
  * national layer holds only the days every state and territory observes.
  *
- * <p>When a holiday falls on a weekend, several states keep it there and
- * add a public holiday on the next Monday or Tuesday. The format moves a
- * holiday, it cannot keep it and add a day, so these lists carry the added
- * weekday only: Monday 28 December 2026 for Boxing Day, not Saturday 26.
- * Where the state gives no extra day the holiday stays on the weekend, as
- * Anzac Day does in most states. NSW declared an additional day for Anzac
- * Day in 2026 and 2027 only, so both the weekend day and the Monday appear
- * there.
+ * <p>When New Year's Day, Christmas Day or Boxing Day falls on a weekend,
+ * the acts keep it there and add a public holiday on the next Monday or
+ * Tuesday, so both dates are in these lists. Tasmania does that for
+ * Christmas Day only and moves the other two. Australia Day moves to the
+ * Monday everywhere. Anzac Day stays on the weekend with no extra day in
+ * most states; Western Australia adds the Monday, and the ACT, the Northern
+ * Territory and Queensland move a Sunday to the Monday. NSW declared an
+ * additional day for Anzac Day in 2026 and 2027 only, and the ACT declared
+ * Sunday 25 April 2027 a holiday on top of its Monday (NI2026-387). The
+ * pack holds the rules in force now: the years before a state changed from
+ * moving to adding are not modelled.
  *
  * <p>The evening part-day holidays of the Northern Territory, Queensland
  * and South Australia are {@code HALF_DAY}. Regional and local days are
@@ -52,15 +55,15 @@ class AustraliaStateHolidaysTest {
     void national2026() {
         assertEquals(List.of(
                 d(2026, 1, 1), d(2026, 1, 26), d(2026, 4, 3), d(2026, 4, 6), d(2026, 4, 25), d(2026, 12, 25),
-                d(2026, 12, 28)),
+                d(2026, 12, 26), d(2026, 12, 28)),
                 Observed.datesIn("AU", 2026));
     }
 
     @Test
     void national2027() {
         assertEquals(List.of(
-                d(2027, 1, 1), d(2027, 1, 26), d(2027, 3, 26), d(2027, 3, 29), d(2027, 4, 25), d(2027, 12, 27),
-                d(2027, 12, 28)),
+                d(2027, 1, 1), d(2027, 1, 26), d(2027, 3, 26), d(2027, 3, 29), d(2027, 4, 25), d(2027, 12, 25),
+                d(2027, 12, 26), d(2027, 12, 27), d(2027, 12, 28)),
                 Observed.datesIn("AU", 2027));
     }
 
@@ -74,12 +77,12 @@ class AustraliaStateHolidaysTest {
         assertEquals(List.of(
                 d(2026, 1, 1), d(2026, 1, 26), d(2026, 3, 9), d(2026, 4, 3), d(2026, 4, 4), d(2026, 4, 5),
                 d(2026, 4, 6), d(2026, 4, 25), d(2026, 6, 1), d(2026, 6, 8), d(2026, 10, 5), d(2026, 12, 25),
-                d(2026, 12, 28)),
+                d(2026, 12, 26), d(2026, 12, 28)),
                 Observed.datesIn("AU-ACT", 2026));
         assertEquals(List.of(
                 d(2027, 1, 1), d(2027, 1, 26), d(2027, 3, 8), d(2027, 3, 26), d(2027, 3, 27), d(2027, 3, 28),
-                d(2027, 3, 29), d(2027, 4, 26), d(2027, 5, 31), d(2027, 6, 14), d(2027, 10, 4), d(2027, 12, 27),
-                d(2027, 12, 28)),
+                d(2027, 3, 29), d(2027, 4, 25), d(2027, 4, 26), d(2027, 5, 31), d(2027, 6, 14), d(2027, 10, 4),
+                d(2027, 12, 25), d(2027, 12, 26), d(2027, 12, 27), d(2027, 12, 28)),
                 Observed.datesIn("AU-ACT", 2027));
     }
 
@@ -91,11 +94,13 @@ class AustraliaStateHolidaysTest {
                 Observed.datesIn("AU-NSW", 2025));
         assertEquals(List.of(
                 d(2026, 1, 1), d(2026, 1, 26), d(2026, 4, 3), d(2026, 4, 4), d(2026, 4, 5), d(2026, 4, 6),
-                d(2026, 4, 25), d(2026, 4, 27), d(2026, 6, 8), d(2026, 10, 5), d(2026, 12, 25), d(2026, 12, 28)),
+                d(2026, 4, 25), d(2026, 4, 27), d(2026, 6, 8), d(2026, 10, 5), d(2026, 12, 25), d(2026, 12, 26),
+                d(2026, 12, 28)),
                 Observed.datesIn("AU-NSW", 2026));
         assertEquals(List.of(
                 d(2027, 1, 1), d(2027, 1, 26), d(2027, 3, 26), d(2027, 3, 27), d(2027, 3, 28), d(2027, 3, 29),
-                d(2027, 4, 25), d(2027, 4, 26), d(2027, 6, 14), d(2027, 10, 4), d(2027, 12, 27), d(2027, 12, 28)),
+                d(2027, 4, 25), d(2027, 4, 26), d(2027, 6, 14), d(2027, 10, 4), d(2027, 12, 25), d(2027, 12, 26),
+                d(2027, 12, 27), d(2027, 12, 28)),
                 Observed.datesIn("AU-NSW", 2027));
     }
 
@@ -109,12 +114,12 @@ class AustraliaStateHolidaysTest {
         assertEquals(List.of(
                 d(2026, 1, 1), d(2026, 1, 26), d(2026, 4, 3), d(2026, 4, 4), d(2026, 4, 5), d(2026, 4, 6),
                 d(2026, 4, 25), d(2026, 5, 4), d(2026, 6, 8), d(2026, 8, 3), d(2026, 12, 24), d(2026, 12, 25),
-                d(2026, 12, 28), d(2026, 12, 31)),
+                d(2026, 12, 26), d(2026, 12, 28), d(2026, 12, 31)),
                 Observed.datesIn("AU-NT", 2026));
         assertEquals(List.of(
                 d(2027, 1, 1), d(2027, 1, 26), d(2027, 3, 26), d(2027, 3, 27), d(2027, 3, 28), d(2027, 3, 29),
-                d(2027, 4, 26), d(2027, 5, 3), d(2027, 6, 14), d(2027, 8, 2), d(2027, 12, 24), d(2027, 12, 27),
-                d(2027, 12, 28), d(2027, 12, 31)),
+                d(2027, 4, 26), d(2027, 5, 3), d(2027, 6, 14), d(2027, 8, 2), d(2027, 12, 24), d(2027, 12, 25),
+                d(2027, 12, 26), d(2027, 12, 27), d(2027, 12, 28), d(2027, 12, 31)),
                 Observed.datesIn("AU-NT", 2027));
     }
 
@@ -126,11 +131,13 @@ class AustraliaStateHolidaysTest {
                 Observed.datesIn("AU-QLD", 2025));
         assertEquals(List.of(
                 d(2026, 1, 1), d(2026, 1, 26), d(2026, 4, 3), d(2026, 4, 4), d(2026, 4, 5), d(2026, 4, 6),
-                d(2026, 4, 25), d(2026, 5, 4), d(2026, 10, 5), d(2026, 12, 24), d(2026, 12, 25), d(2026, 12, 28)),
+                d(2026, 4, 25), d(2026, 5, 4), d(2026, 10, 5), d(2026, 12, 24), d(2026, 12, 25), d(2026, 12, 26),
+                d(2026, 12, 28)),
                 Observed.datesIn("AU-QLD", 2026));
         assertEquals(List.of(
                 d(2027, 1, 1), d(2027, 1, 26), d(2027, 3, 26), d(2027, 3, 27), d(2027, 3, 28), d(2027, 3, 29),
-                d(2027, 4, 26), d(2027, 5, 3), d(2027, 10, 4), d(2027, 12, 24), d(2027, 12, 27), d(2027, 12, 28)),
+                d(2027, 4, 26), d(2027, 5, 3), d(2027, 10, 4), d(2027, 12, 24), d(2027, 12, 25), d(2027, 12, 26),
+                d(2027, 12, 27), d(2027, 12, 28)),
                 Observed.datesIn("AU-QLD", 2027));
     }
 
@@ -144,12 +151,12 @@ class AustraliaStateHolidaysTest {
         assertEquals(List.of(
                 d(2026, 1, 1), d(2026, 1, 26), d(2026, 3, 9), d(2026, 4, 3), d(2026, 4, 4), d(2026, 4, 5),
                 d(2026, 4, 6), d(2026, 4, 25), d(2026, 6, 8), d(2026, 10, 5), d(2026, 12, 24), d(2026, 12, 25),
-                d(2026, 12, 28), d(2026, 12, 31)),
+                d(2026, 12, 26), d(2026, 12, 28), d(2026, 12, 31)),
                 Observed.datesIn("AU-SA", 2026));
         assertEquals(List.of(
                 d(2027, 1, 1), d(2027, 1, 26), d(2027, 3, 8), d(2027, 3, 26), d(2027, 3, 27), d(2027, 3, 28),
-                d(2027, 3, 29), d(2027, 4, 25), d(2027, 6, 14), d(2027, 10, 4), d(2027, 12, 24), d(2027, 12, 27),
-                d(2027, 12, 28), d(2027, 12, 31)),
+                d(2027, 3, 29), d(2027, 4, 25), d(2027, 6, 14), d(2027, 10, 4), d(2027, 12, 24), d(2027, 12, 25),
+                d(2027, 12, 26), d(2027, 12, 27), d(2027, 12, 28), d(2027, 12, 31)),
                 Observed.datesIn("AU-SA", 2027));
     }
 
@@ -165,7 +172,7 @@ class AustraliaStateHolidaysTest {
                 Observed.datesIn("AU-TAS", 2026));
         assertEquals(List.of(
                 d(2027, 1, 1), d(2027, 1, 26), d(2027, 3, 8), d(2027, 3, 26), d(2027, 3, 28), d(2027, 3, 29),
-                d(2027, 4, 25), d(2027, 6, 14), d(2027, 12, 27), d(2027, 12, 28)),
+                d(2027, 4, 25), d(2027, 6, 14), d(2027, 12, 25), d(2027, 12, 27), d(2027, 12, 28)),
                 Observed.datesIn("AU-TAS", 2027));
     }
 
@@ -179,11 +186,12 @@ class AustraliaStateHolidaysTest {
         assertEquals(List.of(
                 d(2026, 1, 1), d(2026, 1, 26), d(2026, 3, 9), d(2026, 4, 3), d(2026, 4, 4), d(2026, 4, 5),
                 d(2026, 4, 6), d(2026, 4, 25), d(2026, 6, 8), d(2026, 9, 25), d(2026, 11, 3), d(2026, 12, 25),
-                d(2026, 12, 28)),
+                d(2026, 12, 26), d(2026, 12, 28)),
                 Observed.datesIn("AU-VIC", 2026));
         assertEquals(List.of(
                 d(2027, 1, 1), d(2027, 1, 26), d(2027, 3, 8), d(2027, 3, 26), d(2027, 3, 27), d(2027, 3, 28),
-                d(2027, 3, 29), d(2027, 4, 25), d(2027, 6, 14), d(2027, 11, 2), d(2027, 12, 27), d(2027, 12, 28)),
+                d(2027, 3, 29), d(2027, 4, 25), d(2027, 6, 14), d(2027, 11, 2), d(2027, 12, 25), d(2027, 12, 26),
+                d(2027, 12, 27), d(2027, 12, 28)),
                 Observed.datesIn("AU-VIC", 2027));
     }
 
@@ -195,11 +203,13 @@ class AustraliaStateHolidaysTest {
                 Observed.datesIn("AU-WA", 2025));
         assertEquals(List.of(
                 d(2026, 1, 1), d(2026, 1, 26), d(2026, 3, 2), d(2026, 4, 3), d(2026, 4, 5), d(2026, 4, 6),
-                d(2026, 4, 27), d(2026, 6, 1), d(2026, 9, 28), d(2026, 12, 25), d(2026, 12, 28)),
+                d(2026, 4, 25), d(2026, 4, 27), d(2026, 6, 1), d(2026, 9, 28), d(2026, 12, 25), d(2026, 12, 26),
+                d(2026, 12, 28)),
                 Observed.datesIn("AU-WA", 2026));
         assertEquals(List.of(
                 d(2027, 1, 1), d(2027, 1, 26), d(2027, 3, 1), d(2027, 3, 26), d(2027, 3, 28), d(2027, 3, 29),
-                d(2027, 4, 26), d(2027, 6, 7), d(2027, 9, 27), d(2027, 12, 27), d(2027, 12, 28)),
+                d(2027, 4, 25), d(2027, 4, 26), d(2027, 6, 7), d(2027, 9, 27), d(2027, 12, 25), d(2027, 12, 26),
+                d(2027, 12, 27), d(2027, 12, 28)),
                 Observed.datesIn("AU-WA", 2027));
     }
 
@@ -212,7 +222,8 @@ class AustraliaStateHolidaysTest {
     }
 
     @Test
-    void anzacDayOnSaturdayMovesOnlyInWesternAustralia() {
+    void anzacDayOnSaturdayAddsAMondayOnlyInWesternAustralia() {
+        assertEquals("Anzac Day", Observed.calendar("AU-WA").holidayOn(d(2026, 4, 25)).orElseThrow().name());
         assertEquals("Anzac Day", Observed.calendar("AU-WA").holidayOn(d(2026, 4, 27)).orElseThrow().name());
 
         for (var state : List.of("AU-ACT", "AU-NT", "AU-QLD", "AU-SA", "AU-TAS", "AU-VIC")) {
@@ -222,10 +233,17 @@ class AustraliaStateHolidaysTest {
     }
 
     @Test
-    void anzacDayOnSundayMovesInFourJurisdictions() {
+    void anzacDayOnSundayGivesAMondayInFourJurisdictions() {
         for (var state : List.of("AU-ACT", "AU-NT", "AU-QLD", "AU-WA")) {
             assertEquals("Anzac Day", Observed.calendar(state).holidayOn(d(2027, 4, 26)).orElseThrow().name(), state);
+            assertEquals("Anzac Day", Observed.calendar(state).holidayOn(d(2032, 4, 26)).orElseThrow().name(), state);
         }
+
+        for (var state : List.of("AU-NT", "AU-QLD")) {
+            assertFalse(Observed.calendar(state).isHoliday(d(2027, 4, 25)), state);
+        }
+
+        assertTrue(Observed.calendar("AU-WA").isHoliday(d(2032, 4, 25)));
 
         for (var state : List.of("AU-SA", "AU-TAS", "AU-VIC")) {
             assertTrue(Observed.calendar(state).isHoliday(d(2027, 4, 25)), state);
@@ -246,19 +264,68 @@ class AustraliaStateHolidaysTest {
     }
 
     @Test
-    void christmasOnSaturdayGivesMondayAndTuesday() {
+    void theCapitalTerritoryKeepsAnzacDayOnSundayIn2027Only() {
+        var capitalTerritory = Observed.calendar("AU-ACT");
+
+        assertTrue(capitalTerritory.isHoliday(d(2027, 4, 25)));
+        assertFalse(capitalTerritory.isHoliday(d(2021, 4, 25)));
+        assertFalse(capitalTerritory.isHoliday(d(2032, 4, 25)));
+    }
+
+    @Test
+    void christmasOnSaturdayStaysAndGivesMondayAndTuesday() {
         var queensland = Observed.calendar("AU-QLD");
         var southAustralia = Observed.calendar("AU-SA");
 
+        assertEquals("Christmas Day", queensland.holidayOn(d(2027, 12, 25)).orElseThrow().name());
+        assertEquals("Boxing Day", queensland.holidayOn(d(2027, 12, 26)).orElseThrow().name());
         assertEquals("Christmas Day", queensland.holidayOn(d(2027, 12, 27)).orElseThrow().name());
         assertEquals("Boxing Day", queensland.holidayOn(d(2027, 12, 28)).orElseThrow().name());
+        assertEquals("Proclamation Day", southAustralia.holidayOn(d(2027, 12, 26)).orElseThrow().name());
         assertEquals("Proclamation Day", southAustralia.holidayOn(d(2027, 12, 28)).orElseThrow().name());
         assertTrue(queensland.isBusinessDay(d(2027, 12, 29)));
     }
 
     @Test
-    void newYearOnSaturdayGivesMonday() {
-        assertEquals("New Year's Day", Observed.calendar("AU-VIC").holidayOn(d(2028, 1, 3)).orElseThrow().name());
+    void newSouthWalesKeepsChristmasDayOnSaturdayAndAddsTheMonday() {
+        var newSouthWales = Observed.calendar("AU-NSW");
+        var added = newSouthWales.holidayOn(d(2027, 12, 27)).orElseThrow();
+
+        assertTrue(newSouthWales.isHoliday(d(2027, 12, 25)));
+        assertEquals("Christmas Day", added.name());
+        assertEquals(d(2027, 12, 25), added.original());
+        assertFalse(newSouthWales.isBusinessDay(d(2027, 12, 27)));
+    }
+
+    @Test
+    void christmasOnSundayAddsTheTuesdayAfterBoxingDay() {
+        var newSouthWales = Observed.calendar("AU-NSW");
+
+        assertEquals("Christmas Day", newSouthWales.holidayOn(d(2033, 12, 25)).orElseThrow().name());
+        assertEquals("Boxing Day", newSouthWales.holidayOn(d(2033, 12, 26)).orElseThrow().name());
+        assertEquals("Christmas Day", newSouthWales.holidayOn(d(2033, 12, 27)).orElseThrow().name());
+        assertTrue(newSouthWales.isBusinessDay(d(2033, 12, 28)));
+    }
+
+    @Test
+    void newYearOnSaturdayStaysAndGivesMonday() {
+        var victoria = Observed.calendar("AU-VIC");
+
+        assertEquals("New Year's Day", victoria.holidayOn(d(2028, 1, 1)).orElseThrow().name());
+        assertEquals("New Year's Day", victoria.holidayOn(d(2028, 1, 3)).orElseThrow().name());
+    }
+
+    @Test
+    void tasmaniaKeepsOnlyChristmasDayOnTheWeekend() {
+        var tasmania = Observed.calendar("AU-TAS");
+
+        assertTrue(tasmania.isHoliday(d(2027, 12, 25)));
+        assertFalse(tasmania.isHoliday(d(2027, 12, 26)));
+        assertEquals("Christmas Day", tasmania.holidayOn(d(2027, 12, 27)).orElseThrow().name());
+        assertEquals("Boxing Day", tasmania.holidayOn(d(2027, 12, 28)).orElseThrow().name());
+        assertFalse(tasmania.isHoliday(d(2026, 12, 26)));
+        assertFalse(tasmania.isHoliday(d(2028, 1, 1)));
+        assertEquals("New Year's Day", tasmania.holidayOn(d(2028, 1, 3)).orElseThrow().name());
     }
 
     @Test
