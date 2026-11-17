@@ -432,7 +432,7 @@ works inside a period, and takes `type`, `observance` and `closesAt` but no
 
 Overlapping periods fail with the line and column of the second one.
 Observance names are
-`NONE`, `SUNDAY_TO_MONDAY`, `WEEKEND_TO_MONDAY`,
+`NONE`, `SUNDAY_TO_MONDAY`, `WEEKEND_TO_MONDAY`, `WEEKEND_ADDS_MONDAY`,
 `SATURDAY_TO_FRIDAY_SUNDAY_TO_MONDAY` and `NEAREST_WEEKDAY`;
 `ObservanceRule.named(name)` gives the rule for a name. `custom` rules
 and observances exist only in Java and cannot be written. The JSON Schema
@@ -652,6 +652,12 @@ Boxing Day both fall on a weekend under `weekendToMonday()` they land on
 Monday and Tuesday. A holiday may even move into the neighbouring year (1
 January on a Saturday under the US rule is observed on 31 December).
 
+Some laws keep the holiday on the weekend and add a weekday off as well.
+`weekendAddsMonday()` does that: the holiday has two occurrences that year,
+one on its date and one on the next free weekday, and `isHoliday` is true on
+both. A holiday on a weekday is left alone. Christmas on a Sunday adds the
+Tuesday when Boxing Day holds the Monday.
+
 **Occurrences.** Every query returns `HolidayOccurrence` records carrying
 the original date, the observed date, the type, the layer that defined the
 holiday and, for a `HALF_DAY`, the time business closes.
@@ -802,6 +808,7 @@ set through `Holiday.validFrom` and friends.
 
 **`ObservanceRule`** moves a holiday off a day on which it is not observed.
 Built-in rules: `none()`, `sundayToMonday()`, `weekendToMonday()`,
+`weekendAddsMonday()` (keeps the weekend date and adds the weekday),
 `saturdayToFridaySundayToMonday()` (the US federal model), `nearestWeekday()`
 and `inherit()`, which means "use the layer's or calendar's rule". A custom
 rule is a lambda that gets an **`ObservanceContext`** to ask whether a date is
@@ -824,7 +831,8 @@ var layer = Layer.named("GB")
 
 **`HolidayOccurrence`** is what queries return: `name`, `original` date,
 `observed` date, `type`, the `layer` that defined it and `closesAt` for a
-half day. `isMoved()` tells whether the observance rule shifted it.
+half day. `isMoved()` tells whether the observance rule shifted it; the day
+that `weekendAddsMonday()` adds counts as moved, the kept one does not.
 
 ```java
 for (var occurrence : calendar.holidaysIn(Year.of(2026))) {
