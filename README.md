@@ -1172,6 +1172,7 @@ second each. The targets are the ones the project set for itself at the start.
 | `union` of two calendars, `isBusinessDay` | 1.3 ns | 0 B | |
 | First touch of a year (build the index) | 3.1 µs | 10.8 KB | < 50 µs |
 | First touch of a year, Orthodox calendar of 12 holidays | 2.7 µs | 9.0 KB | |
+| First touch of a year, every holiday under `weekendAddsMonday()` | 4.2 µs | 18.3 KB | |
 | `GregorianEaster.of(year)` | 9.7 ns | 24 B (the `LocalDate`) | |
 | `OrthodoxEaster.of(year)` | 8.1 ns | 24 B | |
 | `JulianEaster.of(year)` | 6.4 ns | 24 B | |

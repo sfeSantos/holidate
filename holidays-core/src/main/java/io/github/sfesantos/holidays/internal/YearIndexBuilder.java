@@ -39,10 +39,20 @@ final class YearIndexBuilder {
     YearIndexBuilder(CompiledCalendar calendar) {
         this.calendar = calendar;
         this.reach = reachOf(calendar.holidays());
-        this.keepsOriginals = calendar.holidays()
-                .stream()
-                .flatMap(resolved -> resolved.holiday().periods().stream())
-                .anyMatch(period -> ruleOf(period).keepsOriginal());
+        this.keepsOriginals = keepsOriginals(calendar.holidays());
+    }
+
+    /** Loops instead of a stream: this runs on the first touch of every calendar. */
+    private boolean keepsOriginals(List<ResolvedHoliday> holidays) {
+        for (var resolved : holidays) {
+            for (var period : resolved.holiday().periods()) {
+                if (ruleOf(period).keepsOriginal()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     YearIndex build(int year) {
