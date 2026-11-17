@@ -54,7 +54,7 @@ class SurinameVrijeDagenTest {
         var suriname = Observed.calendar("SR");
 
         assertFalse(suriname.isHoliday(d(2025, 3, 30)));
-        assertEquals("Ied Ul Fitre 2025", suriname.holidayOn(d(2025, 3, 31)).orElseThrow().name());
+        assertEquals("Ied Ul Fitre", suriname.holidayOn(d(2025, 3, 31)).orElseThrow().name());
         assertEquals("Ied Ul Fitre", suriname.holidayOn(d(2026, 3, 20)).orElseThrow().name());
     }
 

@@ -32,12 +32,11 @@
       "id": "AU-NSW",
       "extends": "AU",
       "holidays": [
-        { "name": "Easter Saturday",               "rule": { "easter": -1 } },
-        { "name": "Easter Sunday",                 "rule": { "easter": 0 } },
-        { "name": "Anzac Day Additional Day 2026", "rule": { "date": "2026-04-27" } },
-        { "name": "Anzac Day Additional Day 2027", "rule": { "date": "2027-04-26" } },
-        { "name": "King's Birthday",               "rule": { "nth": 2, "weekday": "MONDAY", "month": "JUNE" } },
-        { "name": "Labour Day",                    "rule": { "nth": 1, "weekday": "MONDAY", "month": "OCTOBER" } }
+        { "name": "Easter Saturday",          "rule": { "easter": -1 } },
+        { "name": "Easter Sunday",            "rule": { "easter": 0 } },
+        { "name": "Anzac Day Additional Day", "dates": ["2026-04-27", "2027-04-26"] },
+        { "name": "King's Birthday",          "rule": { "nth": 2, "weekday": "MONDAY", "month": "JUNE" } },
+        { "name": "Labour Day",               "rule": { "nth": 1, "weekday": "MONDAY", "month": "OCTOBER" } }
       ]
     },
     {
@@ -98,13 +97,12 @@
       "id": "AU-VIC",
       "extends": "AU",
       "holidays": [
-        { "name": "Labour Day",                             "rule": { "nth": 2, "weekday": "MONDAY", "month": "MARCH" } },
-        { "name": "Saturday before Easter Sunday",          "rule": { "easter": -1 } },
-        { "name": "Easter Sunday",                          "rule": { "easter": 0 } },
-        { "name": "King's Birthday",                        "rule": { "nth": 2, "weekday": "MONDAY", "month": "JUNE" } },
-        { "name": "Friday before the AFL Grand Final 2025", "rule": { "date": "2025-09-26" } },
-        { "name": "Friday before the AFL Grand Final 2026", "rule": { "date": "2026-09-25" } },
-        { "name": "Melbourne Cup Day",                      "rule": { "nth": 1, "weekday": "TUESDAY", "month": "NOVEMBER" } }
+        { "name": "Labour Day",                        "rule": { "nth": 2, "weekday": "MONDAY", "month": "MARCH" } },
+        { "name": "Saturday before Easter Sunday",     "rule": { "easter": -1 } },
+        { "name": "Easter Sunday",                     "rule": { "easter": 0 } },
+        { "name": "King's Birthday",                   "rule": { "nth": 2, "weekday": "MONDAY", "month": "JUNE" } },
+        { "name": "Friday before the AFL Grand Final", "dates": ["2025-09-26", "2026-09-25"] },
+        { "name": "Melbourne Cup Day",                 "rule": { "nth": 1, "weekday": "TUESDAY", "month": "NOVEMBER" } }
       ]
     },
     {
