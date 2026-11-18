@@ -12,6 +12,10 @@ import java.time.format.TextStyle;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import io.github.sfesantos.holidays.HolidayCalendar;
 
 /**
  * Prints a month or a whole year as a text grid, with one day optionally
@@ -32,6 +36,11 @@ import java.util.Objects;
  * first column the whole month moves one column to the right to make room for
  * the opening bracket.
  *
+ * <p>With {@link #holidays(HolidayCalendar)} every holiday gets a {@code *}
+ * after its day, on the date it is observed. The mark and the brackets share
+ * the one column between two days, and the brackets win: a holiday that is
+ * the marked day, or the day right before it, shows no {@code *}.
+ *
  * <p>Instances are immutable: every method returns a new one, so a configured
  * instance can be kept and shared between threads. Names are resolved when the
  * locale or the first day of the week is set, not when printing.
@@ -41,6 +50,7 @@ public final class TextCalendar {
     private static final int ABSENT = Integer.MIN_VALUE;
     private static final int DAYS_IN_WEEK = 7;
     private static final int MAX_WEEKS = 6;
+    private static final int CELL = 3;
     private static final int MONTH_WIDTH = 20;
     private static final int MONTH_GAP = 2;
     private static final int MONTHS_PER_ROW = 3;
@@ -49,6 +59,12 @@ public final class TextCalendar {
     private static final int YEAR_CAPACITY = 2 * (YEAR_WIDTH + 2)
             + (12 / MONTHS_PER_ROW) * ((MAX_WEEKS + 2) * (YEAR_WIDTH + 2) + 1);
     private static final int[] DAYS_BEFORE_MONTH = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
+    private static final int[] NO_MARKS = new int[12];
+    private static final String BLANK = " ".repeat(YEAR_WIDTH);
+    /** Every day right-aligned in two columns with a space after it, so a week is one slice. */
+    private static final String DAYS = IntStream.rangeClosed(1, 31)
+            .mapToObj(number -> (number < 10 ? " " : "") + number + " ")
+            .collect(Collectors.joining());
     private static final Names DEFAULT_NAMES = Names.of(Locale.ENGLISH, DayOfWeek.MONDAY);
 
     private final Clock clock;
@@ -58,9 +74,10 @@ public final class TextCalendar {
     private final DayOfWeek firstDayOfWeek;
     private final Locale locale;
     private final Names names;
+    private final HolidayCalendar holidays;
 
     private TextCalendar(Clock clock, int year, int month, int day, DayOfWeek firstDayOfWeek, Locale locale,
-            Names names) {
+            Names names, HolidayCalendar holidays) {
         this.clock = clock;
         this.year = year;
         this.month = month;
@@ -68,13 +85,14 @@ public final class TextCalendar {
         this.firstDayOfWeek = firstDayOfWeek;
         this.locale = locale;
         this.names = names;
+        this.holidays = holidays;
     }
 
     /** The clock supplies whatever part of the date is not given; it is read only when one is missing. */
     public static TextCalendar of(Clock clock) {
         Objects.requireNonNull(clock, "clock must not be null");
 
-        return new TextCalendar(clock, ABSENT, ABSENT, ABSENT, DayOfWeek.MONDAY, Locale.ENGLISH, DEFAULT_NAMES);
+        return new TextCalendar(clock, ABSENT, ABSENT, ABSENT, DayOfWeek.MONDAY, Locale.ENGLISH, DEFAULT_NAMES, null);
     }
 
     public TextCalendar year(int year) {
@@ -83,7 +101,7 @@ public final class TextCalendar {
                     "year must be between " + Year.MIN_VALUE + " and " + Year.MAX_VALUE + ": " + year);
         }
 
-        return new TextCalendar(clock, year, month, day, firstDayOfWeek, locale, names);
+        return new TextCalendar(clock, year, month, day, firstDayOfWeek, locale, names, holidays);
     }
 
     public TextCalendar month(int month) {
@@ -91,7 +109,7 @@ public final class TextCalendar {
             throw new IllegalArgumentException("month must be between 1 and 12: " + month);
         }
 
-        return new TextCalendar(clock, year, month, day, firstDayOfWeek, locale, names);
+        return new TextCalendar(clock, year, month, day, firstDayOfWeek, locale, names, holidays);
     }
 
     /** A day the printed month does not have, such as 31 in April, is rejected when printing. */
@@ -100,20 +118,29 @@ public final class TextCalendar {
             throw new IllegalArgumentException("day must be between 1 and 31: " + day);
         }
 
-        return new TextCalendar(clock, year, month, day, firstDayOfWeek, locale, names);
+        return new TextCalendar(clock, year, month, day, firstDayOfWeek, locale, names, holidays);
     }
 
     public TextCalendar firstDayOfWeek(DayOfWeek firstDayOfWeek) {
         Objects.requireNonNull(firstDayOfWeek, "firstDayOfWeek must not be null");
 
-        return new TextCalendar(clock, year, month, day, firstDayOfWeek, locale, Names.of(locale, firstDayOfWeek));
+        return new TextCalendar(clock, year, month, day, firstDayOfWeek, locale, Names.of(locale, firstDayOfWeek),
+                holidays);
     }
 
     /** Month and weekday names only; the first day of the week does not follow the locale. */
     public TextCalendar locale(Locale locale) {
         Objects.requireNonNull(locale, "locale must not be null");
 
-        return new TextCalendar(clock, year, month, day, firstDayOfWeek, locale, Names.of(locale, firstDayOfWeek));
+        return new TextCalendar(clock, year, month, day, firstDayOfWeek, locale, Names.of(locale, firstDayOfWeek),
+                holidays);
+    }
+
+    /** Marks the days the calendar observes a holiday on, of any type. */
+    public TextCalendar holidays(HolidayCalendar holidays) {
+        Objects.requireNonNull(holidays, "holidays must not be null");
+
+        return new TextCalendar(clock, year, month, day, firstDayOfWeek, locale, names, holidays);
     }
 
     public String print() {
@@ -176,6 +203,7 @@ public final class TextCalendar {
         }
 
         var offset = offsetOf(yearValue, monthValue);
+        var marks = marksOf(yearValue, monthValue);
         var indent = selected != ABSENT && (offset + selected - 1) % DAYS_IN_WEEK == 0 ? 1 : 0;
         var name = names.months()[monthValue - 1];
         pad(out, indent + Math.max(0, (MONTH_WIDTH - name.length() - 1 - widthOf(yearValue)) / 2));
@@ -184,14 +212,7 @@ public final class TextCalendar {
         out.append(names.weekdays()).append('\n');
 
         for (var firstDay = 1 - offset; firstDay <= length; firstDay += DAYS_IN_WEEK) {
-            var lineStart = out.length();
-
-            if (indent > 0) {
-                out.append(firstDay == selected ? '[' : ' ');
-            }
-
-            week(out, firstDay, length, selected);
-            trim(out, lineStart);
+            week(out, out.length() + indent, firstDay, length, selected, marks);
             out.append('\n');
         }
     }
@@ -199,6 +220,7 @@ public final class TextCalendar {
     private void wholeYear(StringBuilder out) {
         var leap = Year.isLeap(year);
         var januaryOffset = offsetOf(year, 1);
+        var marks = marksOfYear();
         pad(out, Math.max(0, (YEAR_WIDTH - widthOf(year)) / 2));
         out.append(year).append('\n');
 
@@ -221,11 +243,9 @@ public final class TextCalendar {
                 for (var column = 0; column < MONTHS_PER_ROW; column++) {
                     var monthValue = firstMonth + column;
                     var offset = (januaryOffset + daysBefore(monthValue, leap)) % DAYS_IN_WEEK;
-                    week(out, row * DAYS_IN_WEEK + 1 - offset, lengthOf(monthValue, leap), ABSENT);
-                    out.append(' ');
+                    week(out, lineStart + column * (MONTH_WIDTH + MONTH_GAP), row * DAYS_IN_WEEK + 1 - offset,
+                            lengthOf(monthValue, leap), ABSENT, marks[monthValue - 1]);
                 }
-
-                trim(out, lineStart);
 
                 if (out.length() > lineStart) {
                     out.append('\n');
@@ -235,30 +255,72 @@ public final class TextCalendar {
     }
 
     /**
-     * Appends seven cells starting at {@code firstDay}, which is below 1 when
-     * the month starts later in the week. A cell is two columns for the day
-     * and one for the mark that follows it; days outside the month are blank.
+     * Appends the days of one week of a month, the week's first column being
+     * at {@code start}. {@code firstDay} is the day that column stands for,
+     * below 1 when the month starts later in the week. Nothing is written for
+     * a week the month does not reach, and nothing after the last day but its
+     * mark, so a line never ends in spaces.
      */
-    private static void week(StringBuilder out, int firstDay, int length, int selected) {
-        var lastDay = firstDay + DAYS_IN_WEEK - 1;
+    private static void week(StringBuilder out, int start, int firstDay, int length, int selected, int marks) {
+        var from = Math.max(firstDay, 1);
+        var until = Math.min(firstDay + DAYS_IN_WEEK - 1, length);
 
-        for (var current = firstDay; current <= lastDay; current++) {
-            if (current < 1 || current > length) {
-                out.append("  ");
-            } else {
-                out.append(current < 10 ? ' ' : (char) ('0' + current / 10)).append((char) ('0' + current % 10));
-            }
+        if (from > until) {
+            return;
+        }
 
-            out.append(markAfter(current, lastDay, selected));
+        pad(out, start + (from - firstDay) * CELL - out.length());
+        out.append(DAYS, (from - 1) * CELL, until * CELL - 1);
+
+        for (var rest = marks & (-1 << from) & ~(-2 << until); rest != 0; rest &= rest - 1) {
+            mark(out, start + (Integer.numberOfTrailingZeros(rest) - firstDay) * CELL + CELL - 1, '*');
+        }
+
+        if (selected >= from && selected <= until) {
+            var cell = start + (selected - firstDay) * CELL;
+            mark(out, cell - 1, '[');
+            mark(out, cell + CELL - 1, ']');
         }
     }
 
-    private static char markAfter(int current, int lastDay, int selected) {
-        if (current == selected) {
-            return ']';
+    /** Writes over the column between two days, or appends when the day is the last of its line. */
+    private static void mark(StringBuilder out, int position, char sign) {
+        if (position < out.length()) {
+            out.setCharAt(position, sign);
+        } else {
+            out.append(sign);
+        }
+    }
+
+    /** Bit {@code n} is set when day {@code n} of the month is a holiday. */
+    private int marksOf(int yearValue, int monthValue) {
+        if (holidays == null) {
+            return 0;
         }
 
-        return current + 1 == selected && current < lastDay ? '[' : ' ';
+        var marks = 0;
+
+        for (var occurrence : holidays.holidaysInMonth(YearMonth.of(yearValue, monthValue))) {
+            marks |= 1 << occurrence.observed().getDayOfMonth();
+        }
+
+        return marks;
+    }
+
+    private int[] marksOfYear() {
+        if (holidays == null) {
+            return NO_MARKS;
+        }
+
+        var first = LocalDate.of(year, 1, 1);
+        var marks = new int[12];
+
+        for (var occurrence : holidays.holidaysBetween(first, first.plusYears(1))) {
+            var observed = occurrence.observed();
+            marks[observed.getMonthValue() - 1] |= 1 << observed.getDayOfMonth();
+        }
+
+        return marks;
     }
 
     /** How many columns the first day of the month sits from the first day of the week. */
@@ -287,19 +349,9 @@ public final class TextCalendar {
     }
 
     private static void pad(StringBuilder out, int count) {
-        for (var written = 0; written < count; written++) {
-            out.append(' ');
+        for (var left = count; left > 0; left -= BLANK.length()) {
+            out.append(BLANK, 0, Math.min(left, BLANK.length()));
         }
-    }
-
-    private static void trim(StringBuilder out, int lineStart) {
-        var end = out.length();
-
-        while (end > lineStart && out.charAt(end - 1) == ' ') {
-            end--;
-        }
-
-        out.setLength(end);
     }
 
     private record Names(String[] months, String weekdays, String weekdaysOfYear) {

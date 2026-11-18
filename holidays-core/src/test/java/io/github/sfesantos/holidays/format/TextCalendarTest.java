@@ -11,18 +11,42 @@ import java.io.UncheckedIOException;
 import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.Month;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
+
+import io.github.sfesantos.holidays.Holiday;
+import io.github.sfesantos.holidays.HolidayCalendar;
+import io.github.sfesantos.holidays.Layer;
+import io.github.sfesantos.holidays.ObservanceRule;
 
 class TextCalendarTest {
 
     private static final Clock CLOCK = Clock.fixed(Instant.parse("2026-11-18T10:15:30Z"), ZoneOffset.UTC);
     private static final TextCalendar CALENDAR = TextCalendar.of(CLOCK);
+
+    private static final Holiday[] HOLIDAYS = {
+            Holiday.fixed("Año Nuevo", Month.JANUARY, 1),
+            Holiday.easterRelative("Viernes Santo", -2),
+            Holiday.fixed("Todos los Santos", Month.NOVEMBER, 1),
+            Holiday.fixed("Día de la Constitución", Month.DECEMBER, 6),
+            Holiday.fixed("Inmaculada Concepción", Month.DECEMBER, 8),
+            Holiday.fixed("Navidad", Month.DECEMBER, 25)};
+
+    private static final HolidayCalendar ON_THE_DATE = HolidayCalendar.builder()
+            .layers(Layer.named("ES").add(HOLIDAYS).build())
+            .build();
+
+    private static final HolidayCalendar SUNDAY_TO_MONDAY = HolidayCalendar.builder()
+            .layers(Layer.named("ES").add(HOLIDAYS).observance(ObservanceRule.sundayToMonday()).build())
+            .build();
 
     private static final String NOVEMBER_2026 = """
                November 2026
@@ -364,6 +388,84 @@ class TextCalendarTest {
                 CALENDAR.firstDayOfWeek(DayOfWeek.SUNDAY).locale(Locale.GERMAN).print());
         assertEquals("Mo Di Mi Do Fr Sa So  Mo Di Mi Do Fr Sa So  Mo Di Mi Do Fr Sa So",
                 lines(german.year(2026).print()).get(3));
+    }
+
+    @Test
+    void holidayGetsAStarOnTheDateItIsObserved() {
+        assertEquals("""
+                   November 2026
+                Mo Tu We Th Fr Sa Su
+                                   1
+                 2* 3  4  5  6  7  8
+                 9 10 11 12 13 14 15
+                16 17 18 19 20 21 22
+                23 24 25 26 27 28 29
+                30
+                """, CALENDAR.holidays(SUNDAY_TO_MONDAY).month(11).print());
+        assertEquals("""
+                   December 2026
+                Mo Tu We Th Fr Sa Su
+                    1  2  3  4  5  6
+                 7* 8* 9 10 11 12 13
+                14 15 16 17 18 19 20
+                21 22 23 24 25*26 27
+                28 29 30 31
+                """, CALENDAR.holidays(SUNDAY_TO_MONDAY).month(12).print());
+    }
+
+    @Test
+    void holidayInTheLastColumnPutsItsStarAfterTheRow() {
+        var december = lines(CALENDAR.holidays(ON_THE_DATE).month(12).print());
+
+        assertEquals("                   1*", lines(CALENDAR.holidays(ON_THE_DATE).month(11).print()).get(2));
+        assertEquals("    1  2  3  4  5  6*", december.get(2));
+        assertEquals(" 7  8* 9 10 11 12 13", december.get(3));
+    }
+
+    @Test
+    void monthWithNoHolidayPrintsAsItDoesWithoutACalendar() {
+        assertEquals(CALENDAR.month(7).print(), CALENDAR.holidays(SUNDAY_TO_MONDAY).month(7).print());
+    }
+
+    @Test
+    void bracketsWinOverTheStarOfTheMarkedDayAndOfTheDayBeforeIt() {
+        var december = CALENDAR.holidays(SUNDAY_TO_MONDAY).month(12);
+
+        assertEquals("21 22 23 24[25]26 27", lines(december.day(25).print()).get(5));
+        assertEquals("21 22 23 24 25[26]27", lines(december.day(26).print()).get(5));
+        assertEquals("21 22 23[24]25*26 27", lines(december.day(24).print()).get(5));
+        assertEquals("[ 7] 8* 9 10 11 12 13", lines(december.day(7).print()).get(3));
+    }
+
+    @Test
+    void yearLayoutStarsEveryHolidayObservedInTheYear() {
+        var text = CALENDAR.year(2026).holidays(SUNDAY_TO_MONDAY).print();
+        var observed = SUNDAY_TO_MONDAY.holidaysBetween(LocalDate.of(2026, 1, 1), LocalDate.of(2027, 1, 1));
+        var withoutStars = text.replace('*', ' ')
+                .lines()
+                .map(String::stripTrailing)
+                .collect(Collectors.joining("\n", "", "\n"));
+
+        assertEquals(6, observed.size());
+        assertEquals(6, count(text, '*'));
+        assertEquals(YEAR_2026, withoutStars);
+        assertEquals("          1* 2  3  4                     1                     1", lines(text).get(4));
+        assertEquals("       1  2  3* 4  5               1  2  3   1  2  3  4  5  6  7", lines(text).get(13));
+        assertEquals(" 5  6  7  8  9 10 11   2* 3  4  5  6  7  8   7* 8* 9 10 11 12 13", lines(text).get(31));
+        assertEquals("19 20 21 22 23 24 25  16 17 18 19 20 21 22  21 22 23 24 25*26 27", lines(text).get(33));
+    }
+
+    @Test
+    void sundayHolidaysOfTheYearLayoutStayInsideTheirMonth() {
+        var text = CALENDAR.year(2026).holidays(ON_THE_DATE).print();
+
+        assertEquals("          1  2  3  4                     1*     1  2  3  4  5  6*", lines(text).get(30));
+        assertEquals(" 5  6  7  8  9 10 11   2  3  4  5  6  7  8   7  8* 9 10 11 12 13", lines(text).get(31));
+    }
+
+    @Test
+    void nullCalendarIsRejected() {
+        assertThrows(NullPointerException.class, () -> CALENDAR.holidays(null));
     }
 
     @Test
