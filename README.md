@@ -30,7 +30,7 @@ queries, navigation (`nextHoliday`, `addBusinessDays`, `businessDaysBetween`),
 `TemporalAdjuster` and `TemporalQuery` integration, `Clock` overloads, `union`
 of calendars, payment date conventions and cut-off times, business hours and
 half days, Islamic and Hebrew calendar rules, the JSON data format, iCalendar
-(`.ics`) export, a calendar registry with a provider SPI and the
+(`.ics`) export, a text calendar, a calendar registry with a provider SPI and the
 `holidays-data` module with Spain and Brazil. The public API is stable from this version on; see
 [Versioning](#versioning). The roadmap is the
 [issue list](https://github.com/sfeSantos/holidate/issues).
@@ -453,6 +453,56 @@ the client and is part of each event's `UID`, together with the layer, the
 holiday name and the date. Export again with the same name and the client
 updates the events it already has instead of adding them twice. The clock
 only stamps `DTSTAMP`. This is export only: the library does not read `.ics`.
+
+## Text calendar
+
+`TextCalendar` prints a month or a year as a plain grid, for a terminal, a log
+or the message of a failed test. The day you give goes in brackets, and with a
+calendar every holiday gets a `*` on the date it is observed:
+
+```java
+var text = TextCalendar.of(clock).holidays(calendar).year(2026).month(12).day(18).print();
+```
+
+```
+   December 2026
+Mo Tu We Th Fr Sa Su
+    1  2  3  4  5  6
+ 7* 8* 9 10 11 12 13
+14 15 16 17[18]19 20
+21 22 23 24 25*26 27
+28 29 30 31
+```
+
+The 7th is Día de la Constitución, moved from Sunday the 6th by Andalucía.
+
+Year, month and day are each optional, and the clock fills in what is missing:
+
+| Given | Printed |
+|---|---|
+| nothing | the clock's month, today in brackets |
+| `year` | the twelve months of that year, three to a row |
+| `month` | that month of the clock's year |
+| `day` | the clock's month, that day in brackets |
+| `year` and `month` | that month |
+| `year` and `day` | the clock's month in that year, that day in brackets |
+| `month` and `day`, or all three | that month, that day in brackets |
+
+A month outside 1 to 12 and a day outside 1 to 31 are rejected at once with
+`IllegalArgumentException`; a day the month does not have, such as 31 in April
+or 29 February in a common year, is rejected by `print`, since the month may
+come from the clock.
+
+Weeks start on Monday and names are English. `firstDayOfWeek(DayOfWeek)` and
+`locale(Locale)` change that; the locale only changes the names, and the
+JVM's default locale is never read. `printTo(Appendable)` writes the text
+instead of returning it. Every line ends in `\n` and none ends in a space.
+
+Two details of the layout. The brackets and the `*` share the one column
+between two days, and the brackets win: a holiday that is the marked day, or
+the day right before it, shows no `*`. And when the marked day is in the first
+column, the whole month moves one column to the right to make room for the
+opening bracket.
 
 ## Country packs and the registry
 
@@ -962,6 +1012,20 @@ var ics = ICalendar.write(calendar, "ES-AN-MA", Year.of(2026), Year.of(2026), Cl
 // BEGIN:VCALENDAR, VERSION:2.0, ... 14 VEVENTs ... END:VCALENDAR
 ```
 
+**`TextCalendar`** prints a month or a year as a text grid. `of(clock)` starts
+one; `year`, `month` and `day` are each optional and the clock supplies the
+rest; `holidays(calendar)` puts a `*` on the observed holidays;
+`firstDayOfWeek` and `locale` change the columns and the names. `print()`
+returns the text and `printTo(Appendable)` writes it. Instances are immutable,
+so one configured instance can be kept and shared between threads. See
+[Text calendar](#text-calendar).
+
+```java
+var december = TextCalendar.of(clock).holidays(calendar).year(2026).month(12);
+december.print();          // the month
+december.day(18).print();  // the same month with [18]
+```
+
 ### Registry (`io.github.sfesantos.holidays.registry`)
 
 **`CalendarRegistry`** turns an id into a calendar by stacking the layer on
@@ -1177,6 +1241,11 @@ second each. The targets are the ones the project set for itself at the start.
 | `OrthodoxEaster.of(year)` | 8.1 ns | 24 B | |
 | `JulianEaster.of(year)` | 6.4 ns | 24 B | |
 | `HolidayCalendar.builder().build()` | 0.3 µs | 5.5 KB | |
+| `TextCalendar`, a month | 57 ns | 400 B (the builder's array and the `String`) | |
+| `TextCalendar`, a month with the holidays of a calendar | 94 ns | 544 B | |
+| `TextCalendar`, a month into a reused `StringBuilder` | 49 ns | 0 B | |
+| `TextCalendar`, a year | 1.0 µs | 4.2 KB | |
+| `TextCalendar`, a year with the holidays of a calendar | 1.0 µs | 4.6 KB | |
 | Heap for 100 indexed years | 164 KB | 1.6 KB per year | < 500 KB |
 
 A year's index is three bit sets of six 64-bit words (any holiday,
@@ -1192,6 +1261,16 @@ the year's handful of holidays. Nothing is stored per day.
 between, about 6 ns for each one crossed, and allocate only what they return:
 a `LocalDateTime` with its `LocalDate`, plus a 24 B `LocalTime` when the
 result is not on the hour, or a `Duration`.
+
+`TextCalendar` looks up the month and weekday names when it is configured,
+about 1.1 µs for a locale, and never while printing. A week is one slice
+copied from a prepared line of the days 1 to 31, with the brackets and stars
+written over it afterwards. The first version appended one character at a
+time and took 154 ns for a month and 2.5 µs for a year. A print allocates the
+`StringBuilder`'s array and the `String` it returns; with a calendar it also
+pays for the list that one `holidaysInMonth`, or one `holidaysBetween` for a
+year, hands back. Asking `isHoliday` day by day measured slower, 1.1 µs
+against 71 ns for the marks of a year.
 
 Building a year's index resolves the rules of that year and of the one on
 each side, because observance can carry a holiday across a year end. A
